@@ -1,0 +1,51 @@
+{
+    "name": "pswkey/pswkey",
+    "description": "A high-performance deterministic base converter with peppering and salting to encode input into unrecognizable transportkeys and decode them back to the original input.",
+    "keywords": [
+        "baseconvert",
+        "deterministic",
+        "transportkey",
+        "peppering",
+        "salting",
+        "onetimepad",
+        "streamkey",
+        "shuffle",
+        "charset",
+        "php",
+        "encoding",
+        "decoding",
+        "validation",
+        "filtering"
+    ],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Filip Rigoir",
+            "homepage": "https://www.pswkey.com"
+        }
+    ],
+    "require": {
+        "php": ">=8.1",
+        "ext-sodium": "*"
+    },
+    "suggest": {
+        "ext-gmp": "Used for faster base conversions, optional"
+    },
+    "require-dev": {
+        "php": ">=8.1",
+        "ext-sodium": "*",
+        "phpunit/phpunit": "^11.5"
+    },
+    "autoload": {
+        "psr-4": {
+            "PswKey\\": "src/PswKey/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests/"
+        }
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}
