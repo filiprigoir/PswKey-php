@@ -2,7 +2,9 @@
     "name": "pswkey/pswkey",
     "description": "A high-performance deterministic base converter with peppering and salting to encode input into unrecognizable transportkeys and decode them back to the original input.",
     "keywords": [
-        "baseconvert",
+        "php", 
+        "base",
+        "convert",
         "deterministic",
         "transportkey",
         "peppering",
@@ -11,7 +13,6 @@
         "streamkey",
         "shuffle",
         "charset",
-        "php",
         "encoding",
         "decoding",
         "validation",
