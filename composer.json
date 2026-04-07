@@ -1,5 +1,5 @@
 {
-    "name": "pswkey/pswkey",
+    "name": "filiprigoir/pswkey",
     "description": "A high-performance deterministic base converter with peppering and salting to encode input into unrecognizable transportkeys and decode them back to the original input.",
     "keywords": [
         "php", 
