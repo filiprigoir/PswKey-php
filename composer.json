@@ -39,7 +39,7 @@
     },
     "autoload": {
         "psr-4": {
-            "PswKey\\": "src/PswKey/"
+            "PswKey\\": "src/"
         }
     },
     "autoload-dev": {
