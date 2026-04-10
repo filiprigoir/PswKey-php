@@ -40,14 +40,17 @@ abstract class ShuffleChars extends BaseConvert implements CustomKeyInterface {
         $ffi = ini_get('ffi.enable'); //set enable or disable
         if (class_exists('FFI') && ($ffi === '1' || $ffi === 'preload')) {
             //Setup configuration
-            $extension = match(PHP_OS_FAMILY) {
-                'Windows' => 'dll',   //Win
-                'Darwin'  => 'dylib', // macOS
-                default   => 'so',    // Linux en other Unix-systems
+            $file = match(PHP_OS_FAMILY) {
+                'Windows' => 'shuffleindice.dll',   //Windows
+                'Darwin'  => match (php_uname('m')) {
+                    'x86_64' => 'shuffleindice_x86_64.dylib', //old Mac with Intel CPU
+                    default => 'shuffleindice.dylib', //new Mac with Apple Silicon
+                },
+                default   => 'shuffleindice.so',  //Linux and other Unix-systems
             };
 
             //Allowed Path
-            $allowed = __DIR__ . "/Component/FFI/Compiled/shuffleindice.{$extension}";
+            $allowed = __DIR__ . "/Component/FFI/Compiled/{$file}";
 
             //Load C library
             try {

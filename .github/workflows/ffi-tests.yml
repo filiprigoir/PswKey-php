@@ -1,0 +1,39 @@
+
+name: FFI Cross Platform Tests
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.3
+          extensions: ffi, sodium
+
+      - name: Show environment
+        run: php -r "echo PHP_OS_FAMILY . PHP_EOL . php_uname('m') . PHP_EOL;"
+
+      - name: Run Linux test
+        if: matrix.os == 'ubuntu-latest'
+        run: php tests/OperatingSystem/Linux.php
+
+      - name: Run Windows test
+        if: matrix.os == 'windows-latest'
+        run: php tests/OperatingSystem/Win.php
+
+      - name: Run macOS test
+        if: matrix.os == 'macos-latest'
+        run: php tests/OperatingSystem/Mac.php
