@@ -16,9 +16,8 @@ class ByteTest extends TestCase
         return new KeyStream($seedPhrase, $key);
     }
 
-    public function testByte_empty(): void
+    public function test_input_empty_fail(): void
     {
-        //every request and every test will generate different secret ids
         $oneTimePad = new OneTimePad(
             $this->getKeyStream('Test OneTimePad (OTP)')
         );
@@ -29,7 +28,7 @@ class ByteTest extends TestCase
         $output = $oneTimePad->byte($input);
     }
 
-    public function testByte_context_xor(): void
+    public function test_context_xor_ok(): void
     {
         $oneTimePad = new OneTimePad(
             $this->getKeyStream('Test OneTimePad (OTP)')
@@ -46,17 +45,17 @@ class ByteTest extends TestCase
         );
 
         $status = $oneTimePad->status();
-        $this->assertEmpty($status->warning); //context is given so no warning and default use
+        $this->assertEmpty($status->warningMessage); //when context is given, warning is not expected
     }
 
-    public function testByte_null_xor(): void
+    public function test_null_ok_but_warning(): void
     {
         $oneTimePad = new OneTimePad(
             $this->getKeyStream('Test OneTimePad (OTP)')
         );
 
         $input = 'Use the function for OneTimePad with text & bytes';
-        $output = $oneTimePad->byte($input, 0, null); //default setting => null=without given context
+        $output = $oneTimePad->byte($input, 0, null); //default setting => null=without a given context
 
         $this->assertNotEmpty($output);
 
@@ -66,10 +65,10 @@ class ByteTest extends TestCase
         );
 
         $status = $oneTimePad->status();
-        $this->assertNotEmpty($status->warning); //without context default is used. A warning is given
+        $this->assertNotEmpty($status->warningMessage); //without context default is used and aA warning is given
     }
 
-    public function testByte_different_xor(): void
+    public function test_different_context_ok(): void
     {
         $oneTimePad = new OneTimePad(
             $this->getKeyStream('Test OneTimePad (OTP)')
@@ -79,8 +78,13 @@ class ByteTest extends TestCase
         $output1 = $oneTimePad->byte($input, 0, null);
         $output2 = $oneTimePad->byte($input, 0, null); //keep in mind: 0=internal auto incriment
 
-        $this->assertNotEmpty($output1);
-        $this->assertNotEmpty($output2);
+        $this->assertNotEmpty($output1); //is StreamID 1 + default context is used
+        $this->assertNotEmpty($output2); //is StreamID 2 + default context is used
+
+         $this->assertNotEquals(
+            $output1,
+            $output2
+        );
 
         $this->assertNotEquals(
             $output1,
@@ -88,7 +92,7 @@ class ByteTest extends TestCase
         );
     }
 
-    public function testByte_same_xor(): void
+    public function test_hardcoded_id_same_results(): void
     {
         $oneTimePad = new OneTimePad(
             $this->getKeyStream('Test OneTimePad (OTP)')
@@ -96,7 +100,7 @@ class ByteTest extends TestCase
 
         $input = 'Use the function for OneTimePad with text & bytes';
         $output1 = $oneTimePad->byte($input, 1, null);
-        $output2 = $oneTimePad->byte($input, 1, null); //attention: any same ID (int) is working
+        $output2 = $oneTimePad->byte($input, 1, null);
 
         $this->assertEquals(
             $output1,
@@ -104,7 +108,7 @@ class ByteTest extends TestCase
         );
     }
 
-    public function testByte_reverse_xor(): void
+    public function test_reverse_xor_ok(): void
     {
         $oneTimePad = new OneTimePad(
             $this->getKeyStream('Test OneTimePad (OTP)')
@@ -123,7 +127,7 @@ class ByteTest extends TestCase
         );
     }
 
-    public function testByte_reverse_contextfail_xor(): void
+    public function test_different_context_not_original_back(): void
     {
         $oneTimePad = new OneTimePad(
             $this->getKeyStream('Test OneTimePad (OTP)')
@@ -142,7 +146,7 @@ class ByteTest extends TestCase
         );
     }
 
-    public function testByte_reverse_idfail_xor(): void
+    public function test_different_ids_not_original_back(): void 
     {
         $oneTimePad = new OneTimePad(
             $this->getKeyStream('Test OneTimePad (OTP)')

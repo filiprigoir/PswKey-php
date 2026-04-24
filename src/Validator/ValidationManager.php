@@ -4,20 +4,20 @@ declare(strict_types=1);
 namespace PswKey\Validator;
 
 /** 
- * Inject ErrorHandling-methods in a class
+ * Inject Validation-methods in a class
 */
-trait InputHandler {
-    protected ?string $_systemMessage = null;
-    protected ?string $_customerMessage = null;
+
+trait ValidationManager {
+    protected ?string $_internalMessage = null;
+    protected ?string $_clientMessage = null;
     protected ?string $_warningMessage = null;
-    protected string $_info = "class"; //moet verwijderd worden in definitieve versie
     protected bool $_status = true;
     
     /**
      * Set error message via fluent interface @return Self
      */
-    protected function setErrorMessage(string $systemMess) : self {
-        $this->_systemMessage = $systemMess;
+    protected function setInternalMessage(string $internalMess) : self {
+        $this->_internalMessage = $internalMess;
         return $this;
     }
 
@@ -32,8 +32,8 @@ trait InputHandler {
     /**
      * Set a customer message via fluent interface @return Self
      */
-    protected function setCustomerMessage(string $customerMess) : self {
-        $this->_customerMessage = $customerMess;
+    protected function setClientMessage(string $clientMess) : self {
+        $this->_clientMessage = $clientMess;
         return $this;
     }
 
@@ -46,20 +46,12 @@ trait InputHandler {
     }
 
     /** 
-     * moet weg bij definiteve versie
-     */
-    protected function setInfo(string $info) : self {
-        $this->_info = $info;
-        return $this;
-    }
-
-    /** 
      * Resset the message @return Void 
      */
     public function resetValidator() : void {
         if(!$this->_status) {
-            $this->_customerMessage = null;
-            $this->_systemMessage = null;
+            $this->_clientMessage = null;
+            $this->_internalMessage = null;
             $this->_status = true;
             $this->_warningMessage = null;            
         }
@@ -71,9 +63,9 @@ trait InputHandler {
     public function status() : \stdClass {
         $validate = new \stdClass();
         $validate->name = $this->classMethodName();
-        $validate->system = $this->_systemMessage;
-        $validate->customer = $this->_customerMessage;
-        $validate->warning = $this->_warningMessage;
+        $validate->internalMessage = $this->_internalMessage;
+        $validate->clientMessage = $this->_clientMessage;
+        $validate->warningMessage = $this->_warningMessage;
         $validate->valid = $this->_status;
         $validate->invalid = !$this->_status;
         return $validate;
@@ -83,6 +75,6 @@ trait InputHandler {
      * contract wich class handles the error @return String
      */
     protected function classMethodName() : string {
-        return \basename(\str_replace("\\", "/", \get_class($this))). "::" . $this->_info;
+        return \basename(\str_replace("\\", "/", \get_class($this)));
     }
 }

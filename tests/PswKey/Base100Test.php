@@ -16,19 +16,16 @@ class Base100Test extends TestCase
         return new KeyStream($seedPhrase, $hasKey === true ? $key : '');
     }
 
-    //For each test a different instance in time
     private function instancePswKey(string $seedPhrase = "deterministic validation", bool $hasKey = true) : PswKey {
         return new PswKey(
             $this->getKeyStream($seedPhrase, $hasKey)
         );
     }
 
-    //Income UTC 100 printable characters
     private function getBase100UTF() : string {
         return "0987654321abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!\"#$%&'()*+,-./:;\\=´?@[]^_`{|}~£§¨²³µ°";
     }
 
-    //This service only accepts single bytes
     private function getBase100ISO() : string {
         return  Transcode::getISO($this->getBase100UTF());
     }
@@ -46,7 +43,7 @@ class Base100Test extends TestCase
         $this->assertNull($encode);
 
         $status = $pswkey->status();
-        $this->assertNotNull($status->system);
+        $this->assertNotNull($status->internalMessage);
     }
 
     public function test_updated_empty_fail(): void
@@ -62,7 +59,7 @@ class Base100Test extends TestCase
         $this->assertNull($encode);
 
         $status = $pswkey->status();
-        $this->assertNotNull($status->system);
+        $this->assertNotNull($status->internalMessage);
 
         //Try again with allowed char A
         $encode = $pswkey
@@ -76,12 +73,12 @@ class Base100Test extends TestCase
         $this->assertTrue($status->valid);
     }
 
-    public function test_UTF_fail(): void
+    public function test_UTF_failed(): void
     {
         $base100 = $this->getBase100UTF();
         $pswkey = $this->instancePswKey();
 
-        //Note: This service only accepts single bytes. It does not work with multiple bytes with prefixes in string. 
+        //the UTF string contains multiple bytes with prefixes in string, so it is not valid. 
         $encode = $pswkey
             ->from(100)
             ->to(10)
@@ -90,12 +87,12 @@ class Base100Test extends TestCase
         $this->assertNull($encode);
 
         $status = $pswkey->status();
-        $this->assertNotNull($status->system);
+        $this->assertNotNull($status->internalMessage);
     }
 
-    public function test_UnknownChar_fail(): void
+    public function test_unknownChar_failed(): void
     {
-        $base100 = Transcode::getISO("ç"); //to single byte as it should be
+        $base100 = Transcode::getISO("ç"); //convert to single byte first
         $pswkey = $this->instancePswKey();
 
         //Note: This service only accepts single bytes. It does not work with multiple bytes with prefixes in string.
@@ -107,10 +104,10 @@ class Base100Test extends TestCase
         $this->assertNull($encode);
 
         $status = $pswkey->status();
-        $this->assertNotNull($status->system);
+        $this->assertNotNull($status->internalMessage);
     }
 
-    public function test_quickcheck_fail(): void
+    public function test_quickcheck_failed(): void
     {
         $digits = "<" . $this->getBase100ISO();
         $pswkey = $this->instancePswKey();
@@ -122,15 +119,15 @@ class Base100Test extends TestCase
 
         $this->assertNull($encode);
 
-        $status = $pswkey->status();
-        $this->assertNotNull($status->customer);
+        $status = $pswkey->status(); 
+        $this->assertNotNull($status->clientMessage);
         
         $this->assertTrue(
-            preg_match("/quickcheck/i", $status->system) === 1 ? true : false
+            preg_match("/quickcheck/i", $status->internalMessage) === 1 ? true : false
         );
     }
 
-    public function test_process_fail(): void
+    public function test_process_failed(): void
     {
         $digits = $this->getBase100ISO() . "ç" . $this->getBase100ISO();
         $pswkey = $this->instancePswKey();
@@ -141,10 +138,9 @@ class Base100Test extends TestCase
             ->convert($digits);
 
         $this->assertNull($encode);
-
         $status = $pswkey->status();
         $this->assertTrue(
-            preg_match("/process/i", $status->system) === 1 ? true : false
+            preg_match("/process/i", $status->internalMessage) === 1 ? true : false
         );
     }
 
@@ -169,7 +165,6 @@ class Base100Test extends TestCase
         $base100 = $this->getBase100ISO();
         $pswkey = $this->instancePswKey();
 
-        //Note: This service only accepts single bytes. It does not work with multiple bytes with prefixes in string.
         $encode = $pswkey
             ->from(100)
             ->to(10)
@@ -185,7 +180,6 @@ class Base100Test extends TestCase
             ->to(100)
             ->convert($encode);
 
-        //is outcome of decode same as original digits again? Yes!
         $this->assertEquals(
             $base100,
             $decode
@@ -197,7 +191,6 @@ class Base100Test extends TestCase
         $base100 = $this->getBase100ISO();
         $pswkey = $this->instancePswKey();
 
-        //Note: This service only accepts single bytes. It does not work with multiple bytes with prefixes in string.
         $encode = $pswkey
             ->from(100)
             ->to(32)
@@ -213,7 +206,6 @@ class Base100Test extends TestCase
             ->to(100)
             ->convert($encode);
 
-        //is outcome of decode same as original digits again? Yes!
         $this->assertEquals(
             $base100,
             $decode
@@ -225,7 +217,6 @@ class Base100Test extends TestCase
         $base100 = $this->getBase100ISO();
         $pswkey = $this->instancePswKey();
 
-        //Note: This service only accepts single bytes. It does not work with multiple bytes with prefixes in string.
         $encode = $pswkey
             ->from(100)
             ->to(58)
@@ -241,7 +232,6 @@ class Base100Test extends TestCase
             ->to(100)
             ->convert($encode);
 
-        //is outcome of decode same as original digits again? Yes!
         $this->assertEquals(
             $base100,
             $decode
@@ -253,7 +243,6 @@ class Base100Test extends TestCase
         $base100 = $this->getBase100ISO();
         $pswkey = $this->instancePswKey();
 
-        //Note: This service only accepts single bytes. It does not work with multiple bytes with prefixes in string.
         $encode = $pswkey
             ->from(100)
             ->to(62)
@@ -269,7 +258,6 @@ class Base100Test extends TestCase
             ->to(100)
             ->convert($encode);
 
-        //is outcome of decode same as original digits again? Yes!
         $this->assertEquals(
             $base100,
             $decode
@@ -281,7 +269,6 @@ class Base100Test extends TestCase
         $base100 = $this->getBase100ISO();
         $pswkey = $this->instancePswKey();
 
-        //Note: This service only accepts single bytes. It does not work with multiple bytes with prefixes in string.
         $encode = $pswkey
             ->from(100)
             ->to(64)
@@ -297,7 +284,6 @@ class Base100Test extends TestCase
             ->to(100)
             ->convert($encode);
 
-        //is outcome of decode same as original digits again? Yes!
         $this->assertEquals(
             $base100,
             $decode
@@ -309,7 +295,6 @@ class Base100Test extends TestCase
         $base100 = $this->getBase100ISO();
         $pswkey = $this->instancePswKey();
 
-        //Note: This service only accepts single bytes. It does not work with multiple bytes with prefixes in string.
         $encode = $pswkey
             ->from(100)
             ->to(100)
@@ -320,7 +305,6 @@ class Base100Test extends TestCase
         $status = $pswkey->status();
         $this->assertTrue($status->valid);
 
-        //is outcome of decode same as original digits again? Yes!
         $this->assertEquals(
             $base100,
             $encode

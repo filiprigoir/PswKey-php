@@ -1,6 +1,6 @@
 #include "limits.h"
 
-// Definitie van de constante tabel gebaseerd op m = index + 1
+//Rejected values table for 1 to 256 bytes, the value is the number of rejected values for that byte length
 const uint16_t LIMITS_TABLE[257] = {
     0,256,256,255,256,255,252,252,256,252,250,253,252,247,252,255,
     256,255,252,247,240,252,242,253,240,250,234,243,252,232,240,248,

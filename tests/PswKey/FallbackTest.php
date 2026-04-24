@@ -5,6 +5,7 @@ namespace Tests\Unit\PswKey;
 use FFI;
 use DateTime;
 use PHPUnit\Framework\TestCase;
+use PswKey\Core\Modifiers\ImplementationType;
 use PswKey\Service\KeyStream;
 use PswKey\Service\PswKey;
 
@@ -28,12 +29,11 @@ class FallbackTest extends TestCase
             ->to(64)
             ->convert($text);
 
-        //is output not empty? Yes!
         $this->assertNotNull($encode);
 
         $this->assertEquals(
             'PHP',
-            $pswkey->usage
+            $pswkey->implementation
         );
     }
 
@@ -50,12 +50,11 @@ class FallbackTest extends TestCase
             ->to(64)
             ->convert($text);
 
-        //is output not empty? Yes!
         $this->assertNotNull($encode);
 
         $this->assertEquals(
             'PHP_FALLBACK',
-            $pswkey->usage
+            $pswkey->implementation
         );
     }
 
@@ -72,13 +71,12 @@ class FallbackTest extends TestCase
             ->to(64)
             ->convert($text);
 
-        //is output not empty? Yes!
         $this->assertNotNull($enabledFFI);
 
         if(ini_get('ffi.enable')) {
             $this->assertEquals(
                 'FFI',
-               \strtoupper($pswkey1->usage)
+               \strtoupper($pswkey1->implementation)
             );
         }
 
@@ -91,15 +89,13 @@ class FallbackTest extends TestCase
             ->to(64)
             ->convert($text);
 
-        //is output not empty? Yes!
         $this->assertNotNull($disabledFFI);
 
         $this->assertEquals(
             'PHP',
-            \strtoupper($pswkey2->usage)
+            \strtoupper($pswkey2->implementation)
         );
 
-        //Generates FFI and pure PHP the same results? Yes!
         $this->assertEquals(
             $enabledFFI,
             $disabledFFI
@@ -127,13 +123,8 @@ class MissConfigFFI extends PswKey {
     }
 
     protected function setAvailability() : void {
-        /**
-         * Optional feature checks:
-         * If you are certain that GMP, Libsodium, and/or FFI are available,
-         * you may comment out this section and manually set the corresponding
-         * properties to true (FFI set equal to using extension or disable).
-         */
-        $ffi = ini_get('ffi.enable'); //set enable or disable
+
+    $ffi = ini_get('ffi.enable'); //set enable or disable
         if (class_exists('FFI') && $ffi !== false && $ffi !== '0') {
             //Setup configuration
             $extension = match(PHP_OS_FAMILY) {
@@ -154,7 +145,7 @@ class MissConfigFFI extends PswKey {
                 ", __DIR__ . "/Components/FFI/Compiled/shuffleindice.{$extension}"); //path is wrong on purpose
             } catch (FFI\Exception) {
                 $this->_ffi = null;
-                $this->usage = "PHP_FALLBACK";
+                $this->implementation = ImplementationType::FALLBACK;
             }
         }
 

@@ -3,13 +3,19 @@ declare(strict_types=1);
 
 namespace PswKey\Service;
 
+use PswKey\Core\Modifiers\ImplementationType;
+use PswKey\Core\Modifiers\ShuffleProfile;
+use PswKey\ErrorMessage\ClientMessage;
+use PswKey\ErrorMessage\InternalMessage;
+use PswKey\Exception\ConfigurationException;
 use PswKey\Exception\InputException;
 use PswKey\Interface\ConvertEngineInterface;
 use PswKey\Interface\CustomKeyInterface;
+use PswKey\Util\Mapping\Merge;
 use PswKey\Util\Math\Calculation;
 use PswKey\Util\Secure\MemeZero;
 use PswKey\Util\Secure\OTP;
-use PswKey\Validator\InputHandlerOneTimePad;
+use PswKey\Validator\ValidationManagerOneTimePad;
 use SensitiveParameter;
 
 /**
@@ -26,10 +32,10 @@ class OneTimePad implements ConvertEngineInterface, CustomKeyInterface {
     //Set to false, chunks are limited to 22 bytes; set to true, chunks are up to 169 bytes as a big-endian integer.
     protected bool $longEndianChunk = true;
 
-    //Info
-    public string $usage = "";
+    //Implementation usage
+    public string $implementation = "";
 
-    use InputHandlerOneTimePad;
+    use ValidationManagerOneTimePad;
 
     public function __construct(KeyStream $keyStream) {
         $this->_keyStream = $keyStream;
@@ -46,17 +52,25 @@ class OneTimePad implements ConvertEngineInterface, CustomKeyInterface {
 
         $length = strlen($switchDigits);
         if($length < 2) {
-            throw new InputException("First argument must have a length of at least 2 digits");
+            throw new InputException(
+                Merge::string(InternalMessage::LENGTH_REQUIRED, 
+                    ['%required%' => 'two digits']) . "/" . ClientMessage::INVALID_INPUT
+            );
         }
         
         if($context === null) {
-            $context = 'derive_d';
-            $this->setWarningMessage("Third argument 'context' is empty in digit(): default 'derive_d' is used");
+            $context = ShuffleProfile::DEFAULT_OTP_DIGITS;
+            $this->setWarningMessage(
+                Merge::string(InternalMessage::WARNING_EMPTY, 
+                    ["%arg%" => "Third"]
+                )
+            );
         }
         else {
             if(mb_strlen($context, '8bit') !== 8) {
-                $this->setWarningMessage("Third argument 'context' is not 8-bit in digit(); default 'derive_d' is used");
-                $context = 'derive_d';
+                throw new ConfigurationException(
+                    InternalMessage::INVALID_LIBSODIUM_CONTEXT
+                );  
             } 
         }
 
@@ -79,7 +93,7 @@ class OneTimePad implements ConvertEngineInterface, CustomKeyInterface {
 
                 if($this->_gmp) {
                     //GMP
-                    $this->usage = "GMP";
+                    $this->implementation = ImplementationType::GMP;
                     do {
                         $digs = gmp_strval(
                             gmp_import(substr($secretBytes, $pointer, $chunk)),
@@ -94,7 +108,7 @@ class OneTimePad implements ConvertEngineInterface, CustomKeyInterface {
                 }
                 else {
                     //PHP
-                    $this->usage = "BC";
+                    $this->implementation = ImplementationType::BC;
                     do {
                         $digs = Calculation::bytesToDec(
                             substr($secretBytes, $pointer, $chunk),
@@ -130,17 +144,26 @@ class OneTimePad implements ConvertEngineInterface, CustomKeyInterface {
 
         $length = strlen($switchBytes);
         if($length < 1) {
-            throw new InputException("First argument switchBytes may not be empty");
+            throw new InputException(
+                Merge::string(InternalMessage::INVALID_EMPTY, 
+                    ["%arg%" => "switchBytes"]
+                )
+            );
         }
 
         if($context === null) {
-            $context = 'random_b';
-            $this->setWarningMessage("Third argument 'context' in byte() is empty: default 'random_d' is used");
+            $context = ShuffleProfile::DEFAULT_OTP_BYTES;
+            $this->setWarningMessage(
+                Merge::string(InternalMessage::WARNING_EMPTY, 
+                    ["%arg%" => "context"]
+                )
+            );
         }
         
         if(mb_strlen($context, '8bit') !== 8) {
-            $context = 'random_b';
-            $this->setWarningMessage("Third argument 'context' is not 8-bit in byte(); default 'random_d' is used");
+            throw new ConfigurationException(
+                InternalMessage::INVALID_LIBSODIUM_CONTEXT
+            ); 
         } 
       
         $otp = '';
@@ -160,8 +183,8 @@ class OneTimePad implements ConvertEngineInterface, CustomKeyInterface {
     }
 
     public function chunksize() : array {
-        if($this->longEndianChunk) return [169, 407];
-        return [22, 53];
+        if($this->longEndianChunk) return ShuffleProfile::ENDIAN_CHUNK_LONG;
+        return ShuffleProfile::ENDIAN_CHUNK_SHORT; 
     }
 
     public function longEndianChunk(bool $longEndianChunk) : self {
@@ -189,11 +212,11 @@ class OneTimePad implements ConvertEngineInterface, CustomKeyInterface {
      */
     public function resetValidator() : void {
         if(!$this->_status) {
-            $this->_customerMessage = null;
-            $this->_systemMessage = null;
+            $this->_clientMessage = null;
+            $this->_internalMessage = null;
             $this->_status = true;
             $this->_warningMessage = null;   
-            $this->usage = "";         
+            $this->implementation = "";         
         }
     }
 

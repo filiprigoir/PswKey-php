@@ -21,7 +21,6 @@ class OrderTest extends TestCase
         $date = new DateTime();
         $key = \strtotime($date->format('Y-m-d H:i:s')) . $date->format('u');
 
-        //Encode
         $pswKey = $this->getInstance($key);
 
         $base100 = Transcode::getISO("0987654321abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!\"#$%&'()*+,-./:;\\=´?@[]^_`{|}~£§¨²³µ°");
@@ -30,7 +29,6 @@ class OrderTest extends TestCase
         $encoded2 = $pswKey->from(100)->to(58)->convert($base100);
 
         unset($pswKey);
-        //Decode (simulate as distance call and set instance)
         $pswKey = $this->getInstance($key);
 
         $decoded1 = $pswKey->from(58)->to(100)->convert($encoded2);
@@ -40,20 +38,17 @@ class OrderTest extends TestCase
 
         $decoded2 = $pswKey->from(32)->to(100)->convert($encoded1);
 
-        //Orginal compare
         $this->assertEquals(
             $decoded1,
             $decoded2
         );
     }
 
-
     public function test_custom_order(): void
     {
         $date = new DateTime();
         $key = \strtotime($date->format('Y-m-d H:i:s')) . $date->format('u');
 
-        //Encode
         $pswKey = $this->getInstance($key);
 
         $singleBhytes = ["\x2b","\x2f","\x21","\x22","\x23","\x24","\x25","\x26","\x27","\x28","\x29","\x2a","\x2c","\x2d","\x2e",
@@ -71,21 +66,19 @@ class OrderTest extends TestCase
             ->customTo($singleBhytes, 58) //shuffle true
             ->convert($base100);
 
-        $pswKey->setCustomKey("custom key effected custom base"); //Second was include customkey, so set first
+        $pswKey->setCustomKey("custom key effected custom base");
 
         $encoded2 = $pswKey
             ->from(100)
-            ->customTo($singleBhytes, 32) //shuffle true
+            ->customTo($singleBhytes, 32) //shuffle true is default
             ->convert($base100);
 
         unset($pswKey);
-        //Decode (simulate as distance call and set instance)
         $pswKey = $this->getInstance($key);
 
-        //note: not same as abov, so it most be fail
+        //note: not same as above, so it most be fail
         $pswKey->setCustomKey("custom key effected custom base");
 
-        //Ok
         $decoded1 = $pswKey
             ->customFrom($singleBhytes, 32)
             ->to(100) 

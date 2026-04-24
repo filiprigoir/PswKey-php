@@ -26,7 +26,7 @@ class DigitTest extends TestCase
             . '077134404239519071626161079423697016132120307704048';
     }
 
-    public function testDigit_empty(): void
+    public function test_input_empty(): void
     {
         $oneTimePad = new OneTimePad(
             $this->getKeyStream('Test OneTimePad (OTP)')
@@ -38,7 +38,7 @@ class DigitTest extends TestCase
         $output = $oneTimePad->digit($input);
     }
 
-    public function testDigit_short(): void
+    public function test_input_too_short(): void
     {
         $oneTimePad = new OneTimePad(
             $this->getKeyStream('Test OneTimePad (OTP)')
@@ -50,7 +50,7 @@ class DigitTest extends TestCase
         $output = $oneTimePad->digit($input);
     }
 
-    public function testDigit_php_gmp_ok(): void
+    public function test_php_gmp_ok(): void
     {
         $oneTimePad = new OneTimePad(
             $this->getKeyStream('Test OneTimePad (OTP)')
@@ -69,7 +69,7 @@ class DigitTest extends TestCase
 
             $this->assertEquals(
                 'GMP',
-                $oneTimePad->usage
+                $oneTimePad->implementation
             );
             
             $oneTimePad->gmpEnable(false); //hardcoded so GMP disabled for sure
@@ -77,7 +77,7 @@ class DigitTest extends TestCase
             
             $this->assertEquals(
                 'BC',
-                $oneTimePad->usage
+                $oneTimePad->implementation
             );
 
             $this->assertNotEmpty($output2);
@@ -95,7 +95,7 @@ class DigitTest extends TestCase
         }
     }
 
-    public function testDigit_php_gmp_fail(): void
+    public function test_php_gmp_ok_but_chunk_different(): void
     {
         $oneTimePad = new OneTimePad(
             $this->getKeyStream('Test OneTimePad (OTP)')
@@ -108,22 +108,22 @@ class DigitTest extends TestCase
         
         if(function_exists('gmp_init')) {
     
-            //Section only if GMP state is enable
+            //Section only if GMP status is enable
             $oneTimePad->gmpEnable(true);
             $output1 = $oneTimePad->digit($input, 1, "DigitOTP");
 
             $this->assertEquals(
                 'GMP',
-                $oneTimePad->usage
+                $oneTimePad->implementation
             );            
             
-            $oneTimePad->gmpEnable(false);
-            $oneTimePad->longEndianChunk(false); //set to false is faster in pure php (disable GMP) but generates different digits
+            $oneTimePad->gmpEnable(false); //disble is same result as long as longEndianChunk is true
+            $oneTimePad->longEndianChunk(false); //set to false so result is different, because chunk size is different
             $output2 = $oneTimePad->digit($input, 1, "DigitOTP");  
 
             $this->assertEquals(
                 'BC',
-                $oneTimePad->usage
+                $oneTimePad->implementation
             );
             
             $this->assertNotEquals(
@@ -139,7 +139,7 @@ class DigitTest extends TestCase
         }
     }
 
-    public function testDigit_reverse_ok(): void
+    public function test_reverse_ok(): void
     {
         $oneTimePad = new OneTimePad(
             $this->getKeyStream('Test OneTimePad (OTP)')
@@ -155,7 +155,7 @@ class DigitTest extends TestCase
         );
     }
 
-    public function testDigit_id_fail(): void
+    public function test_different_ids_not_original_input(): void
     {
         $oneTimePad = new OneTimePad(
             $this->getKeyStream('Test OneTimePad (OTP)')
@@ -165,14 +165,13 @@ class DigitTest extends TestCase
         $encode = $oneTimePad->digit($input, 1, null); //set ID 1
         $decode = $oneTimePad->digit($encode, 2, null); //set ID 2
         
-        //not matching ID's failes
         $this->assertNotEquals(
             $input,
             $decode
         );
     }
 
-    public function testDigit_context_fail(): void
+    public function test_different_context_not_original_input(): void
     {
         $oneTimePad = new OneTimePad(
             $this->getKeyStream('Test OneTimePad (OTP)')

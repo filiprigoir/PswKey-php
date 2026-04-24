@@ -11,52 +11,74 @@ use PswKey\Core\Component\Charset\Base62Char;
 use PswKey\Core\Component\Charset\Base64Char;
 use PswKey\Core\Component\Custom\Custom256From;
 use PswKey\Core\Component\Custom\Custom256To;
+use PswKey\Core\Modifiers\ShuffleProfile;
+use PswKey\ErrorMessage\ClientMessage;
+use PswKey\ErrorMessage\InternalMessage;
 use PswKey\Exception\InputException;
 use PswKey\Util\Base\InitArray;
 use PswKey\Util\Base\InitString;
 use PswKey\Util\Char\Prefix;
+use PswKey\Util\Mapping\Merge;
 use PswKey\Util\Math\Calculation;
 use PswKey\Util\Secure\MemeZero;
-use PswKey\Validator\InputHandlerCharacter;
+use PswKey\Validator\ValidationManagerConvert;
 
 /**
- * Convertion of any base and custom single bytes chars
+ * Conversion of arbitrary bases using byte-based character sets
  */
 abstract class BaseConvert {
 
-    //Check availability GMP
     protected bool $_gmp = true;
 
-    //Binding properties
+    /** Binding properties */
     protected ?string $_from = null;
     protected ?string $_to = null;
 
-    //Set to false, chunks are limited to 22 bytes; set to true, chunks are up to 169 bytes as a big-endian integer
+    /** 
+     * Endian chunk mode: 22 bytes (false) or 169 bytes (true) 
+     * If GMP is disabled, recommended to set false for better performance, but it can be set to true as well
+     * True and false generates different output
+    */
     public bool $longEndianChunk = true;
 
-    //Intermediate help properties
+    /** Cache for direct restoration from default Base100 to Base256 and reverse */
     protected ?array $_base256Int = null;
     protected ?array $_base256IntReverse = null;
+
+    /** Promoted default Base100 table cached as dimensional array for fast conversion lookup */
     protected ?array $_base100Dimensional = null;
 
-    //Components
-    use InputHandlerCharacter, Base32Char, Base58Char, Base62Char, 
+    use ValidationManagerConvert, Base32Char, Base58Char, Base62Char, 
         Base64Char, Base100Char, Base256Char, Custom256From, Custom256To;
 
     public function __construct() {}
 
-    /**** Protected Methods ****/
-
+    /**
+     * Conversion from base100 to base10
+     *
+     * Before encoding, use Transcode::getISO(x) to convert readable symbol
+     * into a raw single-byte representation. Especially if one or more single-byte values
+     * could be greater than 127
+     *
+     * Used for:
+     * - Encode
+     * - Decode
+     */
     protected function precompute100Precompute10(string $singleBytes, array $configFrom, array $configTo) : ?string { 
         
-        //Sample-check of single bytes
         $len = \strlen($singleBytes);
         $quickCheck = $this->checkBase($singleBytes, $len, InitString::_base100(), $configFrom);
+
         if(!$quickCheck){
             $this->setErrorStatus(false)
-                ->setErrorMessage('Quickcheck found invalid input in precompute100Precompute10() function')
-                ->setCustomerMessage('Invalid input in string')
-                ->setInfo("from({$configFrom['base']}) > to({$configTo['base']}) > convert(input)");
+                ->setInternalMessage(
+                        Merge::string(InternalMessage::CHECK_VALIDATION_FAILED, 
+                        [
+                            "%check%" => "Quickcheck",
+                            "%bases%" => "from {$configFrom['base']} to {$configTo['base']}"
+                        ])
+                    )
+                ->setClientMessage(ClientMessage::VALIDATION_FAILED);
      
             return null; 
         }
@@ -80,9 +102,15 @@ abstract class BaseConvert {
             if($buffer[$index] === null) {
                 $pos = $i;
                 $this->setErrorStatus(false) 
-                    ->setErrorMessage('Bufferprocess found invalid input in function password2Int() (char: ' .  \mb_substr($singleBytes, $pos, Prefix::byteLength($singleBytes[$pos])) . " positie: " . ($pos) + 1 . ')')
-                    ->setCustomerMessage('Invalid input in string')
-                    ->setInfo("from({$configFrom['base']}) > to({$configTo['base']}) > convert(input)");
+                    ->setInternalMessage(
+                        Merge::string(InternalMessage::BUFFER_PROCESS_FAILED, 
+                            [
+                                '%bases%' => "from {$configFrom['base']} to {$configTo['base']}",
+                                '%char%' => \substr($singleBytes, $pos, Prefix::byteLength($singleBytes[$pos])),
+                                '%pos%' => $pos + 1
+                            ])
+                        )
+                    ->setClientMessage(ClientMessage::VALIDATION_FAILED);
 
                 return null;
             }
@@ -93,15 +121,25 @@ abstract class BaseConvert {
         return $converted;
     }
     
+    /**
+     * Conversion from base10 to base100
+     *
+     * Output is returned as a raw single-byte representation
+     * For readable symbol output, use Transcode::getUTF(x). Especially if one or more 
+     * single-byte values could be greater than 127
+     * 
+     * Used for:
+     * - Encode
+     * - Decode
+     */
     protected function precompute10Precompute100(string $digitPairs, array $configFrom, array $configTo) : ?string { 
 
         $len = \strlen($digitPairs);    
         if($len % 2 === 1) {
             $this->setErrorStatus(false)
-                ->setErrorMessage('The first argument must have an even digit length')
-                ->setCustomerMessage('Invalid input in string')
-                ->setInfo("from({$configFrom['base']}) > to({$configTo['base']}) > convert(input)");
-            
+                ->setInternalMessage(InternalMessage::DIGIT_PAIR_REQUIRED)
+                ->setClientMessage(ClientMessage::VALIDATION_FAILED);
+
             return null;
         }
 
@@ -109,11 +147,16 @@ abstract class BaseConvert {
         $quickCheck = $this->checkBase($digitPairs, $len, null, $configFrom);
         if(!$quickCheck){
             $this->setErrorStatus(false)
-                ->setErrorMessage('Quickcheck found invalid input in precompute10Precompute100() function')
-                ->setCustomerMessage('Invalid input in string')
-                ->setInfo("from({$configFrom['base']}) > to({$configTo['base']}) > convert(input)");
-                
-            return null;   
+                ->setInternalMessage(
+                        Merge::string(InternalMessage::CHECK_VALIDATION_FAILED, 
+                        [
+                            "%check%" => "Quickcheck",
+                            "%bases%" => "from {$configFrom['base']} to {$configTo['base']}"
+                        ])
+                    )
+                ->setClientMessage(ClientMessage::VALIDATION_FAILED);
+     
+            return null; 
         }
 
         //Prepare Dimensional array for check input digits at runtime
@@ -142,14 +185,18 @@ abstract class BaseConvert {
             $buffer[++$index] = $this->_base100Dimensional[$digitPairs[$i]][$digitPairs[$i+1]] ?? null;
             if($buffer[$index] === null) {
                 $pos = $i;
-                $this->setErrorStatus(false)
-                    ->setErrorMessage('Bufferprocess found invalid input in function precompute10Precompute100() (char: ' 
-                        . \mb_substr($digitPairs, $pos, Prefix::byteLength($digitPairs[$pos])) 
-                        . \mb_substr($digitPairs, $pos+1, Prefix::byteLength($digitPairs[$pos+1])) 
-                        . " positie: " . ($pos) + 1 . ')')
-                    ->setCustomerMessage('Invalid input in string')
-                    ->setInfo("from({$configFrom['base']}) > to({$configTo['base']}) > convert(input)");
-                    
+                $this->setErrorStatus(false) 
+                    ->setInternalMessage(
+                        Merge::string(InternalMessage::BUFFER_PROCESS_FAILED, 
+                            [
+                                '%bases%' => "from {$configFrom['base']} to {$configTo['base']}",
+                                '%char%' => \substr($digitPairs, $pos, Prefix::byteLength($digitPairs[$pos]))
+                                    . \substr($digitPairs, $pos+1, Prefix::byteLength($digitPairs[$pos+1])),
+                                '%pos%' => $pos + 1
+                            ])
+                        )
+                    ->setClientMessage(ClientMessage::VALIDATION_FAILED);
+
                 return null;
             }
         }
@@ -159,14 +206,24 @@ abstract class BaseConvert {
         return $converted;
     }
 
+    /**
+     * Conversion from base256 (text) to base100
+     *
+     * Output is returned as a raw single-byte representation
+     * For readable symbol output, use Transcode::getUTF(x)
+     *
+     * Used for:
+     * - Encode
+     */
     protected function precompute256Precompute100(string $text, array $configFrom, array $configTo) : ?string { 
 
         if(empty($text)) {
             $this->setErrorStatus(false)
-                ->setErrorMessage('At least one character must be entered')
-                ->setCustomerMessage('Invalid input in string')
-                ->setInfo("from({$configFrom['base']}) > to({$configTo['base']}) > convert(input)");
-            
+                ->setInternalMessage(
+                    Merge::string(InternalMessage::INVALID_EMPTY, ['%arg%' => 'text'])                  
+                )
+                ->setClientMessage(ClientMessage::INVALID_EMPTY);
+
             return null;
         }
 
@@ -213,7 +270,7 @@ abstract class BaseConvert {
             $txtStr .= $bindingEncode[($calc[$i] - '0') * 10 + ($calc[$i+1] - '0')];
         }
 
-        //Get first zero-symbols 
+        //Get zero-symbols 
         $symbolZeros = 0;
         while (true) {
             if($txtStr[$symbolZeros] !== $bindingEncode[0]) { //always single byte handling
@@ -236,10 +293,15 @@ abstract class BaseConvert {
         $quickCheck = $this->checkBase($symbol, $len, InitString::_base100(), $configFrom);
         if(!$quickCheck){
             $this->setErrorStatus(false)
-                ->setErrorMessage('Quickcheck found invalid input in precompute100Precompute256() function')
-                ->setCustomerMessage('Invalid input in string')
-                ->setInfo("from({$configFrom['base']}) > to({$configTo['base']}) > convert(input)");
-        
+                ->setInternalMessage(
+                        Merge::string(InternalMessage::CHECK_VALIDATION_FAILED, 
+                        [
+                            "%check%" => "Quickcheck",
+                            "%bases%" => "from {$configFrom['base']} to {$configTo['base']}"
+                        ])
+                    )
+                ->setClientMessage(ClientMessage::VALIDATION_FAILED);
+     
             return null; 
         }
 
@@ -265,9 +327,15 @@ abstract class BaseConvert {
             if($buffer[$index] === null) {
                 $pos = $i;
                 $this->setErrorStatus(false) 
-                    ->setErrorMessage('Bufferprocess found invalid input in function precompute100Precompute256() (char: ' .  \mb_substr($symbol, $pos, Prefix::byteLength($symbol[$pos])) . " positie: " . ($pos) + 1 . ')')
-                    ->setCustomerMessage('Invalid input in string')
-                    ->setInfo("from({$configFrom['base']}) > to({$configTo['base']}) > convert(input)");
+                    ->setInternalMessage(
+                        Merge::string(InternalMessage::BUFFER_PROCESS_FAILED, 
+                            [
+                                '%bases%' => "from {$configFrom['base']} to {$configTo['base']}",
+                                '%char%' => \substr($symbol, $pos, Prefix::byteLength($symbol[$pos])),
+                                '%pos%' => $pos + 1
+                            ])
+                        )
+                    ->setClientMessage(ClientMessage::VALIDATION_FAILED);
 
                 return null;
             } 
@@ -294,7 +362,13 @@ abstract class BaseConvert {
     protected function precompute256Precompute10(string $text, array $configFrom, array $configTo) : ?string { 
 
         if(empty($text)) {
-            throw new InputException("At least one character must be entered"); 
+            $this->setErrorStatus(false)
+                ->setInternalMessage(
+                      Merge::string(InternalMessage::INVALID_EMPTY, ['%arg%' => 'text'])
+                    )
+                ->setClientMessage(ClientMessage::INVALID_EMPTY);
+
+            return null;
         }
 
         $len = strlen($text);
@@ -363,26 +437,29 @@ abstract class BaseConvert {
 
     protected function precompute10Precompute256(string $digitPairs, array $configFrom, array $configTo) : ?string { 
         
-        //Quick check
         $len = \strlen($digitPairs);
         $quickCheck = $this->checkBase($digitPairs, $len, null, $configFrom);
         if(!$quickCheck){
             $this->setErrorStatus(false)
-                ->setErrorMessage('Quickcheck found invalid input in precompute10Precompute256() function')
-                ->setCustomerMessage('Invalid input in string')
-                ->setInfo("from({$configFrom['base']}) > to({$configTo['base']}) > convert(input)");
+                ->setInternalMessage(
+                        Merge::string(InternalMessage::CHECK_VALIDATION_FAILED, 
+                        [
+                            "%check%" => "Quickcheck",
+                            "%bases%" => "from {$configFrom['base']} to {$configTo['base']}"
+                        ])
+                    )
+                ->setClientMessage(ClientMessage::VALIDATION_FAILED);
      
-            return null; 
+            return null;
         }
 
         if($len % 2 === 1) {
             $this->setErrorStatus(false)
-                ->setErrorMessage('The first argument must have an even digit length')
-                ->setCustomerMessage('Invalid input in string')
-                ->setInfo("from({$configFrom['base']}) > to({$configTo['base']}) > convert(input)");
-            
+                ->setInternalMessage(InternalMessage::DIGIT_PAIR_REQUIRED)
+                ->setClientMessage(ClientMessage::VALIDATION_FAILED);
+
             return null;
-        }        
+        }
 
         $bindingDecode = &$this->{$configFrom['bindingDecode']};
         $bindengReverse = &$this->_base256IntReverse;
@@ -410,9 +487,16 @@ abstract class BaseConvert {
             if($buffer[$index] === null) {
                 $pos = $i;
                 $this->setErrorStatus(false) 
-                    ->setErrorMessage('Bufferprocess found invalid input in function password2Int() (char: ' .  \mb_substr($digitPairs, $pos, Prefix::byteLength($digitPairs[$pos])) . \mb_substr($digitPairs, $pos+1, Prefix::byteLength($digitPairs[$pos+1])) . " positie: " . ($pos) + 1 . ')')
-                    ->setCustomerMessage('Invalid input in string')
-                    ->setInfo("from({$configFrom['base']}) > to({$configTo['base']}) > convert(input)");
+                    ->setInternalMessage(
+                        Merge::string(InternalMessage::BUFFER_PROCESS_FAILED, 
+                            [
+                                '%bases%' => "from {$configFrom['base']} to {$configTo['base']}",
+                                '%char%' => \substr($digitPairs, $pos, Prefix::byteLength($digitPairs[$pos]))
+                                    . \substr($digitPairs, $pos+1, Prefix::byteLength($digitPairs[$pos+1])),
+                                '%pos%' => $pos + 1
+                            ])
+                        )
+                    ->setClientMessage(ClientMessage::VALIDATION_FAILED);
 
                 return null;
             } 
@@ -427,10 +511,9 @@ abstract class BaseConvert {
 
         if(count($buffer) > 0) $converted .= implode('', $buffer);
 
-        //Calculate Decimal to Bytes dynamic chunk endian-number
         $len = strlen($converted);
 
-        //Get first random zero-symbols
+        //Get first zero-symbols
         $symbolZeros = 0;
         while (true) {
             if(substr($converted, $symbolZeros, 2) !== "00") {
@@ -464,14 +547,17 @@ abstract class BaseConvert {
         $quickCheck = $this->checkBase($symbol, $len, InitString::_base100(), $configFrom);
         if(!$quickCheck){
             $this->setErrorStatus(false)
-                ->setErrorMessage('Quickcheck found invalid input in precompute2Bitshift() function')
-                ->setCustomerMessage('Invalid input in string')
-                ->setInfo(
-                    substr($configFrom['bindingEncode'], 1, null) . " to " . substr($configTo['bindingEncode'], 1, null)
-                );
-
-            return null; 
-        }       
+                ->setInternalMessage(
+                        Merge::string(InternalMessage::CHECK_VALIDATION_FAILED, 
+                        [
+                            "%check%" => "Quickcheck",
+                            "%bases%" => "from {$configFrom['base']} to {$configTo['base']}"
+                        ])
+                    )
+                ->setClientMessage(ClientMessage::VALIDATION_FAILED);
+     
+            return null;
+        }      
 
         $buffer = 0;
         $bitsInBuffer = 0;
@@ -494,11 +580,15 @@ abstract class BaseConvert {
             if($ord === null) {
                 $pos = $i;
                 $this->setErrorStatus(false) 
-                    ->setErrorMessage('Bufferprocess found invalid input in function precompute2Compute() (char: ' .  \mb_substr($symbol, 0, Prefix::byteLength($symbol[$pos])) . ')')
-                    ->setCustomerMessage('Invalid input in string')
-                    ->setInfo(
-                        substr($configFrom['bindingEncode'], 1, null) . " to " . substr($configTo['bindingEncode'], 1, null)
-                    );
+                    ->setInternalMessage(
+                        Merge::string(InternalMessage::BUFFER_PROCESS_FAILED, 
+                            [
+                                '%bases%' => "from {$configFrom['base']} to {$configTo['base']}",
+                                '%char%' => \substr($symbol, $pos, Prefix::byteLength($symbol[$pos])),
+                                '%pos%' => $pos + 1
+                            ])
+                        )
+                    ->setClientMessage(ClientMessage::VALIDATION_FAILED);
 
                 return null; 
             }    
@@ -539,11 +629,14 @@ abstract class BaseConvert {
         $quickCheck = $this->checkBase($symbol, $len, $allowedStr, $configFrom);
         if(!$quickCheck){
             $this->setErrorStatus(false)
-                ->setErrorMessage('Quickcheck found invalid input in bitshiftPrecompute100() function')
-                ->setCustomerMessage('Invalid input in string')
-                ->setInfo(
-                    substr($configFrom['bindingEncode'], 1, null) . " to " . substr($configTo['bindingEncode'], 1, null)
-                );
+                ->setInternalMessage(
+                        Merge::string(InternalMessage::CHECK_VALIDATION_FAILED, 
+                        [
+                            "%check%" => "Quickcheck",
+                            "%bases%" => "from {$configFrom['base']} to {$configTo['base']}"
+                        ])
+                    )
+                ->setClientMessage(ClientMessage::VALIDATION_FAILED);
      
             return null; 
         }
@@ -568,11 +661,15 @@ abstract class BaseConvert {
             if($digs === null) {
                 $pos = $i;
                 $this->setErrorStatus(false) 
-                    ->setErrorMessage('Bufferprocess found invalid input in function bitshiftPrecompute100() (char: ' .  \mb_substr($symbol, $pos, Prefix::byteLength($symbol[$pos])) . " position: " . $pos+1 . ')')
-                    ->setCustomerMessage('Invalid input in string')
-                    ->setInfo(
-                        substr($configFrom['bindingEncode'], 1, null) . " to " . substr($configTo['bindingEncode'], 1, null)
-                    );
+                    ->setInternalMessage(
+                        Merge::string(InternalMessage::BUFFER_PROCESS_FAILED, 
+                            [
+                                '%bases%' => "from {$configFrom['base']} to {$configTo['base']} (decode)",
+                                '%char%' => \substr($symbol, $pos, Prefix::byteLength($symbol[$pos])),
+                                '%pos%' => $pos + 1
+                            ])
+                        )
+                    ->setClientMessage(ClientMessage::VALIDATION_FAILED);
 
                 return null;
             }
@@ -588,9 +685,15 @@ abstract class BaseConvert {
                 if($decoded[$index] === null) {
                     $pos = $i;
                     $this->setErrorStatus(false) 
-                        ->setErrorMessage('Bufferprocess found invalid input in function bitshiftPrecompute100() (char: ' .  \mb_substr($symbol, $pos, Prefix::byteLength($symbol[$pos])) . " positie: " . ($pos) + 1 . ')')
-                        ->setCustomerMessage('Invalid input in string')
-                        ->setInfo("from({$configFrom['base']}) > to({$configTo['base']}) > convert(input)");
+                        ->setInternalMessage(
+                            Merge::string(InternalMessage::BUFFER_PROCESS_FAILED, 
+                                [
+                                    '%bases%' => "from {$configFrom['base']} to {$configTo['base']} (encode)",
+                                    '%char%' => \substr($symbol, $pos, Prefix::byteLength($symbol[$pos])),
+                                    '%pos%' => $pos + 1
+                                ])
+                            )
+                        ->setClientMessage(ClientMessage::VALIDATION_FAILED);
 
                     return null;
                 } 
@@ -612,19 +715,20 @@ abstract class BaseConvert {
     protected function precomputeCompute100(string $symbol, array $configFrom, array $configTo) : ?string { 
         
         $len = strlen($symbol);
-
-        //Big Endian will not check the special role of base100, so full check is required
-        //$fullcheck = $this->fullCheck($symbol, $this->{$configFrom['bindingStr']}, $len);
-        $fullcheck = $this->fullCheck($symbol, InitString::_base100(), $len);
-        if(!$fullcheck) {
-            $this->setErrorStatus(false) 
-                ->setErrorMessage('Bufferprocess found invalid input in function precompute2Compute() (char:')
-                ->setCustomerMessage('Invalid input in string')
-                ->setInfo(
-                    substr($configFrom['bindingEncode'], 1, null) . " to " . substr($configTo['bindingEncode'], 1, null)
-                );
-    
-            return null; 
+        //Full check is required here, because the compute2Endian() function is a number based operation 
+        $fullcheck = $this->fullCheck($symbol, InitString::_base100(), $len); 
+        if(!$fullcheck){
+            $this->setErrorStatus(false)
+                ->setInternalMessage(
+                        Merge::string(InternalMessage::CHECK_VALIDATION_FAILED, 
+                        [
+                            "%check%" => "Fullcheck",
+                            "%bases%" => "from {$configFrom['base']} to {$configTo['base']}"
+                        ])
+                    )
+                ->setClientMessage(ClientMessage::VALIDATION_FAILED);
+     
+            return null;
         }
 
         return $this->endianToCompute(
@@ -643,18 +747,21 @@ abstract class BaseConvert {
         $len = strlen($bigEndian);
         $converted = $this->getText($bigEndian, $len);
     
-        //Big Endian will not check the special role of base100, so full check is required here
+        //Full check is required here, because the compute2Endian() function is a number based operation 
         $fullcheck = $this->fullCheck($converted, InitString::_base100(), strlen($converted));
-        if(!$fullcheck) {
-            $this->setErrorStatus(false) 
-                ->setErrorMessage('Bufferprocess found invalid input in function computePrecompute100()')
-                ->setCustomerMessage('Invalid input in string')
-                ->setInfo(
-                    substr($configFrom['bindingEncode'], 1, null) . " to " . substr($configTo['bindingEncode'], 1, null)
-            );
-    
+        if(!$fullcheck){
+            $this->setErrorStatus(false)
+                ->setInternalMessage(
+                        Merge::string(InternalMessage::CHECK_VALIDATION_FAILED, 
+                        [
+                            "%check%" => "Fullcheck",
+                            "%bases%" => "from {$configFrom['base']} to {$configTo['base']}"
+                        ])
+                    )
+                ->setClientMessage(ClientMessage::VALIDATION_FAILED);
+     
             return null; 
-        }       
+        }      
     
         return $converted;  
     }
@@ -823,8 +930,6 @@ abstract class BaseConvert {
 
     protected function bitshiftPrecompute256(string $symbol, array $configFrom, array $configTo) : ?string {
 
-        //$this->lazyLoading_baseConfig100();
-        /***  aangepast */
         $base100 = $this->bitshiftPrecompute100($symbol, $configFrom, ['base' => 100, 'bindingEncode' => '_base100']);
         if($base100 === null) {
             return $base100;
@@ -835,23 +940,28 @@ abstract class BaseConvert {
 
     protected function precompute100Precompute100(string $symbol, array $configFrom, array $configTo) : ?string { 
         if(empty($symbol)) {
-            $this->setErrorStatus(false) 
-                ->setErrorMessage('Quickcheck found empty input in function precompute100Precompute100()')
-                ->setCustomerMessage('Invalid input in string')
-                ->setInfo("from({$configFrom['base']}) > to({$configTo['base']}) > convert(input)");
+            $this->setErrorStatus(false)
+                ->setInternalMessage(
+                      Merge::string(InternalMessage::INVALID_EMPTY, ['%arg%' => 'symbol'])
+                    )
+                ->setClientMessage(ClientMessage::INVALID_EMPTY);
 
             return null;
         }
 
-        if(!$this->fullCheck($symbol, InitString::_base100(), strlen($symbol))) {
-            $this->setErrorStatus(false) 
-                ->setErrorMessage('Fullchecker found invalid input in function precompute100Precompute100()')
-                ->setCustomerMessage('Invalid input in string')
-                ->setInfo(
-                    substr($configFrom['bindingEncode'], 1, null) . " to " . substr($configTo['bindingEncode'], 1, null)
-                );
-    
-            return null;            
+        $fullcheck = $this->fullCheck($symbol, InitString::_base100(), strlen($symbol));
+        if(!$fullcheck){
+            $this->setErrorStatus(false)
+                ->setInternalMessage(
+                        Merge::string(InternalMessage::CHECK_VALIDATION_FAILED, 
+                        [
+                            "%check%" => "Fullcheck",
+                            "%bases%" => "from {$configFrom['base']} to {$configTo['base']}"
+                        ])
+                    )
+                ->setClientMessage(ClientMessage::VALIDATION_FAILED);
+     
+            return null; 
         }
 
         return $symbol;
@@ -859,13 +969,18 @@ abstract class BaseConvert {
 
     protected function precompute10Precompute10(string $digitPairs, array $configFrom, array $configTo) : ?string {
         $fullcheck = \ctype_digit($digitPairs);
-        if($fullcheck === false) {
-            $this->setErrorStatus(false) 
-                ->setErrorMessage('Fullchecker found invalid input in function precompute10Precompute10()')
-                ->setCustomerMessage('Invalid input in string')
-                ->setInfo("from({$configFrom['base']}) > to({$configTo['base']}) > convert(input)");
-
-            return null;
+        if(!$fullcheck){
+            $this->setErrorStatus(false)
+                ->setInternalMessage(
+                        Merge::string(InternalMessage::CHECK_VALIDATION_FAILED, 
+                        [
+                            "%check%" => "Fullcheck",
+                            "%bases%" => "from {$configFrom['base']} to {$configTo['base']}"
+                        ])
+                    )
+                ->setClientMessage(ClientMessage::VALIDATION_FAILED);
+     
+            return null; 
         }
 
         return $digitPairs;
@@ -873,10 +988,11 @@ abstract class BaseConvert {
 
     protected function precompute256Precompute256(string $text, array $configFrom, array $configTo) : ?string { 
         if(empty($text)) {
-            $this->setErrorStatus(false) 
-                ->setErrorMessage('Quickcheck found empty input in function precompute256Precompute256()')
-                ->setCustomerMessage('Invalid input in string')
-                ->setInfo("from({$configFrom['base']}) > to({$configTo['base']}) > convert(input)");
+            $this->setErrorStatus(false)
+                ->setInternalMessage(
+                      Merge::string(InternalMessage::INVALID_EMPTY, ['%arg%' => 'text'])
+                    )
+                ->setClientMessage(ClientMessage::INVALID_EMPTY);
 
             return null;
         }
@@ -891,15 +1007,24 @@ abstract class BaseConvert {
         $quickCheck = $this->checkBase($digitPairs, $len, $allowedStr, $configFrom);
         if(!$quickCheck){
             $this->setErrorStatus(false)
-                ->setErrorMessage('Quickcheck found invalid input in precompute10Precompute100() function')
-                ->setCustomerMessage('Invalid input in string')
-                ->setInfo("from({$configFrom['base']}) > to({$configTo['base']}) > convert(input)");
-                
-            return null;   
-        }        
+                ->setInternalMessage(
+                        Merge::string(InternalMessage::CHECK_VALIDATION_FAILED, 
+                        [
+                            "%check%" => "Quickcheck",
+                            "%bases%" => "from {$configFrom['base']} to {$configTo['base']}"
+                        ])
+                    )
+                ->setClientMessage(ClientMessage::VALIDATION_FAILED);
+     
+            return null;
+        }       
         
         if($len % 2 === 1) {
-            throw new InputException("The first argument must have an even digit length");
+            $this->setErrorStatus(false)
+                ->setInternalMessage(InternalMessage::DIGIT_PAIR_REQUIRED)
+                ->setClientMessage(ClientMessage::VALIDATION_FAILED);
+
+            return null;
         }  
 
         //Prepare Dimensional array for checking input digits
@@ -931,14 +1056,18 @@ abstract class BaseConvert {
             $char = $this->_base100Dimensional[$digitPairs[$i]][$digitPairs[$i+1]] ?? null;
             if($char === null) {
                 $pos = $i;
-                $this->setErrorStatus(false)
-                    ->setErrorMessage('Bufferprocess found invalid input in function precompute10Precompute100() (char: ' 
-                        . \mb_substr($digitPairs, $pos, Prefix::byteLength($digitPairs[$pos])) 
-                        . \mb_substr($digitPairs, $pos+1, Prefix::byteLength($digitPairs[$pos+1])) 
-                        . " positie: " . ($pos) + 1 . ')')
-                    ->setCustomerMessage('Invalid input in string')
-                    ->setInfo("from({$configFrom['base']}) > to({$configTo['base']}) > convert(input)");
-                    
+                $this->setErrorStatus(false) 
+                    ->setInternalMessage(
+                        Merge::string(InternalMessage::BUFFER_PROCESS_FAILED, 
+                            [
+                                '%bases%' => "from {$configFrom['base']} to {$configTo['base']}",
+                                '%char%' => \substr($digitPairs, $pos, Prefix::byteLength($digitPairs[$pos]))
+                                    . \substr($digitPairs, $pos+1, Prefix::byteLength($digitPairs[$pos+1])),
+                                '%pos%' => $pos + 1
+                            ])
+                        )
+                    ->setClientMessage(ClientMessage::VALIDATION_FAILED);
+
                 return null;
             }  
 
@@ -978,11 +1107,14 @@ abstract class BaseConvert {
         $quickCheck = $this->checkBase($symbol, $len, $allowedStr, $configFrom);
         if(!$quickCheck){
             $this->setErrorStatus(false)
-                ->setErrorMessage('Quickcheck found invalid input in bitshiftPrecompute10() function')
-                ->setCustomerMessage('Invalid input in string')
-                ->setInfo(
-                    substr($configFrom['bindingEncode'], 1, null) . " to " . substr($configTo['bindingEncode'], 1, null)
-                );
+                ->setInternalMessage(
+                        Merge::string(InternalMessage::CHECK_VALIDATION_FAILED, 
+                        [
+                            "%check%" => "Quickcheck",
+                            "%bases%" => "from {$configFrom['base']} to {$configTo['base']}"
+                        ])
+                    )
+                ->setClientMessage(ClientMessage::VALIDATION_FAILED);
      
             return null; 
         }
@@ -1007,11 +1139,15 @@ abstract class BaseConvert {
             if($digs === null) {
                 $pos = $i;
                 $this->setErrorStatus(false) 
-                    ->setErrorMessage('Bufferprocess found invalid input in function bitshiftPrecompute10() (char: ' .  \mb_substr($symbol, $pos, Prefix::byteLength($symbol[$pos])) . " position: " . $pos+1 . ')')
-                    ->setCustomerMessage('Invalid input in string')
-                    ->setInfo(
-                        substr($configFrom['bindingEncode'], 1, null) . " to " . substr($configTo['bindingEncode'], 1, null)
-                    );
+                    ->setInternalMessage(
+                        Merge::string(InternalMessage::BUFFER_PROCESS_FAILED, 
+                            [
+                                '%bases%' => "from {$configFrom['base']} to {$configTo['base']} (decode)",
+                                '%char%' => \substr($symbol, $pos, Prefix::byteLength($symbol[$pos])),
+                                '%pos%' => $pos + 1
+                            ])
+                        )
+                    ->setClientMessage(ClientMessage::VALIDATION_FAILED);
 
                 return null;
             }
@@ -1026,12 +1162,18 @@ abstract class BaseConvert {
 
                 if($decoded[$index] === null) {
                     $pos = $i;
-                    $this->setErrorStatus(false) 
-                        ->setErrorMessage('Bufferprocess found invalid input in function bitshiftPrecompute10() (char: ' .  \mb_substr($symbol, $pos, Prefix::byteLength($symbol[$pos])) . " positie: " . ($pos) + 1 . ')')
-                        ->setCustomerMessage('Invalid input in string')
-                        ->setInfo("from({$configFrom['base']}) > to({$configTo['base']}) > convert(input)");
+                $this->setErrorStatus(false) 
+                    ->setInternalMessage(
+                        Merge::string(InternalMessage::BUFFER_PROCESS_FAILED, 
+                            [
+                                '%bases%' => "from {$configFrom['base']} to {$configTo['base']} (encode)",
+                                '%char%' => \substr($symbol, $pos, Prefix::byteLength($symbol[$pos])),
+                                '%pos%' => $pos + 1
+                            ])
+                        )
+                    ->setClientMessage(ClientMessage::VALIDATION_FAILED);
 
-                    return null;
+                return null;
                 } 
             }
 
@@ -1056,14 +1198,17 @@ abstract class BaseConvert {
         $quickCheck = $this->checkBase($symbol, $len, $allowedStr, $configFrom);
         if(!$quickCheck){
             $this->setErrorStatus(false)
-                ->setErrorMessage('Quickcheck found invalid input in bitshiftPrecompute10() function')
-                ->setCustomerMessage('Invalid input in string')
-                ->setInfo(
-                    substr($configFrom['bindingEncode'], 1, null) . " to " . substr($configTo['bindingEncode'], 1, null)
-                );
+                ->setInternalMessage(
+                        Merge::string(InternalMessage::CHECK_VALIDATION_FAILED, 
+                        [
+                            "%check%" => "Quickcheck",
+                            "%bases%" => "from {$configFrom['base']} to {$configTo['base']}"
+                        ])
+                    )
+                ->setClientMessage(ClientMessage::VALIDATION_FAILED);
      
             return null; 
-        } 
+        }
 
         //Binding Decode 
         $bindingDecode = &$this->{$configFrom['bindingDecode']};    
@@ -1089,11 +1234,15 @@ abstract class BaseConvert {
             if($digs === null) {
                 $pos = $i;
                 $this->setErrorStatus(false) 
-                    ->setErrorMessage('Bufferprocess found invalid input in function bitshiftPrecompute10() (char: ' .  \mb_substr($symbol, $pos, Prefix::byteLength($symbol[$pos])) . " position: " . $pos+1 . ')')
-                    ->setCustomerMessage('Invalid input in string')
-                    ->setInfo(
-                        substr($configFrom['bindingEncode'], 1, null) . " to " . substr($configTo['bindingEncode'], 1, null)
-                    );
+                    ->setInternalMessage(
+                        Merge::string(InternalMessage::BUFFER_PROCESS_FAILED, 
+                            [
+                                '%bases%' => "from {$configFrom['base']} to {$configTo['base']}",
+                                '%char%' => \substr($symbol, $pos, Prefix::byteLength($symbol[$pos])),
+                                '%pos%' => $pos + 1
+                            ])
+                        )
+                    ->setClientMessage(ClientMessage::VALIDATION_FAILED);
 
                 return null;
             }
@@ -1115,38 +1264,39 @@ abstract class BaseConvert {
             }
         }
         
-        //Total length in bits of encoded string
+        //step 1: calulate the total length in bits of the encoded string
         $totalBits = $len * $bitsFrom;
 
-        //Original length in bits when decoded (txt)
+        //step 2: calculate the original length in bits of the decoded string
         $originalBits = floor($len * $bitsFrom / 8) * 8;
 
-        //Calculate to original length without decoded
+        //step 3: calculate how many bits are required to be taken from the last symbol
         $requiredBits = $originalBits - ($totalBits-$bitsFrom-$bitsInBuffer);
 
-        //Step 1: fill the buffer with BitsInBuffer left
+        //step 4: fill the buffer with the remaining bits in the buffer, if there are any
         if($bitsInBuffer > 0) {
             $buffer = Calculation::getLastBits($buffer, $bitsInBuffer);
         }
         else {
+            //do not put it before the if-statement. $buffer is used also in the if-statement
             $buffer = 0;
         }
 
-        //How many bits are left in the last symbol + grab the last symbol
+        //step 5: if there are still bits required to be taken from the last symbol, grab them and put them in the buffer
         $firstBits = $requiredBits - $bitsInBuffer;
         if($firstBits > 0) {
             $ord = $bindingDecode[$symbol[$len - 1]];
             $buffer = ($buffer << $firstBits) | Calculation::getFirstBits($ord, $firstBits, $bitsFrom);       
         }
 
-        //Calculate salt bits
+        //step 6: if the original bits are not a multiple of the bitsTo, we need to add derived salt bits to the buffer to make it a multiple of the bitsTo
         $newSalt = (ceil($originalBits / $bitsTo) * $bitsTo) - $originalBits;        
         if($newSalt > 0) {
             $buffer = $buffer << $newSalt;
             $buffer |= ord($bindingEncode[0]) & (1 << $newSalt) - 1;
         }
 
-        //Grab the last symbols
+        //step 7: grab the last symbols from the buffer and add them to the decoded string
         $bitsInBuffer = $requiredBits+$newSalt;
         while ($bitsInBuffer > 0) {
             $bitsInBuffer -= $bitsTo;
@@ -1161,12 +1311,12 @@ abstract class BaseConvert {
 
     protected function computeBitshift(string $symbol, array $configFrom, array $configTo) : ?string { 
 
-        $bigEndian = $this->compute2Endian($symbol, $configFrom, $configTo);
-        if($bigEndian === null) {
-            return $bigEndian;
+        $endianChunk = $this->compute2Endian($symbol, $configFrom, $configTo);
+        if($endianChunk === null) {
+            return $endianChunk;
         }
 
-        $txt = $this->getText($bigEndian, \strlen($bigEndian));
+        $txt = $this->getText($endianChunk, \strlen($endianChunk));
         $len = \strlen($txt);
 
         $buffer = 0;
@@ -1220,13 +1370,16 @@ abstract class BaseConvert {
         $quickCheck = $this->checkBase($symbol, $len, $allowedStr, $configFrom);
         if(!$quickCheck){
             $this->setErrorStatus(false)
-                ->setErrorMessage('Quickcheck found invalid input in bitshiftPrecompute100() function')
-                ->setCustomerMessage('Invalid input in string')
-                ->setInfo(
-                    substr($configFrom['bindingEncode'], 1, null) . " to " . substr($configTo['bindingEncode'], 1, null)
-                );
+                ->setInternalMessage(
+                        Merge::string(InternalMessage::CHECK_VALIDATION_FAILED, 
+                        [
+                            "%check%" => "Quickcheck",
+                            "%bases%" => "from {$configFrom['base']} to {$configTo['base']}"
+                        ])
+                    )
+                ->setClientMessage(ClientMessage::VALIDATION_FAILED);
      
-            return null; 
+            return null;
         }
 
         $bindingDecode = &$this->{$configFrom['bindingDecode']};    
@@ -1248,11 +1401,15 @@ abstract class BaseConvert {
             if($digs === null) {
                 $pos = $i;
                 $this->setErrorStatus(false) 
-                    ->setErrorMessage('Bufferprocess found invalid input in function bitshiftPrecompute100() (char: ' .  \mb_substr($symbol, $pos, Prefix::byteLength($symbol[$pos])) . " position: " . $pos+1 . ')')
-                    ->setCustomerMessage('Invalid input in string')
-                    ->setInfo(
-                        substr($configFrom['bindingEncode'], 1, null) . " to " . substr($configTo['bindingEncode'], 1, null)
-                    );
+                    ->setInternalMessage(
+                        Merge::string(InternalMessage::BUFFER_PROCESS_FAILED, 
+                            [
+                                '%bases%' => "from {$configFrom['base']} to {$configTo['base']}",
+                                '%char%' => \substr($symbol, $pos, Prefix::byteLength($symbol[$pos])),
+                                '%pos%' => $pos + 1
+                            ])
+                        )
+                    ->setClientMessage(ClientMessage::VALIDATION_FAILED);
 
                 return null;
             }
@@ -1290,8 +1447,8 @@ abstract class BaseConvert {
     }
 
     protected function chunksize() : array {
-        if($this->longEndianChunk) return [169, 407];
-        return [22, 53];
+        if($this->longEndianChunk) return ShuffleProfile::ENDIAN_CHUNK_LONG;
+        return ShuffleProfile::ENDIAN_CHUNK_SHORT;        
     }
 
     //Set given alphabet with generic binding
@@ -1380,8 +1537,12 @@ abstract class BaseConvert {
                     \gmp_init(substr($bigEndianChunk, 0, $left), 10)
                 );
 
-                //Is not a uniform Big Endian Chunk
-                if(strlen($text) > $byteBlock) throw new InputException("Input digits (via GMP) are non-uniform for this context");
+                //Is not a uniform Endian Chunk
+                if(strlen($text) > $byteBlock) {
+                    throw new InputException(
+                        InternalMessage::INVALID_UNIFORM_CHUNK . "/" . ClientMessage::VALIDATION_FAILED
+                    ); 
+                } 
             }
             $pointer = $left;
             for ($i=0; $i < $rounds; $i++) { 
@@ -1389,7 +1550,11 @@ abstract class BaseConvert {
                     \gmp_export(\gmp_init(substr($bigEndianChunk, $pointer, $digBlock), 10)), $byteBlock, "\0", STR_PAD_LEFT
                 );
 
-                if(strlen($converted) > $byteBlock) throw new InputException("Input digits (via GMP) are non-uniform for this context");         
+                if(strlen($converted) > $byteBlock) {
+                    throw new InputException(
+                        InternalMessage::INVALID_UNIFORM_CHUNK . "/" . ClientMessage::VALIDATION_FAILED
+                    );  
+                }        
 
                 $text .= $converted;
                 $pointer += $digBlock;
@@ -1400,9 +1565,12 @@ abstract class BaseConvert {
             if($left > 0) {
                 $text .= Calculation::decToBytes(substr($bigEndianChunk, 0, $left));
 
-                //Is not a uniform Big Endian Chunk
-                if(strlen($text) > $byteBlock) 
-                    throw new InputException("Input digits (via BC) are non-uniform for this context");
+                //Is not a uniform Endian Chunk
+                if(strlen($text) > $byteBlock) {
+                    throw new InputException(
+                        InternalMessage::INVALID_UNIFORM_CHUNK . "/" . ClientMessage::VALIDATION_FAILED
+                    ); 
+                }
             }
             $pointer = $left;
             for ($i=0; $i < $rounds; $i++) { 
@@ -1410,8 +1578,11 @@ abstract class BaseConvert {
                     Calculation::decToBytes(substr($bigEndianChunk, $pointer, $digBlock)), $byteBlock, "\0", STR_PAD_LEFT
                 );
 
-                if(strlen($converted) > $byteBlock) 
-                    throw new InputException("Input digits (via BC) are non-uniform for this context");
+                if(strlen($converted) > $byteBlock)  {
+                    throw new InputException(
+                        InternalMessage::INVALID_UNIFORM_CHUNK . "/" . ClientMessage::VALIDATION_FAILED
+                    ); 
+                }
 
                 $text .= $converted;
                 $pointer += $digBlock;
@@ -1536,13 +1707,16 @@ abstract class BaseConvert {
         $quickCheck = $this->checkBase($symbol, $len, $allowedStr, $configFrom);
         if(!$quickCheck){
             $this->setErrorStatus(false)
-                ->setErrorMessage('Quickcheck found invalid input in computePrecompute100() function')
-                ->setCustomerMessage('Invalid input in string')
-                ->setInfo(
-                    substr($configFrom['bindingEncode'], 1, null) . " to " . substr($configTo['bindingEncode'], 1, null)
-                );
+                ->setInternalMessage(
+                        Merge::string(InternalMessage::CHECK_VALIDATION_FAILED, 
+                        [
+                            "%check%" => "Quickcheck",
+                            "%bases%" => "from {$configFrom['base']} to {$configTo['base']}"
+                        ])
+                    )
+                ->setClientMessage(ClientMessage::VALIDATION_FAILED);
      
-            return null;
+            return null; 
         }
 
         $countSymbols = $configFrom['exponentiation']['symbol'];
@@ -1588,15 +1762,16 @@ abstract class BaseConvert {
                     if($byte === null) {
                         $pos = $x;
                         $this->setErrorStatus(false) 
-                            ->setErrorMessage('Bufferprocess found invalid input in function precompute2Compute() (char: ' .  \mb_substr($bytes, $pos, Prefix::byteLength($bytes[$pos])) . ')')
-                            ->setCustomerMessage('Invalid input in string')
-                            ->setInfo(
-                                substr($configFrom['bindingEncode'], 1, null) . " to " . substr($configTo['bindingEncode'], 
-                                1, 
-                                null
-                            )
-                        );
-        
+                            ->setInternalMessage(
+                                Merge::string(InternalMessage::BUFFER_PROCESS_FAILED, 
+                                    [
+                                        '%bases%' => "from {$configFrom['base']} to {$configTo['base']}",
+                                        '%char%' => \substr($symbol, $pos, Prefix::byteLength($symbol[$pos])),
+                                        '%pos%' => $pos + 1
+                                    ])
+                                )
+                            ->setClientMessage(ClientMessage::VALIDATION_FAILED);
+
                         return null;
                     }
 
@@ -1617,7 +1792,7 @@ abstract class BaseConvert {
 
         $len = strlen($symbol);
 
-        //Grab the symbolzeros in the string
+        //Preserve leading zero-symbols before conversion
         $symbolZeros = 0;
         $target = $this->{$configTo['bindingEncode']}[0];
         while ($symbolZeros < $len) {
@@ -1628,7 +1803,6 @@ abstract class BaseConvert {
 
         $base100 = $symbolZeros > 0 ? substr($symbol, $symbolZeros, null) : $symbol; 
 
-        //Calculations    
         $len -= $symbolZeros;  
         $initBase100 = InitArray::initBase100();
         
@@ -1649,9 +1823,15 @@ abstract class BaseConvert {
             if($buffer[$index] === null) {
                 $pos = $i;
                 $this->setErrorStatus(false) 
-                    ->setErrorMessage('Bufferprocess found invalid input in function precompute100Precompute256() (char: ' .  \mb_substr($symbol, $pos, Prefix::byteLength($symbol[$pos])) . " positie: " . ($pos) + 1 . ')')
-                    ->setCustomerMessage('Invalid input in string')
-                    ->setInfo("from({$configFrom['base']}) > to({$configTo['base']}) > convert(input)");
+                    ->setInternalMessage(
+                        Merge::string(InternalMessage::BUFFER_PROCESS_FAILED, 
+                            [
+                                '%bases%' => "from {$configFrom['base']} to {$configTo['base']}",
+                                '%char%' => \substr($symbol, $pos, Prefix::byteLength($symbol[$pos])),
+                                '%pos%' => $pos + 1
+                            ])
+                        )
+                    ->setClientMessage(ClientMessage::VALIDATION_FAILED);
 
                 return null;
             }
@@ -1687,10 +1867,11 @@ abstract class BaseConvert {
         return $text;
     }
 
-    //Public methods
-
+    /**
+     * Check if GMP is available and can be used for conversion
+     * @return bool
+     */
     public function useGMP() : bool  {
         return !empty($this->_gmp);
     }
-    
 }

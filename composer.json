@@ -1,14 +1,14 @@
 {
     "name": "filiprigoir/pswkey",
-    "description": "A high-performance deterministic base converter with peppering and salting to encode input into unrecognizable transportkeys and decode them back to the original input.",
+    "description": "A deterministic base encoder/decoder shaped by a salt and optional pepper, with built-in keystream and one-time-pad support.",
     "keywords": [
         "php", 
         "base",
-        "convert",
+        "converter",
         "deterministic",
         "transportkey",
-        "peppering",
-        "salting",
+        "pepper",
+        "salt",
         "onetimepad",
         "streamkey",
         "shuffle",
@@ -26,7 +26,7 @@
         }
     ],
     "require": {
-        "php": ">=8.1",
+        "php": "^8.2",
         "ext-sodium": "*"
     },
     "suggest": {

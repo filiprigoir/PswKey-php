@@ -8,7 +8,7 @@ class Precompute {
 
         public static function initBase(int $base) : ?array {
 
-        //Check ranges
+        //Precompute parameters for chunk size, exponent, and symbol count based on the base.
         $result = match(true) {
             $base >= 12 && $base <= 14 => ["chunk"=> 14,"exp"=> 12,"symbol"=> 13],
             $base >= 15 && $base <= 17 => ["chunk"=> 14,"exp"=> 11,"symbol"=> 12],
@@ -51,6 +51,9 @@ class Precompute {
         return $result;
     }
 
+    /**
+     * Determines if the base is a power of 2 and returns corresponding parameters for bit manipulation.
+     */
     public static function isBitshift(int $base) : ?array {
         return match ($base) {
             4 => ['bits' => 2, 'bitmask' => 0x03, 'block' => 256],

@@ -21,7 +21,7 @@ class Calculation {
             $dec = bcdiv($dec, '256', 0);
         }
         return strrev($str);
-    }  
+    }
     
     public static function checkLength(int $length) : int {
 	    return min($length / 2, 64);
@@ -35,9 +35,10 @@ class Calculation {
         return ($digits >> $fixedBits-$snip) & (1 << $snip) - 1;
     }
 
+    //change the factor can effect the 
     public static function getFactor(int $length) : int|float {
-        $factor = 1.2 + ($length / 256) * 0.25;
+        $factor = 1.3 + ($length / 256) * 0.25;
         return ceil($length * $factor);
     }
 }
-    
+

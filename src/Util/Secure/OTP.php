@@ -2,7 +2,8 @@
 
 namespace PswKey\Util\Secure;
 
-use PswKey\Exception\InputException;
+use PswKey\ErrorMessage\InternalMessage;
+use PswKey\Exception\ConfigurationException;
 use SensitiveParameter;
 
 class OTP {
@@ -32,7 +33,9 @@ class OTP {
     public static function digits(#[SensitiveParameter] string &$switchIds, #[SensitiveParameter] string &$secretIds) : ?string {
 
         if(strlen($secretIds) < strlen($switchIds)) {
-            throw new \LengthException('Second argument must be equal or more than first argument');
+            throw new \LengthException(
+                'Second argument must be equal or more than first argument'
+            );
         }
 
         $matrixTable = self::matrixTable();
@@ -45,7 +48,9 @@ class OTP {
 
             $buffer[++$index] = $matrixTable[$secretIds[$i]][$switchIds[$i]] ?? null;
             if($buffer[$index] === null) {
-                throw new InputException("only digits 0 to 9 are excepted for onetimepad::digits()");
+                throw new ConfigurationException(
+                    InternalMessage::INVALID_DIGITS
+                );
             }
             
             if($i >= $increase) {

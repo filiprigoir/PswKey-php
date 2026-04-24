@@ -3,19 +3,19 @@ declare(strict_types=1);
 
 namespace PswKey\Service;
 
+use PswKey\Core\Modifiers\ShuffleProfile;
+use PswKey\ErrorMessage\InternalMessage;
 use PswKey\Exception\ConfigurationException;
-use PswKey\Exception\InputException;
 use PswKey\Interface\CustomKeyInterface;
-use PswKey\Util\Math\Calculation;
 use PswKey\Util\Secure\MemeZero;
 use SensitiveParameter;
 
 /**
- * Generates derived stream with a seed and optional key
+ * Generates derived stream with a seed (salt) and optional key (pepper)
  */
 class KeyStream implements CustomKeyInterface {
 
-    //Secret base 32 bytes from secretPhrase
+    //Secret base 32 bytes from secretPhrase + keyphrase
     protected string $_mainKey;
     protected ?string $_customKey = null;
 
@@ -23,6 +23,7 @@ class KeyStream implements CustomKeyInterface {
     private ?string $_streamKey = null;
 
     //Derive stream ID's
+    private int $_seedId = 256;
     private int $_streamID = 1;
 
     public function __construct(#[SensitiveParameter] string $seedPhrase, #[SensitiveParameter] string $keyPhrase = '') {
@@ -34,6 +35,7 @@ class KeyStream implements CustomKeyInterface {
             $key = \sodium_crypto_generichash($keyPhrase, '', SODIUM_CRYPTO_KDF_KEYBYTES);
         }
 
+        $this->_seedId = strlen($seedPhrase);
         $this->_mainKey = \sodium_crypto_generichash($seedPhrase, $key, SODIUM_CRYPTO_KDF_KEYBYTES);
         MemeZero::overwriteString($key);
     }
@@ -45,7 +47,9 @@ class KeyStream implements CustomKeyInterface {
          * you may comment out or remove this section in constructor
          */
         if(!function_exists('sodium_memzero')) {
-            throw new ConfigurationException('Sodium extension is required to use new KeyStream()');
+            throw new ConfigurationException(
+                InternalMessage::LIBSODIUM_REQUIRED
+            );
         }
     }
 
@@ -54,9 +58,9 @@ class KeyStream implements CustomKeyInterface {
 
         if(empty($this->_streamKey)) {
             $this->_streamKey = sodium_crypto_kdf_derive_from_key(
-                32, 
-                256,
-                "MyStream",
+                SODIUM_CRYPTO_KDF_KEYBYTES, 
+                $this->_seedId,
+                ShuffleProfile::DERIVATION_STREAM,
                 $this->_mainKey
             ); 
         }
@@ -67,25 +71,31 @@ class KeyStream implements CustomKeyInterface {
             [$this->_mainKey, $this->_customKey, $this->_streamKey]
         );        
         unset($this->_mainKey, $this->_customKey, $this->_streamKey);
+        $this->_seedId = 0;
     }
 
-    //Generate derivation key up to shuffle 256 indices with posibility of rejection sampling
+    /**
+     * Generates a derived key with callback and context
+     * * * a minimum overhead of +16 bytes
+     * * * alignment to blocks of up to +64 bytes
+     */
     public function derivedKey(callable $callback, int $length, string $context, bool $customEnable = false) : void {
 
-        if($length < 1 || $length > 256) {
-            throw new InputException("Length only between 1 to 256 excepted");  
+        if($length < SODIUM_CRYPTO_KDF_BYTES_MIN) {
+            throw new ConfigurationException(
+                InternalMessage::INVALID_DERIVE_LENGTH
+            );  
         }
 
-        if(mb_strlen($context, '8bit') !== 8) {
-            throw new ConfigurationException("Context name must be exactly 8 bytes");  
+        if($context === null || mb_strlen($context, '8bit') !== 8) {
+            throw new ConfigurationException(
+                InternalMessage::INVALID_LIBSODIUM_CONTEXT
+            );  
         }
 
-        //Include bytes intended for rejection sampling
-        $length = Calculation::getFactor($length);
         $buffer = [];
-
         $len = 64;
-        $id = 1;
+        $id = $this->_seedId + $length;
         do {
             if($length < 64) {
                 $len = $length % 64;
@@ -100,7 +110,7 @@ class KeyStream implements CustomKeyInterface {
             );
 
             $length -= $len;
-            $id += 1;
+            $id++;
 
         } while ($length > 0);
 
@@ -116,10 +126,15 @@ class KeyStream implements CustomKeyInterface {
         }
     }
 
-    public function byteStream(callable $callback, int $length, ?string $context = null, int $streamID = 0) : void {
+    /**
+     * Generates a stream of derived bytes with callback, context and streamID
+     */
+    public function byteStream(callable $callback, int $length, string $context, int $streamID = 0) : void {
 
-        if($context === null || mb_strlen($context, '8bit') !== 8) {
-            $context = 'derive_b';
+        if(mb_strlen($context, '8bit') !== 8) {
+            throw new ConfigurationException(
+                InternalMessage::INVALID_LIBSODIUM_CONTEXT
+            );  
         }
 
         //Default at least 1 byte length required
@@ -137,7 +152,7 @@ class KeyStream implements CustomKeyInterface {
 
         //Rotated new nonce or derived by same streamID
         $subkey = sodium_crypto_kdf_derive_from_key(
-            24, 
+            SODIUM_CRYPTO_STREAM_NONCEBYTES, 
             $id, 
             $context,
             $this->_customKey !== null ? $this->_customKey : $this->_mainKey
@@ -145,7 +160,7 @@ class KeyStream implements CustomKeyInterface {
 
         $this->setStreamKey();
 
-        //Stream random bytes
+        //Stream derived bytes
         $streamByte = sodium_crypto_stream(
             $length,
             $subkey,

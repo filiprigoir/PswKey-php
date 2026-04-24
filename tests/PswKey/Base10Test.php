@@ -15,14 +15,12 @@ class Base10Test extends TestCase
         return new KeyStream($seedPhrase, $hasKey === true ? $key : '');
     }
 
-    //Every test a different instance in time
     private function instancePswKey(string $seedPhrase = "deterministic validation", bool $hasKey = true) : PswKey {
         return new PswKey(
             $this->getKeyStream($seedPhrase, $hasKey)
         );
     }
 
-    //Default base10 requires digits as input
     private function getDigits() : string {
         //610 random digits in string
         return '570417759969558280306741360185654482132421204132876178709721743832046592394771642905945187497632045939206449593'
@@ -46,7 +44,7 @@ class Base10Test extends TestCase
         $this->assertNull($encode);
 
         $status = $pswkey->status();
-        $this->assertNotNull($status->system);
+        $this->assertNotNull($status->internalMessage);
     }
 
     public function test_empty_fail(): void
@@ -62,7 +60,7 @@ class Base10Test extends TestCase
         $this->assertNull($encode);
 
         $status = $pswkey->status();
-        $this->assertNotNull($status->customer);
+        $this->assertNotNull($status->clientMessage);
     }
 
     public function test_quickcheck_fail(): void
@@ -78,10 +76,10 @@ class Base10Test extends TestCase
         $this->assertNull($encode);
 
         $status = $pswkey->status();
-        $this->assertNotNull($status->customer);
+        $this->assertNotNull($status->clientMessage);
         
         $this->assertTrue(
-            preg_match("/quickcheck/i", $status->system) === 1 ? true : false
+            preg_match("/quickcheck/i", $status->internalMessage) === 1 ? true : false
         );
     }
 
@@ -99,7 +97,7 @@ class Base10Test extends TestCase
 
         $status = $pswkey->status();
         $this->assertTrue(
-            preg_match("/process/i", $status->system) === 1 ? true : false
+            preg_match("/process/i", $status->internalMessage) === 1 ? true : false
         );
     }
 
@@ -113,16 +111,13 @@ class Base10Test extends TestCase
             ->to(100)
             ->convert($digits);
 
-        //is output not empty? Yes!
         $this->assertNotNull($encode);
 
-        //is output different from original digits? Yes!
         $this->assertNotEquals(
             $digits,
             $encode
         );
 
-        //In the most circumstance you need an instance for income data
         $pswkey2 = $this->instancePswKey("Deterministic validation", false); //deterministic is wrote as Deterministic (d => D)
         
         $decode = $pswkey2
@@ -130,7 +125,6 @@ class Base10Test extends TestCase
             ->to(10)
             ->convert($encode);
 
-        //is output of decode different from original digits? Yes!
         $this->assertNotEquals(
             $digits,
             $decode
@@ -147,16 +141,13 @@ class Base10Test extends TestCase
             ->to(32)
             ->convert($digits);
 
-        //is output not empty? Yes!
         $this->assertNotNull($encode);
 
-        //is output different from original digits? Yes!
         $this->assertNotEquals(
             $digits,
             $encode
         );
 
-        //In the most circumstance you need an instance for income data
         $pswkey2 = $this->instancePswKey("Deterministic validation", false); //deterministic is wrote as Deterministic (d => D)
         
         $decode = $pswkey2
@@ -164,7 +155,6 @@ class Base10Test extends TestCase
             ->to(10)
             ->convert($encode);
 
-        //is output of decode different from original digits? Yes!
         $this->assertNotEquals(
             $digits,
             $decode
@@ -184,16 +174,13 @@ class Base10Test extends TestCase
             ->to(62)
             ->convert($digits);
 
-        //is output not empty? Yes!
         $this->assertNotNull($encode);
 
-        //is output different from original digits? Yes!
         $this->assertNotEquals(
             $digits,
             $encode
         );
 
-        //In the most circumstance you need an instance for income data
         $pswkey2 = $this->instancePswKey("Deterministic validation", false); //deterministic is wrote as Deterministic (d => D)
         
         $decode = $pswkey2
@@ -201,7 +188,7 @@ class Base10Test extends TestCase
             ->to(10)
             ->convert($encode);
 
-        //is output of decode different from original digits? Yes!
+
         $this->assertNotEquals(
             $digits,
             $decode
@@ -221,10 +208,8 @@ class Base10Test extends TestCase
             ->to(100)
             ->convert($digits);
 
-        //is output not empty? Yes!
         $this->assertNotNull($encode);
 
-        //is output different from original digits? Yes!
         $this->assertNotEquals(
             $digits,
             $encode
@@ -233,7 +218,6 @@ class Base10Test extends TestCase
         $status = $pswkey->status();
         $this->assertTrue($status->valid);
 
-        //In the most circumstance you need an instance for income data
         $pswkey2 = $this->instancePswKey("deterministic validation", false);
 
         $decode = $pswkey2
@@ -241,7 +225,6 @@ class Base10Test extends TestCase
             ->to(10)
             ->convert($encode);
 
-        //is outcome of decode same as original digits again? Yes!
         $this->assertEquals(
             $digits,
             $decode
@@ -261,10 +244,8 @@ class Base10Test extends TestCase
             ->to(100)
             ->convert($digits);
 
-        //is output not empty? Yes!
         $this->assertNotNull($encode);
 
-        //is output different from original digits? Yes!
         $this->assertNotEquals(
             $digits,
             $encode
@@ -274,8 +255,7 @@ class Base10Test extends TestCase
             ->from(100)
             ->to(10)
             ->convert($encode);
-
-        //is outcome of decode same as original digits again? Yes!
+!
         $this->assertEquals(
             $digits,
             $decode
@@ -292,10 +272,8 @@ class Base10Test extends TestCase
             ->to(58)
             ->convert($digits);
 
-        //is output not empty? Yes!
         $this->assertNotNull($encode);
 
-        //is output different from original digits? Yes!
         $this->assertNotEquals(
             $digits,
             $encode
@@ -306,7 +284,6 @@ class Base10Test extends TestCase
             ->to(10)
             ->convert($encode);
 
-        //is outcome of decode same as original digits again? Yes!
         $this->assertEquals(
             $digits,
             $decode
@@ -323,10 +300,8 @@ class Base10Test extends TestCase
             ->to(62)
             ->convert($digits);
 
-        //is output not empty? Yes!
         $this->assertNotNull($encode);
 
-        //is output different from original digits? Yes!
         $this->assertNotEquals(
             $digits,
             $encode
@@ -337,7 +312,6 @@ class Base10Test extends TestCase
             ->to(10)
             ->convert($encode);
 
-        //is outcome of decode same as original digits again? Yes!
         $this->assertEquals(
             $digits,
             $decode
@@ -354,10 +328,8 @@ class Base10Test extends TestCase
             ->to(64)
             ->convert($digits);
 
-        //is output not empty? Yes!
         $this->assertNotNull($encode);
 
-        //is output different from original digits? Yes!
         $this->assertNotEquals(
             $digits,
             $encode
@@ -368,7 +340,6 @@ class Base10Test extends TestCase
             ->to(10)
             ->convert($encode);
 
-        //is outcome of decode same as original digits again? Yes!
         $this->assertEquals(
             $digits,
             $decode
@@ -385,10 +356,8 @@ class Base10Test extends TestCase
             ->to(32)
             ->convert($digits);
 
-        //is output not empty? Yes!
         $this->assertNotNull($encode);
 
-        //is output different from original digits? Yes!
         $this->assertNotEquals(
             $digits,
             $encode
@@ -399,7 +368,6 @@ class Base10Test extends TestCase
             ->to(10)
             ->convert($encode);
 
-        //is outcome of decode same as original digits again? Yes!
         $this->assertEquals(
             $digits,
             $decode
@@ -416,10 +384,8 @@ class Base10Test extends TestCase
             ->to(10)
             ->convert($digits);
 
-        //is output not empty? Yes!
         $this->assertNotNull($encode);
 
-        //is output different from original digits? Yes!
         $this->assertEquals(
             $digits,
             $encode

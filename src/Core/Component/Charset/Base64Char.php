@@ -3,21 +3,16 @@ declare(strict_types=1);
 
 namespace PswKey\Core\Component\Charset;
 
+use PswKey\Core\Modifiers\ShuffleProfile;
+
 /**              
 * Inject Base64 string-methods
 */
 trait Base64Char {
     
-    //Base64 array table to search in
     protected array $_base64;
-
-    //Custom reverse table
     protected array $_base64Reverse;
-
-    //Base64 string to check in
     protected ?string $_base64Str = null;
-
-    //Configuration base64
     protected ?array $_baseConfig64 = null;
 
     protected function lazyLoading_baseConfig64() : void {
@@ -27,7 +22,7 @@ trait Base64Char {
                 'bindingEncode' => '_base64',
                 'bindingDecode' => '_base64Reverse',
                 'bindingStr' => '_base64Str',
-                'context' => 'Chars_64',
+                'context' => ShuffleProfile::DERIVATION_STANDARD . '064',
                 'process'=> 'bitshift',
                 'bitmask' => 0x3F,
                 'base' => 64,

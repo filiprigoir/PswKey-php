@@ -5,19 +5,13 @@ namespace PswKey\Core\Component\Custom;
 
 /**  
 * Inject Custom base string-methods
+* Custom base is a user defined baseTo with range from 4 to 256 bytes
 */
 trait Custom256To {
 
-    //Custom search table with range posibility from 4 to 256 bytes
     protected array $_custom256To;
-
-    //Custom reverse table with range posibility from 4 to 256 bytes
     protected array $_custom256ToReverse;
-
-    //Custom string to check in
     protected ?string $_custom256ToStr = null;
-
-    //Configuration Custom random base
     protected ?array $_customConfig256To = null;
 
     protected function lazyLoading_customConfig256To() : void {
@@ -27,7 +21,7 @@ trait Custom256To {
                 'bindingEncode' => '_custom256To',
                 'bindingDecode' => '_custom256ToReverse',
                 'bindingStr' => '_custom256ToStr',
-                'context' => 'MyCustom',
+                'context' => null,
                 'process'=> 'compute',
                 'bitmask' => [
                     '2' => 0x03, '3' => 0x07, '4' => 0x0F, '5' => 0x1F, 
@@ -40,6 +34,5 @@ trait Custom256To {
         }
     }
 
-    //contract to implement
     abstract function customTo(array $singleBytes, int $requiredLength, bool $shuffle = true) : self;
 }

@@ -4,8 +4,10 @@ declare(strict_types=1);
 namespace PswKey\Service;
 
 use Exception;
+use PswKey\Core\Modifiers\ShuffleProfile;
 use PswKey\Core\ShuffleChars;
 use PswKey\ErrorMessage\ErrorMessage;
+use PswKey\ErrorMessage\InternalMessage;
 use PswKey\Exception\BaseException;
 use PswKey\Exception\ConfigurationException;
 use PswKey\Interface\ConvertEngineInterface;
@@ -13,6 +15,7 @@ use PswKey\Interface\ConvertBaseInterface;
 use PswKey\Util\Base\CheckBase;
 use PswKey\Util\Base\InitArray;
 use PswKey\Util\Base\Precompute;
+use PswKey\Util\Mapping\Merge;
 use PswKey\Util\Secure\MemeZero;
 
 /**
@@ -37,7 +40,7 @@ class PswKey extends ShuffleChars implements ConvertBaseInterface, ConvertEngine
         $configTo = $this->{$this->_to} ?? null;
 
         if(!$configFrom || !$configTo) {
-            throw new ConfigurationException('Binding properties from() and/or to() are missing');
+            throw new ConfigurationException(InternalMessage::INCOMPLETE_METHOD_CHAIN);
         }
 
         //Binding methods
@@ -51,7 +54,7 @@ class PswKey extends ShuffleChars implements ConvertBaseInterface, ConvertEngine
             "precomputeprecompute" => "precompute{$configFrom['base']}precompute{$configTo['base']}",
             "computecompute" => "compute",
             "bitshiftbitshift" => "bitshift",
-            default => throw new BaseException('Combination must be implemented first')
+            default => throw new BaseException(InternalMessage::CONFIG_ERROR_DEFAULT)
         };
 
         try {
@@ -59,8 +62,9 @@ class PswKey extends ShuffleChars implements ConvertBaseInterface, ConvertEngine
         }
         catch(Exception $e) {
             $messages = ErrorMessage::create($e->getMessage());
-            $this->setErrorStatus(false)->setErrorMessage($messages['systemError'])->setCustomerMessage($messages['customerError'])
-                ->setInfo($func . "(base{$configFrom['base']},base{$configTo['base']})");
+            $this->setErrorStatus(false)
+                ->setInternalMessage($messages['internal'])
+                ->setClientMessage($messages['client']);
         
             return null;
         }
@@ -69,7 +73,11 @@ class PswKey extends ShuffleChars implements ConvertBaseInterface, ConvertEngine
     public function from(int $base) : self {
 
         if(!CheckBase::defaultShuffle($base)) {
-            throw new BaseException("Base{$base} is currently not implemented by default, use customFrom() function");
+            throw new BaseException(
+                Merge::string(InternalMessage::RADIX_UNSUPPORTED, [
+                    '%base%', "Base{$base}"
+                ])
+            );
         } 
 
         //binding baseFrom
@@ -97,7 +105,11 @@ class PswKey extends ShuffleChars implements ConvertBaseInterface, ConvertEngine
     public function to(int $base) : self {
 
         if(!CheckBase::defaultShuffle($base)) {
-            throw new BaseException("Base{$base} is currently not implemented by default, use customFrom() function");            
+            throw new BaseException(
+                Merge::string(InternalMessage::RADIX_UNSUPPORTED, [
+                    '%base%', "Base{$base}"
+                ])
+            );       
         }
 
         //Binding baseTo
@@ -126,21 +138,29 @@ class PswKey extends ShuffleChars implements ConvertBaseInterface, ConvertEngine
     public function customFrom(array $singleBytes, int $baseLength, bool $shuffle = true) : self {
 
         if($baseLength < 4 || $baseLength > 255) {
-            throw new ConfigurationException("Required baseLength must be between 4 and 255 bytes");  
+            throw new ConfigurationException(
+                Merge::string(InternalMessage::INVALID_ALPHABYTES, [
+                    '%custom%' => 'customFrom'
+                ])
+            );  
         }
 
         $singleBytes = array_values($singleBytes); //make sure that the key is start from 0
 
         $count = count($singleBytes);
         if($count < $baseLength) {
-            throw new ConfigurationException("Alfabytes-length must be more or equal than base-length");  
+            throw new ConfigurationException(
+                Merge::string(InternalMessage::INVALID_ALPHABYTES, [
+                    '%custom%' => 'customFrom'
+                ])
+            );  
         }
 
         //Binding custom
         $this->_from = "_customConfig256From";
         $this->{"lazyLoading" . $this->_from}();
         $this->_customConfig256From['base'] = $baseLength;
-        $this->_customConfig256From['context'] = "Cust_" . sprintf('%03d', $baseLength);
+        $this->_customConfig256From['context'] = ShuffleProfile::DERIVATION_CUSTOM . sprintf('%03d', $baseLength);
 
         $shifting = Precompute::isBitshift($baseLength);
         if($shifting !== null) {
@@ -152,7 +172,7 @@ class PswKey extends ShuffleChars implements ConvertBaseInterface, ConvertEngine
             $this->_customConfig256From['exponentiation'] = Precompute::initBase($baseLength);
 
             if($this->_customConfig256From['exponentiation'] === null) {
-                throw new ConfigurationException("Configuration of exponentiation in customFrom is missing");
+                throw new ConfigurationException(InternalMessage::CONFIG_ERROR_DEFAULT);
             }
 
             $customConfig256From = &$this->_customConfig256From['exponentiation']['init'];
@@ -184,7 +204,11 @@ class PswKey extends ShuffleChars implements ConvertBaseInterface, ConvertEngine
 
         $propName = $this->{$this->_from}['bindingStr'];
         if (strpos($this->{$propName}, "\0") !== false) {
-            throw new ConfigurationException("SingleBytes in customFrom() contains padding zero");
+            throw new ConfigurationException(
+                Merge::string(InternalMessage::INVALID_PADDING_ZERO, [
+                    'custom' => 'customFrom()'
+                ])
+            );
         }
 
         return $this;
@@ -193,21 +217,29 @@ class PswKey extends ShuffleChars implements ConvertBaseInterface, ConvertEngine
     //First argument most be an ord bewteen 1 and 255 per index
     public function customTo(array $singleBytes, int $baseLength, bool $shuffle = true) : self {
         if($baseLength < 4 || $baseLength > 255) {
-            throw new ConfigurationException("Required baseLength must be between 4 and 255 bytes");  
+            throw new ConfigurationException(
+                    Merge::string(InternalMessage::INVALID_ALPHABYTES, [
+                    '%custom%' => 'customTo'
+                ])
+            );  
         }
 
         $singleBytes = array_values($singleBytes); //make sure that the key is start from 0
 
         $count = count($singleBytes);
         if($count > 255 || $count < $baseLength) {
-            throw new ConfigurationException("singleBytes-length must be more or equal than base-length");  
+            throw new ConfigurationException(
+                Merge::string(InternalMessage::INVALID_ALPHABYTES, [
+                    '%custom%' => 'customTo'
+                ])
+            );  
         }
 
         //Binding custom
         $this->_to = "_customConfig256To";
         $this->{"lazyLoading" . $this->_to}();
         $this->_customConfig256To['base'] = $baseLength;
-        $this->_customConfig256To['context'] = "Cust_" . sprintf('%03d', $baseLength);
+        $this->_customConfig256To['context'] = ShuffleProfile::DERIVATION_CUSTOM . sprintf('%03d', $baseLength);
 
         $shifting = Precompute::isBitshift($baseLength);
         if($shifting !== null) {
@@ -219,7 +251,7 @@ class PswKey extends ShuffleChars implements ConvertBaseInterface, ConvertEngine
             $this->_customConfig256To['exponentiation'] = Precompute::initBase($baseLength);
 
             if($this->_customConfig256To['exponentiation'] === null) {
-                throw new ConfigurationException("Configuration of exponentiation in customTo is missing");
+                throw new ConfigurationException(InternalMessage::CONFIG_ERROR_DEFAULT);
             }
                     
             for ($i=$this->_customConfig256To['exponentiation']['exp']; $i >= 0; $i--) { 
@@ -249,7 +281,11 @@ class PswKey extends ShuffleChars implements ConvertBaseInterface, ConvertEngine
 
         $propName = $this->{$this->_to}['bindingStr'];
         if(strpos($this->{$propName}, "\0") !== false) {
-            throw new ConfigurationException("SingleBytes in customTo() contains padding zero");
+            throw new ConfigurationException(
+                Merge::string(InternalMessage::INVALID_PADDING_ZERO, [
+                    'custom' => 'customTo()'
+                ])
+            );       
         }
 
         return $this;

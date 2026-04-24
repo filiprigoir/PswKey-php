@@ -4,10 +4,8 @@ namespace Tests\Unit\PswKey;
 
 use Datetime;
 use PHPUnit\Framework\TestCase;
-use PswKey\Service\KeyStream;
-use PswKey\Util\Math\Calculation;
-use PswKey\Exception\InputException;
 use PswKey\Exception\ConfigurationException;
+use PswKey\Service\KeyStream;
 
 class ByteStreamTest extends TestCase
 {
@@ -17,7 +15,7 @@ class ByteStreamTest extends TestCase
         return new KeyStream($seedPhrase, $key);
     }
 
-    public function testByteStream_everycall_differentOutput(): void
+    public function test_two_calls_different_results(): void
     {
         $keyStream = $this->getInstance("Test a KeyStream");
 
@@ -30,6 +28,7 @@ class ByteStreamTest extends TestCase
             "TestKey8"
         );
 
+        //When no streamId is entered, streamID is encremented by 1 for each call
         $key2 = '';
         $keyStream->byteStream(
             function($secretKey) use (&$key2) {
@@ -45,7 +44,7 @@ class ByteStreamTest extends TestCase
         );
     }
 
-    public function testByteStream_enterID_sameOutput(): void
+    public function test_enter_id_same_result(): void 
     {
         $keyStream = $this->getInstance("Test a KeyStream");
 
@@ -56,7 +55,7 @@ class ByteStreamTest extends TestCase
             },
             2048,
             "TestKey8"  
-            //Enter 1 or leave it blank and the internal counter will increment automatically.
+            //Enter 1 and the same stream will be generated again, as long as the context is the same.
         );
 
         $key2 = '';
@@ -75,7 +74,7 @@ class ByteStreamTest extends TestCase
         );
     }
 
-    public function testByteStream_setcustom_differentOutput(): void
+    public function test_setcustom_different_result(): void
     {
         $keyStream = $this->getInstance("Test a KeyStream");
 
@@ -89,7 +88,7 @@ class ByteStreamTest extends TestCase
             2
         );
 
-        $keyStream->setCustomKey("New Key entered"); //Custom key has a different shuffling 
+        $keyStream->setCustomKey("New Key entered"); //different custom key must generate different stream with same context and streamID
 
         $key2 = '';
         $keyStream->byteStream(
@@ -106,7 +105,7 @@ class ByteStreamTest extends TestCase
             $key2,
         );
 
-        $keyStream->resetCustomKey(); //Remove Custom key and it most be same as key1 again
+        $keyStream->resetCustomKey(); //clear custom key and it most be same as key1 again
         $key3 = '';
         $keyStream->byteStream(
             function($secretKey) use (&$key3) {
@@ -122,10 +121,13 @@ class ByteStreamTest extends TestCase
             $key3,
         );
     }
-
-    public function testByteStream_wrongcontext_usesDefault(): void
+ 
+    public function test_context_to_short_use_default(): void
     {
         $keyStream = $this->getInstance("Test a KeyStream");
+
+        //Length of the context must be exacly 8 bytes (sodium extension role)
+        $this->expectException(ConfigurationException::class);
 
         $key1 = '';
         $keyStream->byteStream(
@@ -133,29 +135,7 @@ class ByteStreamTest extends TestCase
                 $key1 = $secretKey;
             },
             32,
-            "Test" //8 bits is required, default is used 
-        );
-
-        $this->assertNotEmpty(
-            $key1,
-        );
-    }
-
-    public function testByteStream_nullcontext_usesDefault(): void
-    {
-        $keyStream = $this->getInstance("Test a KeyStream");
-
-        $key1 = '';
-        $keyStream->byteStream(
-            function($secretKey) use (&$key1) {
-                $key1 = $secretKey;
-            },
-            32,
-            null
-        );
-
-        $this->assertNotEmpty(
-            $key1,
+            "Test" //8 bits is required, exception
         );
     }
 }

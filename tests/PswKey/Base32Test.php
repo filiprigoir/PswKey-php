@@ -16,7 +16,7 @@ class Base32Test extends TestCase
         return new KeyStream($seedPhrase, $key);
     }
 
-    //Every test a different instance in time
+    //Each instance has a different key, so the same base32 string will not be valid in different instances
     private function instancePswKey(string $seedPhrase = "deterministic validation", bool $hasKey = true) : PswKey {
         return new PswKey(
             $this->getKeyStream($seedPhrase, $hasKey)
@@ -51,7 +51,7 @@ class Base32Test extends TestCase
 
     public function test_randomly32_fail(): void
     {
-        //In this service it is not possible to enter a randomly or used base32 string.
+        //it is not possible to enter a base32 string that was generated in a different instance, as the key is different in each instance in this setting
         $pswKey = $this->instancePswKey();
         $base32 = $pswKey
             ->from(100)
@@ -60,7 +60,7 @@ class Base32Test extends TestCase
                 transcode::getISO($this->getBase100UTF())
         );
 
-        //New instance in time (The previous base32 cannot be valid in the new instance)
+        //new instance with a different key, so the same base32 string will not be valid
         $pswKey = $this->instancePswKey();
         $decode = $pswKey
             ->from(32)

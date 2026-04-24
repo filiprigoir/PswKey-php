@@ -6,6 +6,9 @@ class CheckBase {
 
     private function __construct() {}
 
+    /**
+     * Determines if the base is one of the predefined bases
+     */
     public static function defaultShuffle(int $base) : bool {
 
         static $allowed = null;

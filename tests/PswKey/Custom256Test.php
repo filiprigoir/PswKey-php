@@ -93,7 +93,7 @@ class Custom256Test extends TestCase
     {
         $pswKey = $this->instancePswKey();  
 
-        //Get man single bytes in a different order than default order
+        //Get single bytes in a different order than default order
         $arrSingleBytes = $this->getSingleBytes();
 
         //custom to() without customkey
@@ -125,7 +125,7 @@ class Custom256Test extends TestCase
     public function test_customKey_fail(): void {
         $pswKey = $this->instancePswKey();  
 
-        //Get man single bytes in a different order than default order
+        //Get single bytes in a different order than default order
         $arrSingleBytes = $this->getSingleBytes();
 
         //custom to() with set customkey

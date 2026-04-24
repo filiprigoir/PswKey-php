@@ -26,7 +26,7 @@ class FixedKeyTest extends TestCase
     }
 
     private function getConvertedBase10() : string {
-        return "4268513814125533843126150109739900138483816526509820840147020365864803053467373476358147379515239173056156725039968947467965551971837519384564135499785990765200362340869875802266895425716435027464730775263945202677347776463622034329152090122406";
+        return "8152497455918660544244360347699377405434672844118719540338592328204823759488329495586738325636760869754563821199857938782128863707341837746662403093169889953377927657208718962780793043076258591062694118449966194405940595789227231425361989916124";
     }
 
     private function getConvertedBase100() : string {
@@ -34,23 +34,23 @@ class FixedKeyTest extends TestCase
     }
 
     private function getConvertedBase32() : string {
-        return "UW7pbss2AKNWcqt7gRcpkgAeH3aUqq3SgWisUbsip3NWkEag3piKkWD3H0jGUgjUx3ostEaDeNcAbAGeHRjgNj7GUSqMREweeWiMa2sxxWopisDwb0gphiMtR7WGKRMhpeDptNGiebMhqMoUt3GgeNsjtqcKUs7petojeN3tg0wURN7DpqWKqM0b0RcaKDMSANKA";
+        return "te2aw44vMpCeinW2Z1iaJZMY6gItnngfZej4tw4jagCeJqIZgajpJeSg6m97tZ9togh4WqISYCiMwM7Y619ZC927tfnF1qPYYejFIv4ooehaj4SPwmZaHjFW12e7p1FHaYSaWC7jYwFHnFhtWg7ZYC49Wnipt42aYWh9YCgWZmPt1C2SanepnFmwm1iIpSFfMCpW";
     }
 
     private function getConvertedBase58() : string {
-        return "PG76RwHdSLpJac576ikdgvm6urMKgvXLTuPFUyoaWW15aU7E8CrvhckxYXXptyKqzuQGiauB1qmAr1u5E2NYFC532DQeP5JZz38EqGA5kgnZNyYNiK2mYb4CFtBGFpgG39ZLQRM8aCf7X7nzZuzAcny1i9JCoNJ2qTKqRPiZ";
+        return "1Au83KDNd6YohyCu8X5NktE8FP7fkt96bF14TRUhqqMChTuwngPtsy5iL99YBRfrmFWAXhFJMrEcPMFCw2aL4gCz2QWZ1CoxmznwrAcC5kVxaRLaXf2ELGpg4BJA4YkAzHx6W37nhgeu9uVmxFmcyVRMXHogUao2rbfr31Xx";
     }
 
     private function getConvertedBase62() : string {
-        return "vBazEtGmy0Z4XPk0D76Oi0USvZn40cKQtOIO4VDbiYrhS0lVRas8QeNkGe71IZQpxIVJzsK3naPSiM0P9Rw2o7bAdhep6AU6xMKtR2cuLKdsBPLGZbNacBk5HQQ16FXnsTaG0t1c7xKGi8afEqOAmYAyZe8IF9SznEiLNoJt";
+        return "sitPk8gJfpT4x5Gpv0aeIphFsTz4pHO38eQe4Vv1ISRuFpWVwtA23UrGgU0dQT3yqQVCPAOMzt5FIEp5bwN9n017luUya7haqEO8w9HcBOlAi5BgT1rtHiGDL33daXxzAYtgp8dH0qOgI2tjkZe7JS7fTU2QXbFPzkIBrnC8";
     }
 
     private function getConvertedBase64() : string {
-        return "ikyBV9AAgNl7BVMRBqQUzT82FjsbxVMSxZw7BCEkmtbhNoQXrSicrSwIDtEcAvZo0nlXys7GgIAEypeUAto7ts3f3Qf+OBi2BpwPrnaYMTOdDqNhxpgTj52JBTApO9ikGBiUytPIio5/2oyJOSaUPoEy/n2RPJwAtuK";
+        return "z/HGT0eecya5GTSEG6vo+7CknV9A4TSD4bt5GRs/XWApyjvOKDzhKDtfdWsheLbjmMaOH95IcfesHxqoeWj5W9F8Fv8QBGzkGxtiKMNgS7BPd6yp4xc7VlkZG7exB0z/IGzoHWifzjlYkjHZBDNoijsHYMkEiZteWr3";   
     }
 
     private function getConvertedCustom_32() : string {
-        return "KA´eT££a/BgAi5&´r³ie{r/bxI§K55I*rAP£KT£PeIgA{7§rIePB{AfIxRDlKrDK.I@£&7§fbgi/T/lbx³DrgD´lK*5V³7WbbAPV§a£..A@eP£fWTRreyPV&³´AlB³Vyebfe&glPbTVy5V@K&Ilrbg£D&5iBK£´eb&@DbgI&rRWK³g´fe5AB5VRTR³i§BfV*/gB/";
+        return ";oEaxUUVh'ro[yiE_B[a7_h?z}J;yy}d_oRU;xURa}ro7QJ_}aR'7o#}z|wG;_w;p}TUiQJ#?r[hxhG?zBw_rwEG;dyfBQ²??oRfJVUppoTaRU#²x|_a`RfiBEoG'Bf`a?#airGR?xf`yfT;i}G_?rUwiy[';UEa?iTw?r}i_|²;BrE#ayo'yf|x|B[J'#fdhr'p";
     }
 
     public function test_from_base100(): void
@@ -58,10 +58,10 @@ class FixedKeyTest extends TestCase
         $text = $this->getText();
         $pswkey = $this->instancePswKey();
 
-        //Create single bytes first, there are int over 127
+        //Create single bytes first. Some chars are over 127 so use getISO
         $base100 = Transcode::getISO($this->getConvertedBase100());
 
-        //Note: This service only accepts single bytes. It does not work with multiple bytes with prefixes in string.
+        //Note: This repo only accepts single bytes. It does not work with multiple bytes with prefixes in string.
         $decode = $pswkey
             ->from(100)
             ->to(256)
@@ -78,10 +78,8 @@ class FixedKeyTest extends TestCase
         $text = $this->getText();
         $pswkey = $this->instancePswKey();
 
-        //Create single bytes first, there are int over 127
         $base10 = Transcode::getISO($this->getConvertedBase10());
 
-        //Note: This service only accepts single bytes. It does not work with multiple bytes with prefixes in string.
         $decode = $pswkey
             ->from(10)
             ->to(256)
@@ -98,10 +96,8 @@ class FixedKeyTest extends TestCase
         $text = $this->getText();
         $pswkey = $this->instancePswKey();
 
-        //Create single bytes first, there are int over 127
         $base32 = $this->getConvertedBase32();
 
-        //Note: This service only accepts single bytes. It does not work with multiple bytes with prefixes in string.
         $decode = $pswkey
             ->from(32)
             ->to(256)
@@ -118,10 +114,8 @@ class FixedKeyTest extends TestCase
         $text = $this->getText();
         $pswkey = $this->instancePswKey();
 
-        //Create single bytes first, there are int over 127
         $base58 = $this->getConvertedBase58();
 
-        //Note: This service only accepts single bytes. It does not work with multiple bytes with prefixes in string.
         $decode = $pswkey
             ->from(58)
             ->to(256)
@@ -138,10 +132,8 @@ class FixedKeyTest extends TestCase
         $text = $this->getText();
         $pswkey = $this->instancePswKey();
 
-        //Create single bytes first, there are int over 127
         $base62 = $this->getConvertedBase62();
 
-        //Note: This service only accepts single bytes. It does not work with multiple bytes with prefixes in string.
         $decode = $pswkey
             ->from(62)
             ->to(256)
@@ -153,16 +145,13 @@ class FixedKeyTest extends TestCase
         );
     }
 
-
     public function test_from_base64(): void
     {
         $text = $this->getText();
         $pswkey = $this->instancePswKey();
 
-        //Create single bytes first, there are int over 127
         $base64 = $this->getConvertedBase64();
 
-        //Note: This service only accepts single bytes. It does not work with multiple bytes with prefixes in string.
         $decode = $pswkey
             ->from(64)
             ->to(256)
@@ -179,12 +168,10 @@ class FixedKeyTest extends TestCase
         $text = $this->getText();
         $pswkey = $this->instancePswKey();
 
-        //Create single bytes first, there are int over 127
         $custom32 = Transcode::getISO($this->getConvertedCustom_32());
 
-        //Note: This service only accepts single bytes. It does not work with multiple bytes with prefixes in string.
         $decode = $pswkey
-            ->customFrom(initArray::_base100(), 32, true) //shuffles 100 char but take only 32 char with Fisher-Yates
+            ->customFrom(initArray::_base100(), 32, true) //true = shuffles 100 char but take only 32 char 
             ->to(256)
             ->convert($custom32);
 

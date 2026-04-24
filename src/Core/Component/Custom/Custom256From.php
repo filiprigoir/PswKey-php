@@ -5,19 +5,13 @@ namespace PswKey\Core\Component\Custom;
 
 /**              
 * Inject Custom base string-methods
+* Custom base is a user defined baseFrom with range from 4 to 256 bytes
 */
 trait Custom256From {
   
-    //Custom search table with range posibility from 4 to 256 bytes
     protected array $_custom256From;
-
-    //Custom reverse table with range posibility from 4 to 256 bytes
     protected array $_custom256FromReverse;
-
-    //Custom string to check in
     protected ?string $_custom256FromStr = null;
-
-    //Configuration Custom random base
     protected ?array $_customConfig256From = null;
 
     protected function lazyLoading_customConfig256From() : void {
@@ -27,7 +21,7 @@ trait Custom256From {
                 'bindingEncode' => '_custom256From',
                 'bindingDecode' => '_custom256FromReverse',
                 'bindingStr' => '_custom256FromStr',
-                'context' => 'MyCustom',
+                'context' => null,
                 'process'=> 'compute',
                 'bitmask' => [
                     '2' => 0x03, '3' => 0x07, '4' => 0x0F, '5' => 0x1F, 
@@ -40,6 +34,5 @@ trait Custom256From {
         }
     }
 
-    //contract to implement
     abstract function customFrom(array $singleBytes, int $requiredLength, bool $shuffle = true) : self;
 }

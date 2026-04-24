@@ -20,10 +20,9 @@ class ConvertEngineTest extends TestCase
         $date = new DateTime();
         $key = \strtotime($date->format('Y-m-d H:i:s')) . $date->format('u');
 
-        //Encode
         $pswKey = $this->getInstance($key);
 
-        //hard coded default setting
+        //hard coded default setting for tests
         $pswKey->gmpEnable(true);
         $pswKey->longEndianChunk(true);
 
@@ -31,7 +30,7 @@ class ConvertEngineTest extends TestCase
         $encoded = $pswKey->from(256)->to(58)->convert($randomBytes);
 
         unset($pswKey);
-        //Decode (simulate as distance call and set instance)
+        //Decode (simulate distance call)
         $pswKey = $this->getInstance($key);
         //hard coded default setting
         $pswKey->gmpEnable(true);
@@ -39,7 +38,6 @@ class ConvertEngineTest extends TestCase
 
         $decoded = $pswKey->from(58)->to(256)->convert($encoded);
 
-        //Orginal compare
         $this->assertEquals(
             $randomBytes,
             $decoded
@@ -51,7 +49,6 @@ class ConvertEngineTest extends TestCase
         $date = new DateTime();
         $key = \strtotime($date->format('Y-m-d H:i:s')) . $date->format('u');
 
-        //Encode
         $pswKey = $this->getInstance($key);
 
         //hard coded default setting
@@ -62,7 +59,7 @@ class ConvertEngineTest extends TestCase
         $encoded = $pswKey->from(256)->to(32)->convert($randomBytes);
 
         unset($pswKey);
-        //Decode (simulate as distance call and set instance)
+        //Decode (simulate distance call)
         $pswKey = $this->getInstance($key);
         //hard coded default setting
         $pswKey->gmpEnable(true);
@@ -70,7 +67,6 @@ class ConvertEngineTest extends TestCase
 
         $decoded = $pswKey->from(32)->to(256)->convert($encoded);
 
-        //Orginal compare
         $this->assertEquals(
             $randomBytes,
             $decoded
@@ -82,7 +78,6 @@ class ConvertEngineTest extends TestCase
         $date = new DateTime();
         $key = \strtotime($date->format('Y-m-d H:i:s')) . $date->format('u');
 
-        //Encode
         $pswKey = $this->getInstance($key);
 
         //hard coded default setting
@@ -101,7 +96,6 @@ class ConvertEngineTest extends TestCase
 
         $decoded = $pswKey->from(100)->to(256)->convert($encoded);
 
-        //Orginal compare
         $this->assertEquals(
             $randomBytes,
             $decoded
@@ -113,7 +107,6 @@ class ConvertEngineTest extends TestCase
         $date = new DateTime();
         $key = \strtotime($date->format('Y-m-d H:i:s')) . $date->format('u');
 
-        //Encode
         $pswKey = $this->getInstance($key);
 
         //hard coded default setting
@@ -132,7 +125,6 @@ class ConvertEngineTest extends TestCase
 
         $decoded = $pswKey->from(10)->to(256)->convert($encoded);
 
-        //Orginal compare
         $this->assertEquals(
             $randomBytes,
             $decoded
@@ -144,7 +136,6 @@ class ConvertEngineTest extends TestCase
         $date = new DateTime();
         $key = \strtotime($date->format('Y-m-d H:i:s')) . $date->format('u');
 
-        //Encode
         $pswKey = $this->getInstance($key);
 
         //hard coded default setting
@@ -163,7 +154,6 @@ class ConvertEngineTest extends TestCase
 
         $decoded = $pswKey->from(58)->to(256)->convert($encoded);
 
-        //Orginal compare
         $this->assertNotEquals(
             $randomBytes,
             $decoded
@@ -175,7 +165,6 @@ class ConvertEngineTest extends TestCase
         $date = new DateTime();
         $key = \strtotime($date->format('Y-m-d H:i:s')) . $date->format('u');
 
-        //Encode
         $pswKey = $this->getInstance($key);
 
         //hard coded default setting
@@ -192,12 +181,11 @@ class ConvertEngineTest extends TestCase
         //hard coded default setting
         $pswKey->gmpEnable(false);
         $pswKey->longEndianChunk(false);
-        //$pswKey->enabledFFI(false); disabled => surely it should be the same for both FFI and PHP
+        //$pswKey->enabledFFI(false) = disabled => surely it should be the same for both FFI and PHP
         //Note: if FFI is not available, every test is using PHP
 
         $decoded = $pswKey->from(58)->to(256)->convert($encoded);
 
-        //Orginal compare
         $this->assertEquals(
             $randomBytes,
             $decoded

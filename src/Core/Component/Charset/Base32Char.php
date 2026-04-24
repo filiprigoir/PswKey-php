@@ -3,21 +3,16 @@ declare(strict_types=1);
 
 namespace PswKey\Core\Component\Charset;
 
+use PswKey\Core\Modifiers\ShuffleProfile;
+
 /**              
 * Inject Base32 string-methods
 */
 trait Base32Char {
     
-    //Base32 array table to search in
     protected array $_base32;
-
-    //Custom reverse table
     protected array $_base32Reverse;
-
-    //Base32string to check in
     protected ?string $_base32Str = null;
-
-    //Configuration base32
     protected ?array $_baseConfig32 = null;
 
     protected function lazyLoading_baseConfig32() : void {
@@ -27,7 +22,7 @@ trait Base32Char {
                 'bindingEncode' => '_base32',
                 'bindingDecode' => '_base32Reverse',
                 'bindingStr' => '_base32Str',
-                'context' => 'Chars_32',
+                'context' => ShuffleProfile::DERIVATION_STANDARD . '032',
                 'process'=> 'bitshift',
                 'bitmask' => 0x1F,
                 'base' => 32,

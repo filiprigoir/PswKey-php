@@ -4,7 +4,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
-// De tabel is extern gedeclareerd → geen dubbele definities
+//Extern declaration of the limits table, defined in limits.c
 extern const uint16_t LIMITS_TABLE[257];
 
 #endif

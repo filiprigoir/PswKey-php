@@ -16,7 +16,6 @@ class Base64Test extends TestCase
         return new KeyStream($seedPhrase, $key);
     }
 
-    //Every test a different instance in time
     private function instancePswKey(string $seedPhrase = "deterministic validation", bool $hasKey = true) : PswKey {
         return new PswKey(
             $this->getKeyStream($seedPhrase, $hasKey)
@@ -51,7 +50,6 @@ class Base64Test extends TestCase
 
     public function test_randomly64_fail(): void
     {
-        //In this service it is not possible to enter a randomly or used base32 string.
         $pswKey = $this->instancePswKey();
         $base64 = $pswKey
             ->from(100)

@@ -5,8 +5,6 @@ namespace Tests\Unit\PswKey;
 use Datetime;
 use PHPUnit\Framework\TestCase;
 use PswKey\Service\KeyStream;
-use PswKey\Util\Math\Calculation;
-use PswKey\Exception\InputException;
 use PswKey\Exception\ConfigurationException;
 
 class DerivedKeyTest extends TestCase
@@ -17,13 +15,13 @@ class DerivedKeyTest extends TestCase
         return new KeyStream($seedPhrase, $key);
     }
 
-    public function testDerivedKey_negative_length(): void
+    public function test_negative_length_gives_exception(): void
     {
         $keyStream = $this->getInstance("Test a KeyStream");
         $keyLength = '';
 
-        //Length should be between 1 and 256
-        $this->expectException(InputException::class);
+        //Length most be between 1 and 256
+        $this->expectException(ConfigurationException::class);
 
         $keyStream->derivedKey(
             function($secretKey) use (&$keyLength) {
@@ -34,24 +32,24 @@ class DerivedKeyTest extends TestCase
         );
     }
 
-    public function testDerivedKey_out_length(): void
+    public function test_out_of_range_length_exception(): void
     {
         $keyStream = $this->getInstance("Test a KeyStream");
         $keyLength = '';
 
-        //Length should be between 1 and 256
-        $this->expectException(InputException::class);
+        //Length cannot be lower than 16 bytes
+        $this->expectException(ConfigurationException::class);
 
         $keyStream->derivedKey(
             function($secretKey) use (&$keyLength) {
                 $keyLength = strlen($secretKey);
             },
-            257,
+            5,
             "TestKey2"
         );
     }
 
-    public function testDerivedKey_wrongcontext_length(): void
+    public function test_wrong_context_exception(): void
     {
         $keyStream = $this->getInstance("Test a KeyStream");
         $keyLength = '';
@@ -64,29 +62,27 @@ class DerivedKeyTest extends TestCase
                 $keyLength = strlen($secretKey);
             },
             16,
-            "TestKey"
+            "TestKey" //must be 8 bytes, otherwise exception is thrown
         );
     }
     
-    public function testDerivedKey_ok_length(): void
+    public function test_correct_length_ok(): void
     {
         $keyStream = $this->getInstance("Test a KeyStream");
 
-        $keyLength1 = 0;
+        $keyLength = 0;
         $keyStream->derivedKey(
-            function($secretKey) use (&$keyLength1) {
-                $keyLength1 = strlen($secretKey);
+            function($secretKey) use (&$keyLength) {
+                $keyLength = strlen($secretKey);
             },
-            64,
+            65,
             "TestKey3"
         );
 
-        //Derived Key includes the possibility for Rejection Sampling (ie.: 64 will become 81)
-        $requiredLength = Calculation::getFactor(64);
-        $this->assertEquals($requiredLength, $keyLength1);
+        $this->assertEquals(1 * 64 + 16, $keyLength);
     }
 
-    public function testDerivedKey_ok_differentOutput(): void
+    public function test_other_context_gives_different_result(): void
     {
         $keyStream = $this->getInstance("Test a KeyStream");
 
@@ -114,7 +110,7 @@ class DerivedKeyTest extends TestCase
         );
     }
 
-    public function testDerivedKey_customTrue_differentOutput(): void
+    public function test_customKey_true_different_result(): void
     {
         $keyStream = $this->getInstance("Test a KeyStream");
 
@@ -125,7 +121,7 @@ class DerivedKeyTest extends TestCase
             },
             64,
             "TestKey6",
-            true
+            true //<= custom key enabled
         );
 
         $keyStream->setCustomKey("New Key entered");
@@ -137,7 +133,7 @@ class DerivedKeyTest extends TestCase
             },
             64,
             "TestKey6",
-            true
+            true //<= custom key enabled
         );
 
         $this->assertNotEquals(
@@ -146,7 +142,7 @@ class DerivedKeyTest extends TestCase
         );
     }
 
-    public function testDerivedKey_customFalse_sameOutput(): void
+    public function test_customKey_true_same_result(): void
     {
         $keyStream = $this->getInstance("Test a KeyStream");
 
@@ -157,7 +153,7 @@ class DerivedKeyTest extends TestCase
             },
             64,
             "TestKey7",
-            false
+            false //<= custom key disabled, even if custom key is set, it should not affect the result
         );
 
         $keyStream->setCustomKey("New Key entered");
@@ -169,7 +165,7 @@ class DerivedKeyTest extends TestCase
             },
             64,
             "TestKey7",
-            false
+            false //<= custom key disabled, even if custom key is set, it should not affect the result
         );
 
         $this->assertEquals(

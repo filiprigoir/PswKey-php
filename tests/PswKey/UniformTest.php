@@ -16,14 +16,12 @@ class UniformTest extends TestCase
         return new KeyStream($seedPhrase, empty($hasKey) === true ? $key : $hasKey);
     }
 
-    //Every test a different instance in time
     private function instancePswKey(string $seedPhrase, ?string $hasKey = null) : PswKey {
         return new PswKey(
             $this->getKeyStream($seedPhrase, $hasKey)
         );
     }
 
-    //Default base10 requires digits as input
     private function getDigits() : string {
         //610 random digits in string
         return '570417759969558280306741360185654482132421204132876178709721743832046592394771642905945187497632045939206449593'
@@ -50,10 +48,8 @@ class UniformTest extends TestCase
             $status->valid
         );
 
-        //is output not empty? Yes!
         $this->assertNotNull($encode); 
 
-        //is output different from original digits? Yes!
         $this->assertNotEquals(
             $maxBigEndianUniform,
             $encode
@@ -64,7 +60,6 @@ class UniformTest extends TestCase
             ->to(10)
             ->convert($encode);
 
-        //is outcome of decode same as original digits
         $this->assertEquals(
             $maxBigEndianUniform,
             $decode
@@ -73,14 +68,16 @@ class UniformTest extends TestCase
 
     public function test_non_uniform10(): void
     {
+        //The UTC timestamp "1776788605656989" is involved to simulate a non-uniform output
+        //169 bytes is the limit for random digits
+        //Note: entering free digits are not always possible, because the uniform format is designed to be deterministic output
         $digits = $this->getDigits();
-        $pswkey = $this->instancePswKey("deterministic validation", "1772226563657584"); //fixed key to provoke a not-uniform key in the proces
-
+        $pswkey = $this->instancePswKey("deterministic validation", "1777053641458679");
+        
         $encode = $pswkey
             ->from(10)
             ->to(256)
             ->convert($digits);
-
 
         $this->assertTrue(
             empty($encode)
@@ -92,18 +89,17 @@ class UniformTest extends TestCase
         );
 
         $this->assertTrue(
-            preg_match("/non-uniform/i", $status->system) === 1 ? true : false
+            preg_match("/non-uniform/i", $status->internalMessage) === 1 ? true : false
         );
     }
 
-   //Note: base100 & base10 to base256 are reverse decoding. With random bytes it will fail, unless string is 169 bytes or less (so key of 128 bytes will always work)
-   //Started with base256 to another base will always resulting in as uniform format
+    //Note: here it is possible beause less then 169 bytes. More than 169 bytes cannot be guaranteed during decoding, unless started from base256
+    //Keep in mind, base100 is de encoded here, so it goes reverse to base256 decoded.
     public function test_base100_to_base256_ok(): void
     {
         $bytes100 = Transcode::getISO("0987654321abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!\"#$%&'()*+,-./:;\\=´?@[]^_`{|}~£§¨²³µ°");
         $pswkey = $this->instancePswKey("Uniform format is limited to 169 bytes. More bytes cannot be guaranteed during decoding, unless started from base256");
 
-        //Note: This service only accepts single bytes. It does not work with multiple bytes with prefixes in string.
         $encode = $pswkey
             ->from(100)
             ->to(256)
@@ -119,7 +115,6 @@ class UniformTest extends TestCase
             ->to(100)
             ->convert($encode);
 
-        //is outcome of decode same as original digits again? Yes!
         $this->assertEquals(
             $bytes100,
             $decode

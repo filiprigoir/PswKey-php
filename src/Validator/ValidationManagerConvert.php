@@ -3,14 +3,17 @@ declare(strict_types=1);
 
 namespace PswKey\Validator;
 
+use PswKey\ErrorMessage\ClientMessage;
+use PswKey\ErrorMessage\InternalMessage;
 use PswKey\Exception\InputException;
+use PswKey\Util\Mapping\Merge;
 
 /**              
-* Inject ErrorHandling-methods in class Character
+* Inject ErrorHandling-methods in class BaseConvert
 */
-trait InputHandlerCharacter {
+trait ValidationManagerConvert {
 
-    use InputHandler;
+    use ValidationManager;
 
     protected function checkBase(string $data, int $len, ?string $allowed, array $configFrom) : bool {
 
@@ -21,14 +24,16 @@ trait InputHandlerCharacter {
         if($checksum && $base === 100) {
             if($checkNumber < 0.50) {   
                 throw new InputException(
-                    "At least one character must be entered/Character input is too short"
+                    Merge::string(InternalMessage::LENGTH_REQUIRED, 
+                        ['%required%' => 'one character'] ) . "/" . ClientMessage::INVALID_INPUT
                 );
             }
         }
         elseif($checkNumber < 1) {
-            throw new InputException(
-                "At least two characters must be entered/Character input is too short"
-            );
+                throw new InputException(
+                    Merge::string(InternalMessage::LENGTH_REQUIRED, 
+                        ['%required%' => 'two characters'] ) . "/" . ClientMessage::INVALID_INPUT
+                );
         }
 
         $snip = (int)ceil($checkNumber);

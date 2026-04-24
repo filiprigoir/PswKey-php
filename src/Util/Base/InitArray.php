@@ -48,6 +48,12 @@ class InitArray {
         return $demensional;
     }
 
+    /**
+     * The system uses a 62-character alphabet.
+     * Final reduction to 32 characters is performed within the Core pipeline.
+     *
+     * This is intentional and part of the design.
+     */
     public static function _base32() : array {
         return array_slice(self::_base100(), 0, 62);
     }

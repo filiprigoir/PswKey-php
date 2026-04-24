@@ -6,10 +6,16 @@ class Transcode {
 
     private function __construct() {}
     
+    /**
+     * Transcodes a string from ISO-8859-1 to UTF-x.
+     */
     public static function getUTF(string $iso, int $bits = 8) : string {
         return \UConverter::transcode($iso,"UTF-{$bits}","ISO-8859-1");
     }
 
+    /**
+     * Transcodes a string from UTF-x to ISO-8859-1.
+     */
     public static function getISO(string $utf, int $bits = 8) : string {
         return \UConverter::transcode($utf,"ISO-8859-1","UTF-{$bits}");
     }

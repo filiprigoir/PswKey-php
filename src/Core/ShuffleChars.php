@@ -4,9 +4,13 @@ declare(strict_types=1);
 namespace PswKey\Core;
 
 use FFI;
+use PswKey\Core\Modifiers\ImplementationType;
+use PswKey\ErrorMessage\InternalMessage;
 use SensitiveParameter;
 use PswKey\Interface\CustomKeyInterface;
 use PswKey\Service\KeyStream;
+use PswKey\Util\Mapping\Merge;
+use PswKey\Util\Math\Calculation;
 use PswKey\Util\Secure\MemeZero;
 
 /**
@@ -20,28 +24,25 @@ abstract class ShuffleChars extends BaseConvert implements CustomKeyInterface {
     //Check availability GMP
     protected ?FFI $_ffi = null; //standard dissabled & blocked by shared servers
 
-    //Inform about the shuffle
-    public string $usage = 'PHP';
+    //Info about the shuffle implemenation
+    public string $implementation = ImplementationType::PHP;
 
     public function __construct(#[SensitiveParameter] KeyStream $keyStream) {
         $this->_keyStream = $keyStream;
         $this->setAvailability();
     }
 
-    /**** Protected Methods ****/
-
     protected function setAvailability() : void {
         /**
          * Optional feature checks:
-         * If you are certain that GMP, Libsodium, and/or FFI are available,
-         * you may comment out this section and manually set the corresponding
-         * properties to true (FFI set equal to using extension or disable)
+         * If you are certain that GMP and/or FFI are available or not,
+         * you may manually set the corresponding properties to true
          */
-        $ffi = ini_get('ffi.enable'); //set enable or disable
+        $ffi = ini_get('ffi.enable');
         if (class_exists('FFI') && ($ffi === '1' || $ffi === 'preload')) {
             //Setup configuration
             $file = match(PHP_OS_FAMILY) {
-                'Windows' => 'shuffleindice.dll',   //Windows
+                'Windows' => 'shuffleindice.dll', //Windows
                 'Darwin'  => match (php_uname('m')) {
                     'x86_64' => 'shuffleindice_x86_64.dylib', //old Mac with Intel CPU
                     default => 'shuffleindice.dylib', //new Mac with Apple Silicon
@@ -65,8 +66,12 @@ abstract class ShuffleChars extends BaseConvert implements CustomKeyInterface {
             } 
             catch (FFI\Exception) {
                 $this->_ffi = null;
-                $this->usage = "PHP_FALLBACK";
-                $this->setWarningMessage("FFI failed to load: $allowed");
+                $this->implementation = ImplementationType::FALLBACK;
+                $this->setWarningMessage(
+                    Merge::string(InternalMessage::INVALID_FFI_PATH, [
+                        '%path%' => $allowed
+                    ])
+                );
             }
         }
 
@@ -76,7 +81,6 @@ abstract class ShuffleChars extends BaseConvert implements CustomKeyInterface {
     //Shuffle with C (FFI) if enable
     final protected function shuffleFFI(array|string $singleBytes, int $baseLength, string $configName, bool $isCustom = false) : void {
 
-        //Generic properties
         $config = $this->{$configName};
         if(empty($this->{$config['bindingStr']})) {
 
@@ -90,7 +94,7 @@ abstract class ShuffleChars extends BaseConvert implements CustomKeyInterface {
                 $flipped = array_flip($singleBytes);
             }
 
-            //Specical role for standard base 100 and 10 convertion
+            //Internal role for standard base 100 and 10 convertion
             if($config['checksum'] === true && $baseLength === 10 ) {$baseLength = 100;} 
 
             //Shuffle within the callable
@@ -101,29 +105,29 @@ abstract class ShuffleChars extends BaseConvert implements CustomKeyInterface {
                     $outBuffer = $this->_ffi->new("uint8_t[$baseLength]");
 
                     //Get random bytes by ID and Context.
-                    $randLength = strlen($secretBytes);
-                    $randBuffer = FFI::new("uint8_t[$randLength]");
-                    FFI::memcpy($randBuffer, $secretBytes, $randLength);
+                    $derivedLength = strlen($secretBytes);
+                    $derivedBuffer = FFI::new("uint8_t[$derivedLength]");
+                    FFI::memcpy($derivedBuffer, $secretBytes, $derivedLength);
 
                     //Call C function 
                     $method_C_function = "shuffle_indices_secure";
                     $c = $this->_ffi->{$method_C_function}(
-                        $randBuffer, $randLength,
+                        $derivedBuffer, $derivedLength,
                         $len,
                         $baseLength,
                         $outBuffer
                     );
 
-                    FFI::memset($randBuffer, 0, $randLength);
+                    FFI::memset($derivedBuffer, 0, $derivedLength);
 
                     if($c === 0) {
-                        $this->usage = 'FFI';
+                        $this->implementation = ImplementationType::FFI;
 
                         //Initialization
                         $this->{$config['bindingEncode']} = [];
                         $this->{$config['bindingDecode']} = $flipped;
 
-                        // //Binding with local variable by reference
+                        //Binding with local variable by reference
                         $bindingEncode = &$this->{$config['bindingEncode']};
                         $bindingDecode = &$this->{$config['bindingDecode']};
 
@@ -142,19 +146,23 @@ abstract class ShuffleChars extends BaseConvert implements CustomKeyInterface {
                         FFI::memset($outBuffer, 0, $baseLength);
                     }
                     else {
-                        $this->usage = 'PHP_FALLBACK';
-                        $this->setWarningMessage("Shuffle in C failed: PHP-Fallback is used for {$config['base']}");
                         $this->shufflePHP($singleBytes, $baseLength, $configName);
+                        $this->implementation = ImplementationType::FALLBACK;
+                        $this->setWarningMessage(
+                            Merge::string(InternalMessage::WARNING_FFI_FAILED, [
+                                '%base%' => $config['base']
+                            ])
+                        );
                     }
                 },
-                $len,
+                (int)Calculation::getFactor($len),
                 $config['context'],
                 $isCustom
             );
         }
     }
 
-    //Shuffle with PHP if C (FFI) is set on disable
+    //Shuffle with PHP if C (FFI) is disable
     final protected function shufflePHP(array $singleBytes, int $baseLength, string $configName, bool $isCustom = false) : void {
 
         $config = $this->{$configName};
@@ -163,7 +171,7 @@ abstract class ShuffleChars extends BaseConvert implements CustomKeyInterface {
             $len = count($singleBytes);
 
             //Table rejection sampling
-            include_once('Const\RejectionSampling.php');
+            include_once('Modifiers\RejectionSampling.php');
 
             //Specical role for standard base 100 and 10 convertion
             if($config['checksum'] === true && $baseLength === 10 ) {$baseLength = 100;} 
@@ -173,7 +181,7 @@ abstract class ShuffleChars extends BaseConvert implements CustomKeyInterface {
                 function($secretBytes) use ($len, $singleBytes, $baseLength, $config) {
                                 
                     //Random dervided bytes
-                    $randLength = strlen($secretBytes);
+                    $derivedLength = strlen($secretBytes);
 
                     //Initialization
                     $indices = range(0, $len - 1);
@@ -190,7 +198,7 @@ abstract class ShuffleChars extends BaseConvert implements CustomKeyInterface {
                         $val = -1;
                         $m = $i + 1;     
                         while ($val < 0) {
-                            if ($pos >= $randLength) $pos = 0;
+                            if ($pos >= $derivedLength) $pos = 0;
 
                             $byte = ord($secretBytes[$pos++]);
                             if ($byte < REJECTION_SAMPLING[$m]) $val = $byte % $m;
@@ -203,21 +211,18 @@ abstract class ShuffleChars extends BaseConvert implements CustomKeyInterface {
                         $tmp = 0;               
                     }
 
+                    $index = 0;
                     if($baseLength !== $len) {
                         //Grab a new index via Fisher-Yates
                         $index = -1;
                         while ($index < 0) {
-                            if ($pos >= $randLength) $pos = 0;
+                            if ($pos >= $derivedLength) $pos = 0;
 
                             $pointer = ord($secretBytes[$pos++]);
                             if ($pointer < REJECTION_SAMPLING[$len]) $index = $pointer % $len;
                         }
                     }
-                    else {
-                        //Define zero-index
-                        $index = 0;
-                    }   
-
+ 
                     //Snip the required base length
                     for ($i=0; $i < $baseLength; $i++) {  
                         $t = ($index + $i) % $len;
@@ -234,7 +239,7 @@ abstract class ShuffleChars extends BaseConvert implements CustomKeyInterface {
                     $this->{$config['bindingStr']} = implode('', $bindingEncode);
                     MemeZero::overwriteArray($indices);
                 },
-                $len,
+                (int)Calculation::getFactor($len),
                 $config['context'],
                 $isCustom,  
             );

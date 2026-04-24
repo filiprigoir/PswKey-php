@@ -16,7 +16,6 @@ class Base256Test extends TestCase
         return new KeyStream($seedPhrase, $hasKey === true ? $key : '');
     }
 
-    //Every test a different instance in time
     private function instancePswKey(string $seedPhrase = "deterministic validation", bool $hasKey = true) : PswKey {
         return new PswKey(
             $this->getKeyStream($seedPhrase, $hasKey)
@@ -40,7 +39,7 @@ class Base256Test extends TestCase
         $this->assertNull($encode);
 
         $status = $pswkey->status();
-        $this->assertNotNull($status->system);
+        $this->assertNotNull($status->internalMessage);
     }
 
     public function test_updated_empty_fail(): void
@@ -56,7 +55,7 @@ class Base256Test extends TestCase
         $this->assertNull($encode);
 
         $status = $pswkey->status();
-        $this->assertNotNull($status->system);
+        $this->assertNotNull($status->internalMessage);
 
         //Try again with allowed char A
         $encode = $pswkey
@@ -64,7 +63,7 @@ class Base256Test extends TestCase
             ->to(256)
             ->convert("A");
 
-        //Status is updated to new state
+        //after each operation, the status is updated to the new state
         $this->assertNotNull($encode);
         $status = $pswkey->status();
         $this->assertTrue($status->valid);
@@ -93,7 +92,6 @@ class Base256Test extends TestCase
         $status = $pswkey->status();
         $this->assertFalse($status->valid);
 
-        //is outcome of decode same as original digits again? Yes!
         $this->assertNotEquals(
             $text,
             $decode
@@ -105,7 +103,6 @@ class Base256Test extends TestCase
         $text = $this->getText();
         $pswkey = $this->instancePswKey();
 
-        //Note: This service only accepts single bytes. It does not work with multiple bytes with prefixes in string.
         $encode = $pswkey
             ->from(256)
             ->to(10)
@@ -121,7 +118,6 @@ class Base256Test extends TestCase
             ->to(256)
             ->convert($encode);
 
-        //is outcome of decode same as original digits again? Yes!
         $this->assertEquals(
             $text,
             $decode
@@ -133,7 +129,6 @@ class Base256Test extends TestCase
         $text = $this->getText();
         $pswkey = $this->instancePswKey();
 
-        //Note: This service only accepts single bytes. It does not work with multiple bytes with prefixes in string.
         $encode = $pswkey
             ->from(256)
             ->to(32)
@@ -149,7 +144,6 @@ class Base256Test extends TestCase
             ->to(256)
             ->convert($encode);
 
-        //is outcome of decode same as original digits again? Yes!
         $this->assertEquals(
             $text,
             $decode
@@ -161,7 +155,6 @@ class Base256Test extends TestCase
         $text = $this->getText();
         $pswkey = $this->instancePswKey();
 
-        //Note: This service only accepts single bytes. It does not work with multiple bytes with prefixes in string.
         $encode = $pswkey
             ->from(256)
             ->to(58)
@@ -177,7 +170,6 @@ class Base256Test extends TestCase
             ->to(256)
             ->convert($encode);
 
-        //is outcome of decode same as original digits again? Yes!
         $this->assertEquals(
             $text,
             $decode
@@ -189,7 +181,6 @@ class Base256Test extends TestCase
         $text = $this->getText();
         $pswkey = $this->instancePswKey();
 
-        //Note: This service only accepts single bytes. It does not work with multiple bytes with prefixes in string.
         $encode = $pswkey
             ->from(256)
             ->to(62)
@@ -205,7 +196,6 @@ class Base256Test extends TestCase
             ->to(256)
             ->convert($encode);
 
-        //is outcome of decode same as original digits again? Yes!
         $this->assertEquals(
             $text,
             $decode
@@ -233,7 +223,6 @@ class Base256Test extends TestCase
             ->to(256)
             ->convert($encode);
 
-        //is outcome of decode same as original digits again? Yes!
         $this->assertEquals(
             $text,
             $decode
@@ -256,31 +245,34 @@ class Base256Test extends TestCase
         $this->assertTrue($status->valid);
     }
 
-    public function test_randomBytes_ok(): void
+    public function test_enlarge_randomBytes_ok(): void
     {
-        $text = random_bytes(100000);
         $pswkey = $this->instancePswKey();
 
-        $encode = $pswkey
-            ->from(256)
-            ->to(64)
-            ->convert($text);
+        for ($i=2; $i < 200; $i++) { 
+            
+            $text = random_bytes($i);
 
-        $this->assertNotNull($encode);
+            $encode1 = $pswkey
+                ->from(256)
+                ->to(32)
+                ->convert($text);
 
-        $status = $pswkey->status();
-        $this->assertTrue($status->valid);
+            $encode2 = $pswkey
+                ->from(32)
+                ->to(64)
+                ->convert($encode1);
 
-        $decode = $pswkey
-            ->from(64)
-            ->to(256)
-            ->convert($encode);
+            $decode = $pswkey
+                ->from(64)
+                ->to(256)
+                ->convert($encode2);
 
-        //is outcome of decode same as original digits again? Yes!
-        $this->assertEquals(
-            $text,
-            $decode
-        );
+            $this->assertEquals(
+                $text,
+                $decode
+            );                
+        }
     }
 
     public function test_padding_ok(): void
@@ -290,7 +282,6 @@ class Base256Test extends TestCase
         $text = str_repeat("\0", $paddingLen) . random_bytes($bytesLen);
         $pswkey = $this->instancePswKey();
 
-        //Note: This service only accepts single bytes. It does not work with multiple bytes with prefixes in string.
         $encode = $pswkey
             ->from(256)
             ->to(10)
@@ -306,7 +297,6 @@ class Base256Test extends TestCase
             ->to(256)
             ->convert($encode);
 
-        //is outcome of decode same as original digits again? Yes!
         $this->assertEquals(
             $text,
             $decode

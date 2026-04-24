@@ -6,6 +6,9 @@ class Prefix {
 
     private function __construct() {}
     
+    /**
+     * Determines the byte length of a UTF-8 character based on its leading byte.
+     */
     public static function byteLength(string $byte) : int {
         $ord = ord($byte);
         if (($ord & 0x80) === 0x00) return 1;  //0xxxxxxx

@@ -12,14 +12,13 @@ class ChainTest extends TestCase
 {
     public function test_chain(): void
     {
-        //KeyStream + key in time
         $date = new DateTime();
         $key = \strtotime($date->format('Y-m-d H:i:s')) . $date->format('u');
         $pswKey = new PswKey(
             new KeyStream("Chain PswKey Test", $key)
         );
 
-        //128 bytes + test front ord(0)
+        //128 bytes
         $randomBytes = str_repeat("\0", 8) . random_bytes(120);
 
         //Base256 => base10
@@ -44,12 +43,12 @@ class ChainTest extends TestCase
         $base58 = $pswKey->from(62)->to(58)->convert($base62);
 
         //Set CustomKey with above output
+        //set custom key with base58 output as seedphrase
         $pswKey->setCustomKey($base58);
 
-        //prepare custom255 bytes in array (note: ord(0) is not possible, used for padding only)
         $initBytes255 = [];
         for ($i=1; $i < 256; $i++) { 
-            $initBytes255[$i] = chr($i); //array key start from 1 (inside CustomFrom it will be key 0)
+            $initBytes255[$i] = chr($i); //array key starts from 1 (inside CustomFrom it will be key 0)
         }
 
         //Base58 to custom255 with customKey
@@ -76,7 +75,7 @@ class ChainTest extends TestCase
         //convert custom255 to custom18
         $custom18 = $pswKey->convert($custom255);
 
-        //custom18 to
+        //custom18 to base256
         $base256 = $pswKey->customFrom($initBytes18, 18, false)->to(256)->convert($custom18);
         
         $this->assertEquals(

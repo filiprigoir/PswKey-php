@@ -3,24 +3,17 @@ declare(strict_types=1);
 
 namespace PswKey\Core\Component\Charset;
 
+use PswKey\Core\Modifiers\ShuffleProfile;
+
 /**              
 * Inject Base100 string-methods
 */
 trait Base100Char {
     
-    //Base100 array table to search in
     protected array $_base100;
-
-    //Custom reverse table with key -> hexadecimal
     protected array $_base100Reverse;
-
-    //Base100 string to check in
     protected ?string $_base100Str = null;
-
-    //Configuration base100
     protected ?array $_baseConfig100 = null;
-
-    //Configuration base100
     protected ?array $_baseConfig10 = null;
 
     protected function lazyLoading_baseConfig100() : void {
@@ -43,7 +36,7 @@ trait Base100Char {
             'bindingEncode' => '_base100',
             'bindingDecode' => '_base100Reverse',
             'bindingStr' => '_base100Str',
-            'context' => 'Chars100',
+            'context' => ShuffleProfile::DERIVATION_STANDARD . '100',
             'process'=> 'precompute',
             'block' => 64
         ];
