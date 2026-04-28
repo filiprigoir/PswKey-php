@@ -137,9 +137,10 @@ class KeyStream implements CustomKeyInterface {
             );  
         }
 
-        //Default at least 1 byte length required
-        if($length < 1) {
-            $length = 256;
+        if($length < SODIUM_CRYPTO_KDF_BYTES_MIN) {
+            throw new ConfigurationException(
+                InternalMessage::INVALID_DERIVE_LENGTH
+            );  
         }
 
         //New or derived stream key
