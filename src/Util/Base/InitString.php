@@ -18,10 +18,10 @@ class InitString {
     }
 
     /**
-     * The system uses a 62-character alphabet.
-     * Final reduction to 32 characters is performed within the Core pipeline.
+     * This function uses a 62-character alphabet
+     * Final reduction to 32 characters is performed within the Core pipeline
      *
-     * This is intentional and part of the design.
+     * This is intentional and part of the design
      */
     public static function _base32() : string {
         return substr(self::_base100(), 0, 62);

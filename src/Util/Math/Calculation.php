@@ -35,7 +35,6 @@ class Calculation {
         return ($digits >> $fixedBits-$snip) & (1 << $snip) - 1;
     }
 
-    //change the factor can effect the 
     public static function getFactor(int $length) : int|float {
         $factor = 1.3 + ($length / 256) * 0.25;
         return ceil($length * $factor);

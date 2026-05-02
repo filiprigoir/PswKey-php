@@ -4,7 +4,7 @@ declare(strict_types=1);
 namespace PswKey\Core\Component\Custom;
 
 /**  
-* Inject Custom base string-methods
+* Configuration for baseX encoding
 * Custom base is a user defined baseTo with range from 4 to 256 bytes
 */
 trait Custom256To {

@@ -4,9 +4,9 @@ declare(strict_types=1);
 namespace PswKey\Core;
 
 use FFI;
+use SensitiveParameter;
 use PswKey\Core\Modifiers\ImplementationType;
 use PswKey\ErrorMessage\InternalMessage;
-use SensitiveParameter;
 use PswKey\Interface\CustomKeyInterface;
 use PswKey\Service\KeyStream;
 use PswKey\Util\Mapping\Merge;
@@ -18,13 +18,11 @@ use PswKey\Util\Secure\MemeZero;
  */
 abstract class ShuffleChars extends BaseConvert implements CustomKeyInterface {
 
-    //Object Derive Key
     private KeyStream $_keyStream;
+    
+    //standard dissabled & blocked by shared servers
+    protected ?FFI $_ffi = null; 
 
-    //Check availability GMP
-    protected ?FFI $_ffi = null; //standard dissabled & blocked by shared servers
-
-    //Info about the shuffle implemenation
     public string $implementation = ImplementationType::PHP;
 
     public function __construct(#[SensitiveParameter] KeyStream $keyStream) {
@@ -50,7 +48,6 @@ abstract class ShuffleChars extends BaseConvert implements CustomKeyInterface {
                 default   => 'shuffleindice.so',  //Linux and other Unix-systems
             };
 
-            //Allowed Path
             $allowed = __DIR__ . "/Component/FFI/Compiled/{$file}";
 
             //Load C library

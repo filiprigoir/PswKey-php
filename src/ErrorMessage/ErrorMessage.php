@@ -3,6 +3,9 @@ declare(strict_types=1);
 
 namespace PswKey\ErrorMessage;
 
+/**
+ * ErrorMessage class is responsible for creating error messages based on exception strings.
+ */
 final class ErrorMessage {
 
     private function __construct() {}

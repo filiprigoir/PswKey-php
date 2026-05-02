@@ -5,8 +5,8 @@ namespace PswKey\Core\Component\Charset;
 
 use PswKey\Core\Modifiers\ShuffleProfile;
 
-/**              
-* Inject Base64 string-methods
+/**
+* Configuration for Base64 encoding and decoding
 */
 trait Base64Char {
     
@@ -22,7 +22,7 @@ trait Base64Char {
                 'bindingEncode' => '_base64',
                 'bindingDecode' => '_base64Reverse',
                 'bindingStr' => '_base64Str',
-                'context' => ShuffleProfile::DERIVATION_STANDARD . '064',
+                'context' => ShuffleProfile::DERIVATION_CHARSET . '064',
                 'process'=> 'bitshift',
                 'bitmask' => 0x3F,
                 'base' => 64,

@@ -5,8 +5,8 @@ namespace PswKey\Core\Component\Charset;
 
 use PswKey\Core\Modifiers\ShuffleProfile;
 
-/**              
-* Inject Base58 string-methods
+/**
+* Configuration for Base58 encoding and decoding
 */
 trait Base58Char {
     
@@ -22,7 +22,7 @@ trait Base58Char {
                 'bindingEncode' => '_base58',
                 'bindingDecode' => '_base58Reverse',
                 'bindingStr' => '_base58Str',
-                'context' => ShuffleProfile::DERIVATION_STANDARD . '058',
+                'context' => ShuffleProfile::DERIVATION_CHARSET . '058',
                 'process'=> 'compute',
                 'exponentiation' => ["chunk" => 14, "exp" => 7,"symbol" => 8, "init" => [
                         2207984167552, 38068692544, 656356768,

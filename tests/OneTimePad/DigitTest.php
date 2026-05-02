@@ -76,7 +76,7 @@ class DigitTest extends TestCase
             $output2 = $oneTimePad->digit($input, 1, "DigitOTP"); 
             
             $this->assertEquals(
-                'BC',
+                'BCMATH',
                 $oneTimePad->implementation
             );
 
@@ -122,7 +122,7 @@ class DigitTest extends TestCase
             $output2 = $oneTimePad->digit($input, 1, "DigitOTP");  
 
             $this->assertEquals(
-                'BC',
+                'BCMATH',
                 $oneTimePad->implementation
             );
             

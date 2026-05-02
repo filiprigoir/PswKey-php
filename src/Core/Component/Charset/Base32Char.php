@@ -5,8 +5,8 @@ namespace PswKey\Core\Component\Charset;
 
 use PswKey\Core\Modifiers\ShuffleProfile;
 
-/**              
-* Inject Base32 string-methods
+/**
+* Configuration for Base32 encoding and decoding
 */
 trait Base32Char {
     
@@ -22,7 +22,7 @@ trait Base32Char {
                 'bindingEncode' => '_base32',
                 'bindingDecode' => '_base32Reverse',
                 'bindingStr' => '_base32Str',
-                'context' => ShuffleProfile::DERIVATION_STANDARD . '032',
+                'context' => ShuffleProfile::DERIVATION_CHARSET . '032',
                 'process'=> 'bitshift',
                 'bitmask' => 0x1F,
                 'base' => 32,

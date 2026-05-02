@@ -5,8 +5,8 @@ namespace PswKey\Core\Component\Charset;
 
 use PswKey\Core\Modifiers\ShuffleProfile;
 
-/**              
-* Inject Base100 string-methods
+/**
+* Configuration for Base100 encoding and decoding
 */
 trait Base100Char {
     
@@ -36,7 +36,7 @@ trait Base100Char {
             'bindingEncode' => '_base100',
             'bindingDecode' => '_base100Reverse',
             'bindingStr' => '_base100Str',
-            'context' => ShuffleProfile::DERIVATION_STANDARD . '100',
+            'context' => ShuffleProfile::DERIVATION_CHARSET . '100',
             'process'=> 'precompute',
             'block' => 64
         ];

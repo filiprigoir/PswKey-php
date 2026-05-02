@@ -28,11 +28,8 @@ class PswKey extends ShuffleChars implements ConvertBaseInterface, ConvertEngine
         parent::__construct($keyStream);
     }
 
-    /**** Public Methods ****/
-
     public function convert(string $mix) : ?string {
 
-        //Clear & start new Convertion
         $this->resetValidator();
 
         //Binding properties
@@ -70,6 +67,9 @@ class PswKey extends ShuffleChars implements ConvertBaseInterface, ConvertEngine
         }
     }
 
+    /**
+     * Standard base from conversion with predefined alphabets for common bases
+     */
     public function from(int $base) : self {
 
         if(!CheckBase::defaultShuffle($base)) {
@@ -102,6 +102,9 @@ class PswKey extends ShuffleChars implements ConvertBaseInterface, ConvertEngine
         return $this;
     }
 
+    /**
+     * Standard base to conversion with predefined alphabets for common bases
+     */
     public function to(int $base) : self {
 
         if(!CheckBase::defaultShuffle($base)) {
@@ -134,7 +137,9 @@ class PswKey extends ShuffleChars implements ConvertBaseInterface, ConvertEngine
         return $this;
     }
 
-    //First argument most be an ord bewteen 1 and 255 per index
+    /**
+     * Parameter singleByte expected input: 4–256 unique single-byte characters in any order (e.g. chr(201))
+     */
     public function customFrom(array $singleBytes, int $baseLength, bool $shuffle = true) : self {
 
         if($baseLength < 4 || $baseLength > 255) {
@@ -181,7 +186,6 @@ class PswKey extends ShuffleChars implements ConvertBaseInterface, ConvertEngine
             }
         }
 
-        //Shuffle
         if($shuffle === true) {
             //Reset previous shuffled alphabytes when already activated
             
@@ -214,7 +218,9 @@ class PswKey extends ShuffleChars implements ConvertBaseInterface, ConvertEngine
         return $this;
     }
 
-    //First argument most be an ord bewteen 1 and 255 per index
+    /**
+     * Parameter singleByte expected input: 4–256 unique single-byte characters in any order (e.g. chr(201))
+     */    
     public function customTo(array $singleBytes, int $baseLength, bool $shuffle = true) : self {
         if($baseLength < 4 || $baseLength > 255) {
             throw new ConfigurationException(
@@ -259,7 +265,6 @@ class PswKey extends ShuffleChars implements ConvertBaseInterface, ConvertEngine
             }               
         }
 
-        //Shuffle
         if($shuffle === true) {
             //Reset previous shuffled alphabytes when already activated
             if(!empty($this->_custom256ToStr)) {

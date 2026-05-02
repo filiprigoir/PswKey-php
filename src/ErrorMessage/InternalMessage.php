@@ -3,6 +3,9 @@ declare(strict_types=1);
 
 namespace PswKey\ErrorMessage;
 
+/**
+ * InternalMessage class contains predefined error messages for internal errors.
+ */
 final class InternalMessage {
 
     public const CONFIG_ERROR_DEFAULT = 'Unexpected configuration error occurred'; 

@@ -143,7 +143,7 @@ class KeyStream implements CustomKeyInterface {
             );  
         }
 
-        //New or derived stream key
+        //provided or increament streamID
         if($streamID > 0) {
             $id = $streamID;
         }
@@ -151,7 +151,7 @@ class KeyStream implements CustomKeyInterface {
             $id = $this->_streamID++;
         }
 
-        //Rotated new nonce or derived by same streamID
+        //Rotated new nonce subkey
         $subkey = sodium_crypto_kdf_derive_from_key(
             SODIUM_CRYPTO_STREAM_NONCEBYTES, 
             $id, 
@@ -177,6 +177,10 @@ class KeyStream implements CustomKeyInterface {
         }
     }
 
+    /*
+     * Provides the ability to set a secret customKey for deterministic custom converts
+     * and streamByte generation instead of the secret mainkey.
+     */
     public function setCustomKey(string $seedPhrase) : self {
         $this->_customKey = \sodium_crypto_generichash($seedPhrase, $this->_mainKey, SODIUM_CRYPTO_KDF_KEYBYTES);
         return $this;

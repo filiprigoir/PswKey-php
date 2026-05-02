@@ -2,7 +2,7 @@
 
 ## Overview
 
-This component provides a deterministic index shuffle based on a cryptographic entropy source. (ie.: libsodium).
+This component provides a deterministic index shuffle based on a cryptographic entropy source and ShuffleProfile (directory: Modifiers) configuration.
 
 It combines:
 
@@ -34,14 +34,12 @@ The algorithm operates as follows:
 * derive a start index from the next entropy bytes
 * return a contiguous subset of length `K` from the shuffled buffer
 
-
 ## Entropy Model
 
 All randomness is derived from a single entropy buffer generated via KeyStream-class with libsodium.
 The entropy buffer must be sufficiently large relative to the shuffle size.
 
 If the entropy buffer is too small, it will be reused cyclically, which may reduce the statistical quality of the shuffle and introduce unintended correlations.
-
 
 ## Constraints
 
@@ -53,8 +51,8 @@ The entropy buffer is scaled relative to the input size using a factor.
 
 The sizing formula in the ShuffleChars (ShuffleFFI & ShufflePHP) is:
 
-factor = 1.3 + (N / 256) * 0.25;
-KeyLength = ceil(N * factor);
+* factor = 1.3 + (N / 256) * 0.25;
+* KeyLength = ceil(N * factor);
 
 This compensates for rejection sampling, where bytes above the largest unbiased range for the selected base are discarded.
 
@@ -65,12 +63,11 @@ full blocks are grouped in 64-byte segments.
 
 Examples:
 
-6 → 8 → 16 (1 * 16)
-58 → 79 → 80 (1 * 64 + 16)
-129 → 184 → 184 (2 * 64 + 56)
+* 6 → 8 → 16 (1 * 16)
+* 58 → 79 → 80 (1 * 64 + 16)
+* 129 → 184 → 184 (2 * 64 + 56)
 
-The first value is the requested length, the second is the entropy size after rejection sampling compensation, and the final value is the normalized size adjusted to comply with libsodium's derivation constraints.
-
+The first value is the requested length, the second is the entropy size after rejection sampling compensation, and the final value is the normalized size adjusted to comply with libsodium's minimum length constraints.
 
 ## Platform Support
 

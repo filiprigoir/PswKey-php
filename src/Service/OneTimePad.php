@@ -23,13 +23,10 @@ use SensitiveParameter;
  */
 class OneTimePad implements ConvertEngineInterface, CustomKeyInterface {
 
-    //Secret derive Key with callable
     protected KeyStream $_keyStream;
 
-    //Availibility of functions
-    private bool $_gmp = false; //standard dissabled
+    private bool $_gmp = false;
 
-    //Set to false, chunks are limited to 22 bytes; set to true, chunks are up to 169 bytes as a big-endian integer.
     protected bool $longEndianChunk = true;
 
     //Implementation usage
@@ -46,6 +43,9 @@ class OneTimePad implements ConvertEngineInterface, CustomKeyInterface {
         $this->_gmp = function_exists('gmp_init');
     }
 
+    /**
+     * One Time Pad with digit pairs (e.g., 0123456789)
+     */
     public function digit(#[SensitiveParameter] string $switchDigits, int $streamID = 0, ?string $context = null) : ?string {
 
         $this->resetValidator();
@@ -74,13 +74,10 @@ class OneTimePad implements ConvertEngineInterface, CustomKeyInterface {
             } 
         }
 
-        //Digits length of bytes
         $byteLen = (int)ceil(($length + 1) / log(2,10) / 8);
-        //Chunk
         $chunksize = $this->chunksize();
         $chunk = $chunksize[0];
         $chunk = $byteLen > $chunk ? $chunk : $byteLen;
-        //Block for padding zeros
         $block = (int)ceil(($chunk * 8) * log(2,10));
 
         $otp = '';
@@ -138,6 +135,9 @@ class OneTimePad implements ConvertEngineInterface, CustomKeyInterface {
         return $otp;
     }
 
+    /**
+     * One Time Pad with bytes (e.g., binary data, UTF-8 string, etc.)
+     */
     public function byte(#[SensitiveParameter] string $switchBytes, int $streamID = 0, ?string $context = null) : ?string {
 
         $this->resetValidator();

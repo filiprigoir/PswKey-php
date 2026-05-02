@@ -3,6 +3,9 @@ declare(strict_types=1);
 
 namespace PswKey\ErrorMessage;
 
+/**
+ * ClientMessage class contains predefined error messages for client-side errors.
+ */
 final class ClientMessage {
 
     public const INVALID_DEFAULT = 'Unexpected error occurred';
