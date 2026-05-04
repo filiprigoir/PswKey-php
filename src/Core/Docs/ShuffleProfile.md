@@ -1,11 +1,7 @@
 # Shuffle Profile Contract
-A ShuffleProfile version defines the deterministic derivation contract of the shuffle pipeline
+A Shuffle Profile defines a deterministic derivation domain for the shuffle pipeline
 
-## Shuffle Profile ID
-
-The shuffle profile id (v001) must be incremented when any change affects the resulting output sequence
-
-This includes (but is not limited to):
+This includes:
  
 - rejection sampling behavior (FFI & PURE PHP parity layer)
 - shuffle algorithm semantics in Core implementations
@@ -13,9 +9,8 @@ This includes (but is not limited to):
 - normalization rules influenced by libsodium-derived entropy
 - byte consumption order or chunking strategy
 
-## Maintenance Notes
+## Disclaimer
 
-Non-output-affecting changes (refactoring, optimization without
-behavioral impact) must not trigger a version bump
+This repository is deterministic by design, but not mutation-safe across modified Shuffle Profile Contracts. Developers who alter Shuffle Profile Contract details must treat the resulting system as a new private derivation universe.
 
 → See: [ShuffleProfile.php](../Modifiers/ShuffleProfile.php)
