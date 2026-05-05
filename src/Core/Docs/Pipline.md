@@ -2,11 +2,6 @@
 This document describes how data flows through the system,
 including normalization, chunking, and encoding strategies.
 
-## Big-Endian Chunking
-
-Controls the internal chunk size used during conversion for Base100 and Base256 inputs.  
-Default and custom conversions use the same underlying system.
-
 ---
 
 ## Input Normalization
@@ -18,7 +13,7 @@ Base100 acts as the canonical intermediate format.
 The two primary input formats are:
 
 - **Base256** → binary data  
-- **Base100** → text-based representation (e.g. password text)
+- **Base100** → text-based representation (e.g. password characters (100) in text)
 
 ---
 
@@ -31,13 +26,9 @@ Internal formats:
 - Base256
 - Base100
 
----
-
 ### Compute
 Bases that are **not powers of two**  
 (e.g. 17, 45, 58, 62)
-
----
 
 ### Bitshift
 Bases that **are powers of two**  
@@ -45,11 +36,16 @@ Bases that **are powers of two**
 
 ---
 
+## Big-Endian Chunking
+
+Controls the internal chunk size used during conversion for Base100 and Base256 inputs.  
+Default and custom conversions use the same underlying system.
+
+---
+
 ## When Chunking Is Applied
 
 Chunking is always used for Base256, and conditionally used for Base100.
-
----
 
 ### 🔹 Base256 → Base32
 
@@ -57,21 +53,15 @@ Chunking is always used for Base256, and conditionally used for Base100.
 - Byte chunking (big-endian) is applied  
 - `to(32)` uses bitshift for final conversion  
 
----
-
 ### 🔹 Base100 → Base32
 
 - `from(100)` does **not** use big-endian chunking  
 - Conversion is handled directly via bitshift  
 
----
-
 ### 🔹 Base100 → Base62
 
 - `from(100)` applies big-endian processing  
 - Required to convert into a compute-based format (Base62)
-
----
 
 ## Chunking of Binary Data
 
@@ -87,13 +77,13 @@ This property can be configured via a fluent interface.
 
 ---
 
-## Digit Chunking
+## Exponentiation (digit) Chunking
 
 Applied when converting to a compute base.
 
 - A base-specific configuration is selected based on the radix  
 - Digits are split into fixed-size chunks  
-- Each chunk is encoded into symbols  
+- Each chunk is encoded into symbols via loop-exponentiation
 
 The exact mapping depends on the target base.
 

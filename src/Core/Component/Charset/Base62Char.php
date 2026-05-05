@@ -22,7 +22,7 @@ trait Base62Char {
                 'bindingEncode' => '_base62',
                 'bindingDecode' => '_base62Reverse',
                 'bindingStr' => '_base62Str',
-                'context' => DerivationProfile::DERIVATION_CHARSET . '062',
+                'context' => DerivationProfile::getContextCharset(62),
                 'process'=> 'compute',
                 'exponentiation' => ["chunk" => 14, "exp" => 7,"symbol" => 8, "init" => [
                         3521614606208, 56800235584, 916132832,

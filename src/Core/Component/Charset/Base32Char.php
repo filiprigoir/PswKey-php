@@ -22,7 +22,7 @@ trait Base32Char {
                 'bindingEncode' => '_base32',
                 'bindingDecode' => '_base32Reverse',
                 'bindingStr' => '_base32Str',
-                'context' => DerivationProfile::DERIVATION_CHARSET . '032',
+                'context' => DerivationProfile::getContextCharset(32),
                 'process'=> 'bitshift',
                 'bitmask' => 0x1F,
                 'base' => 32,

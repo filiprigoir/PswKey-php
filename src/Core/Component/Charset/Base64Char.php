@@ -22,7 +22,7 @@ trait Base64Char {
                 'bindingEncode' => '_base64',
                 'bindingDecode' => '_base64Reverse',
                 'bindingStr' => '_base64Str',
-                'context' => DerivationProfile::DERIVATION_CHARSET . '064',
+                'context' => DerivationProfile::getContextCharset(64),
                 'process'=> 'bitshift',
                 'bitmask' => 0x3F,
                 'base' => 64,

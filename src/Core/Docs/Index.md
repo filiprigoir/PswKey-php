@@ -9,28 +9,29 @@ The Core is responsible for deterministic byte-level operations, including base 
 ## Modules
 
 ### 🔹 Contract of the shuffle pipeline
-Defines the Shuffle Profile ID for the deterministic derivation contract of the shuffle pipeline
+Defines a deterministic derivation domain for the shuffle pipeline
 
 → See: [ShuffleProfile.md](./ShuffleProfile.md)
 
 ---
 
 ### 🔹 Encoding & Single-Bytes
-Handles single-byte representations and not standalone UTF-8 bytes
+Handles single-byte representations and not-standalone UTF-8 bytes
 
 → See: [Encoding.md](./Encoding.md)
 
 ---
 
-### 🔹 Endian & Exponentiation Chunk
-Defines the core conversion algorithm used across all implementations.
+### 🔹 Pipline conversion Endian & Exponentiation Chunk
+Describes how data flows through the conversion algorithm
 
-Includes:
-- radix conversion logic
-- rejection sampling behavior
-- deterministic output rules
+Inlcudes:
+- endian Chunking
+- exponentiation Chunking
+- encoding strategies
+- normalization
 
-→ See: [Chunks.md](./Chunks.md)
+→ See: [Pipeline.md](./Pipline.md)
 
 ---
 

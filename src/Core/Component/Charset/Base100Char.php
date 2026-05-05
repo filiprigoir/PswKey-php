@@ -36,7 +36,7 @@ trait Base100Char {
             'bindingEncode' => '_base100',
             'bindingDecode' => '_base100Reverse',
             'bindingStr' => '_base100Str',
-            'context' => DerivationProfile::DERIVATION_CHARSET . '100',
+            'context' => DerivationProfile::getContextCharset(100),
             'process'=> 'precompute',
             'block' => 64
         ];

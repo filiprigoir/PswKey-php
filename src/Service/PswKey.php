@@ -150,7 +150,8 @@ class PswKey extends ShuffleChars implements ConvertBaseInterface, ConvertEngine
             );  
         }
 
-        $singleBytes = array_values($singleBytes); //make sure that the key is start from 0
+        //make sure that the alphabytes is start from 0
+        $singleBytes = array_values($singleBytes);
 
         $count = count($singleBytes);
         if($count < $baseLength) {
@@ -165,7 +166,7 @@ class PswKey extends ShuffleChars implements ConvertBaseInterface, ConvertEngine
         $this->_from = "_customConfig256From";
         $this->{"lazyLoading" . $this->_from}();
         $this->_customConfig256From['base'] = $baseLength;
-        $this->_customConfig256From['context'] = DerivationProfile::DERIVATION_CUSTOM . sprintf('%03d', $baseLength);
+        $this->_customConfig256From['context'] = DerivationProfile::getContextCustom($baseLength);
 
         $shifting = Precompute::isBitshift($baseLength);
         if($shifting !== null) {
@@ -230,7 +231,8 @@ class PswKey extends ShuffleChars implements ConvertBaseInterface, ConvertEngine
             );  
         }
 
-        $singleBytes = array_values($singleBytes); //make sure that the key is start from 0
+        //make sure that the alphabytes is start from 0
+        $singleBytes = array_values($singleBytes); 
 
         $count = count($singleBytes);
         if($count > 255 || $count < $baseLength) {
@@ -245,7 +247,7 @@ class PswKey extends ShuffleChars implements ConvertBaseInterface, ConvertEngine
         $this->_to = "_customConfig256To";
         $this->{"lazyLoading" . $this->_to}();
         $this->_customConfig256To['base'] = $baseLength;
-        $this->_customConfig256To['context'] = DerivationProfile::DERIVATION_CUSTOM . sprintf('%03d', $baseLength);
+        $this->_customConfig256To['context'] = DerivationProfile::getContextCustom($baseLength);
 
         $shifting = Precompute::isBitshift($baseLength);
         if($shifting !== null) {

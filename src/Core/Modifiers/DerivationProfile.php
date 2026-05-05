@@ -9,11 +9,11 @@ namespace PswKey\Core\Modifiers;
 final class DerivationProfile
 {
     //derivation context: must be excactly 5 bytes here (radix will be added dynamically, e.g.: 64 -> 064)
-    public const DERIVATION_CHARSET = 'DECHA';
-    public const DERIVATION_CUSTOM = 'DECUS';
+    private const DERIVATION_CHARSET = 'DECHA';
+    private const DERIVATION_CUSTOM = 'DECUS';
 
     //stream context: must be excactly 8 bytes
-    public const DERIVATION_STREAM = 'DERSTRKY'; 
+    public const DERIVATION_STREAM = 'DERSTRKY';
 
     //onetimepad default context: must be excactly 8 bytes
     public const DEFAULT_OTP_BYTES = 'DEFOTPBY';
@@ -22,6 +22,14 @@ final class DerivationProfile
     //byte chunk: mathematically designed to minimize leading padding
     public const ENDIAN_CHUNK_LONG = [169, 407];
     public const ENDIAN_CHUNK_SHORT = [22, 53];
+
+    public static function getContextCharset(int $radix) : string {
+        return self::DERIVATION_CHARSET . str_pad((string)$radix, 3, '0', STR_PAD_LEFT);
+    }
+
+    public static function getContextCustom(int $radix) : string {
+        return self::DERIVATION_CUSTOM . str_pad((string)$radix, 3, '0', STR_PAD_LEFT);
+    }
 
     private function __construct() {}
 }

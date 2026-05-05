@@ -22,7 +22,7 @@ trait Base256Char {
                 'bindingEncode' => '_base256',
                 'bindingDecode' => '_base256Reverse',
                 'bindingStr' => '_base256Str',
-                'context' => DerivationProfile::DERIVATION_CHARSET . '256',
+                'context' => DerivationProfile::getContextCharset(256),
                 'process'=> 'precompute',
                 'base' => 256,
                 'block' => 64

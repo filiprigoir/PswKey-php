@@ -22,7 +22,7 @@ trait Base58Char {
                 'bindingEncode' => '_base58',
                 'bindingDecode' => '_base58Reverse',
                 'bindingStr' => '_base58Str',
-                'context' => DerivationProfile::DERIVATION_CHARSET . '058',
+                'context' => DerivationProfile::getContextCharset(58),
                 'process'=> 'compute',
                 'exponentiation' => ["chunk" => 14, "exp" => 7,"symbol" => 8, "init" => [
                         2207984167552, 38068692544, 656356768,

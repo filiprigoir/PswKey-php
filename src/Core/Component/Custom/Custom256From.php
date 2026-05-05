@@ -23,7 +23,8 @@ trait Custom256From {
                 'bindingEncode' => '_custom256From',
                 'bindingDecode' => '_custom256FromReverse',
                 'bindingStr' => '_custom256FromStr',
-                'context' => DerivationProfile::DERIVATION_CUSTOM . 256,
+                //context will be updated with actual base length in PswKey service
+                'context' => DerivationProfile::getContextCustom(256),
                 'process'=> 'compute',
                 'bitmask' => [
                     '2' => 0x03, '3' => 0x07, '4' => 0x0F, '5' => 0x1F, 
