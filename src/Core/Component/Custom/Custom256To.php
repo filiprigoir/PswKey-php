@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace PswKey\Core\Component\Custom;
 
+use PswKey\Core\Modifiers\DerivationProfile;
+
 /**  
 * Configuration for baseX encoding
 * Custom base is a user defined baseTo with range from 4 to 256 bytes
@@ -21,7 +23,7 @@ trait Custom256To {
                 'bindingEncode' => '_custom256To',
                 'bindingDecode' => '_custom256ToReverse',
                 'bindingStr' => '_custom256ToStr',
-                'context' => null,
+                'context' => DerivationProfile::DERIVATION_CUSTOM . 256,
                 'process'=> 'compute',
                 'bitmask' => [
                     '2' => 0x03, '3' => 0x07, '4' => 0x0F, '5' => 0x1F, 

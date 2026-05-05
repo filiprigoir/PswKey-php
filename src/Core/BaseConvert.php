@@ -11,7 +11,7 @@ use PswKey\Core\Component\Charset\Base62Char;
 use PswKey\Core\Component\Charset\Base64Char;
 use PswKey\Core\Component\Custom\Custom256From;
 use PswKey\Core\Component\Custom\Custom256To;
-use PswKey\Core\Modifiers\ShuffleProfile;
+use PswKey\Core\Modifiers\DerivationProfile;
 use PswKey\ErrorMessage\ClientMessage;
 use PswKey\ErrorMessage\InternalMessage;
 use PswKey\Exception\InputException;
@@ -2037,8 +2037,8 @@ abstract class BaseConvert {
      * although true will still work efficiently.
      */
     protected function chunksize() : array {
-        if($this->longEndianChunk) return ShuffleProfile::ENDIAN_CHUNK_LONG;
-        return ShuffleProfile::ENDIAN_CHUNK_SHORT;        
+        if($this->longEndianChunk) return DerivationProfile::ENDIAN_CHUNK_LONG;
+        return DerivationProfile::ENDIAN_CHUNK_SHORT;        
     }
 
     /**

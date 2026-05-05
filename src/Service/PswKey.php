@@ -4,7 +4,7 @@ declare(strict_types=1);
 namespace PswKey\Service;
 
 use Exception;
-use PswKey\Core\Modifiers\ShuffleProfile;
+use PswKey\Core\Modifiers\DerivationProfile;
 use PswKey\Core\ShuffleChars;
 use PswKey\ErrorMessage\ErrorMessage;
 use PswKey\ErrorMessage\InternalMessage;
@@ -165,7 +165,7 @@ class PswKey extends ShuffleChars implements ConvertBaseInterface, ConvertEngine
         $this->_from = "_customConfig256From";
         $this->{"lazyLoading" . $this->_from}();
         $this->_customConfig256From['base'] = $baseLength;
-        $this->_customConfig256From['context'] = ShuffleProfile::DERIVATION_CUSTOM . sprintf('%03d', $baseLength);
+        $this->_customConfig256From['context'] = DerivationProfile::DERIVATION_CUSTOM . sprintf('%03d', $baseLength);
 
         $shifting = Precompute::isBitshift($baseLength);
         if($shifting !== null) {
@@ -245,7 +245,7 @@ class PswKey extends ShuffleChars implements ConvertBaseInterface, ConvertEngine
         $this->_to = "_customConfig256To";
         $this->{"lazyLoading" . $this->_to}();
         $this->_customConfig256To['base'] = $baseLength;
-        $this->_customConfig256To['context'] = ShuffleProfile::DERIVATION_CUSTOM . sprintf('%03d', $baseLength);
+        $this->_customConfig256To['context'] = DerivationProfile::DERIVATION_CUSTOM . sprintf('%03d', $baseLength);
 
         $shifting = Precompute::isBitshift($baseLength);
         if($shifting !== null) {

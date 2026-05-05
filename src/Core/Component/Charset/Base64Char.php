@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace PswKey\Core\Component\Charset;
 
-use PswKey\Core\Modifiers\ShuffleProfile;
+use PswKey\Core\Modifiers\DerivationProfile;
 
 /**
 * Configuration for Base64 encoding and decoding
@@ -22,7 +22,7 @@ trait Base64Char {
                 'bindingEncode' => '_base64',
                 'bindingDecode' => '_base64Reverse',
                 'bindingStr' => '_base64Str',
-                'context' => ShuffleProfile::DERIVATION_CHARSET . '064',
+                'context' => DerivationProfile::DERIVATION_CHARSET . '064',
                 'process'=> 'bitshift',
                 'bitmask' => 0x3F,
                 'base' => 64,

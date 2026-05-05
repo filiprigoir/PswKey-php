@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace PswKey\Core\Component\Charset;
 
-use PswKey\Core\Modifiers\ShuffleProfile;
+use PswKey\Core\Modifiers\DerivationProfile;
 
 /**
 * Configuration for Base62 encoding and decoding
@@ -22,7 +22,7 @@ trait Base62Char {
                 'bindingEncode' => '_base62',
                 'bindingDecode' => '_base62Reverse',
                 'bindingStr' => '_base62Str',
-                'context' => ShuffleProfile::DERIVATION_CHARSET . '062',
+                'context' => DerivationProfile::DERIVATION_CHARSET . '062',
                 'process'=> 'compute',
                 'exponentiation' => ["chunk" => 14, "exp" => 7,"symbol" => 8, "init" => [
                         3521614606208, 56800235584, 916132832,

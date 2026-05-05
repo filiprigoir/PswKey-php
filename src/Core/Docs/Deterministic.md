@@ -16,6 +16,8 @@ Two execution backends are supported:
 
 Both implementations are functionally equivalent and produce identical results.
 
+---
+
 ## Why
 
 The FFI implementation provides stricter memory control than PHP, including explicit buffer zeroing. PHP uses best-effort cleanup.
@@ -23,6 +25,8 @@ The FFI implementation provides stricter memory control than PHP, including expl
 When FFI is unavailable, disabled, or misconfigured, the system automatically falls back to the PHP implementation.
 
 The fallback preserves functional correctness and determinism, but does not guarantee identical memory behavior.
+
+---
 
 ## Algorithm
 
@@ -34,12 +38,16 @@ The algorithm operates as follows:
 * derive a start index from the next entropy bytes
 * return a contiguous subset of length `K` from the shuffled buffer
 
+---
+
 ## Entropy Model
 
 All randomness is derived from a single entropy buffer generated via KeyStream-class with libsodium.
 The entropy buffer must be sufficiently large relative to the shuffle size.
 
 If the entropy buffer is too small, it will be reused cyclically, which may reduce the statistical quality of the shuffle and introduce unintended correlations.
+
+---
 
 ## Constraints
 
@@ -69,6 +77,8 @@ Examples:
 
 The first value is the requested length, the second is the entropy size after rejection sampling compensation, and the final value is the normalized size adjusted to comply with libsodium's minimum length constraints.
 
+---
+
 ## Platform Support
 
 Precompiled native binaries are provided for:
@@ -77,6 +87,8 @@ Precompiled native binaries are provided for:
 - Linux (`.so`)
 - macOS Apple Silicon (`.dylib`)
 - macOS Intel / legacy (`.dylib`)
+
+---
 
 ## Maintenance Notes
 

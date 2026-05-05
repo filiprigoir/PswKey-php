@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace PswKey\Core\Component\Charset;
 
-use PswKey\Core\Modifiers\ShuffleProfile;
+use PswKey\Core\Modifiers\DerivationProfile;
 
 /**
 * Configuration for Base100 encoding and decoding
@@ -36,7 +36,7 @@ trait Base100Char {
             'bindingEncode' => '_base100',
             'bindingDecode' => '_base100Reverse',
             'bindingStr' => '_base100Str',
-            'context' => ShuffleProfile::DERIVATION_CHARSET . '100',
+            'context' => DerivationProfile::DERIVATION_CHARSET . '100',
             'process'=> 'precompute',
             'block' => 64
         ];

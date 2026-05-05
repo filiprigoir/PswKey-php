@@ -4,11 +4,11 @@ declare(strict_types=1);
 namespace PswKey\Core\Modifiers;
 
 /**
- * A Shuffle Profile defines the deterministic derivation contract of the shuffle pipeline
+ * A Derivation Profile defines the deterministic derivation contract of the derivation pipeline
  */
-final class ShuffleProfile
+final class DerivationProfile
 {
-    //shuffle context: must be excactly 5 bytes here (radix will be added dynamically, e.g.: 64 -> 064)
+    //derivation context: must be excactly 5 bytes here (radix will be added dynamically, e.g.: 64 -> 064)
     public const DERIVATION_CHARSET = 'DECHA';
     public const DERIVATION_CUSTOM = 'DECUS';
 

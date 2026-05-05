@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace PswKey\Core\Component\Charset;
 
-use PswKey\Core\Modifiers\ShuffleProfile;
+use PswKey\Core\Modifiers\DerivationProfile;
 
 /**
 * Configuration for Base256 encoding and decoding
@@ -22,7 +22,7 @@ trait Base256Char {
                 'bindingEncode' => '_base256',
                 'bindingDecode' => '_base256Reverse',
                 'bindingStr' => '_base256Str',
-                'context' => ShuffleProfile::DERIVATION_CHARSET . '256',
+                'context' => DerivationProfile::DERIVATION_CHARSET . '256',
                 'process'=> 'precompute',
                 'base' => 256,
                 'block' => 64

@@ -4,7 +4,7 @@ declare(strict_types=1);
 namespace PswKey\Service;
 
 use PswKey\Core\Modifiers\ImplementationType;
-use PswKey\Core\Modifiers\ShuffleProfile;
+use PswKey\Core\Modifiers\DerivationProfile;
 use PswKey\ErrorMessage\ClientMessage;
 use PswKey\ErrorMessage\InternalMessage;
 use PswKey\Exception\ConfigurationException;
@@ -59,7 +59,7 @@ class OneTimePad implements ConvertEngineInterface, CustomKeyInterface {
         }
         
         if($context === null) {
-            $context = ShuffleProfile::DEFAULT_OTP_DIGITS;
+            $context = DerivationProfile::DEFAULT_OTP_DIGITS;
             $this->setWarningMessage(
                 Merge::string(InternalMessage::WARNING_EMPTY, 
                     ["%arg%" => "Third"]
@@ -152,7 +152,7 @@ class OneTimePad implements ConvertEngineInterface, CustomKeyInterface {
         }
 
         if($context === null) {
-            $context = ShuffleProfile::DEFAULT_OTP_BYTES;
+            $context = DerivationProfile::DEFAULT_OTP_BYTES;
             $this->setWarningMessage(
                 Merge::string(InternalMessage::WARNING_EMPTY, 
                     ["%arg%" => "context"]
@@ -183,8 +183,8 @@ class OneTimePad implements ConvertEngineInterface, CustomKeyInterface {
     }
 
     public function chunksize() : array {
-        if($this->longEndianChunk) return ShuffleProfile::ENDIAN_CHUNK_LONG;
-        return ShuffleProfile::ENDIAN_CHUNK_SHORT; 
+        if($this->longEndianChunk) return DerivationProfile::ENDIAN_CHUNK_LONG;
+        return DerivationProfile::ENDIAN_CHUNK_SHORT; 
     }
 
     public function longEndianChunk(bool $longEndianChunk) : self {
