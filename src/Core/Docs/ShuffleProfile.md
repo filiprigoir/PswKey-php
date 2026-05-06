@@ -13,6 +13,6 @@ This includes:
 
 ## Disclaimer
 
-This repository is deterministic by design, but not mutation-safe across modified Shuffle Profile Contracts. Developers who alter Shuffle Profile Contract details must treat the resulting system as a new private derivation universe.
+This repository is deterministic by design. To maintain interoperability, Shuffle Profile Contracts should remain unchanged. Modifying them results in a divergent variant that should be treated as a private fork.
 
 → See: [DerivationProfile.php](../Modifiers/DerivationProfile.php)

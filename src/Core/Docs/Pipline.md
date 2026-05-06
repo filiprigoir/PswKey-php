@@ -1,6 +1,5 @@
 # Conversion Pipeline
-This document describes how data flows through the system,
-including normalization, chunking, and encoding strategies.
+This document defines how data is normalized, chunked, and processed during conversion.
 
 ---
 
@@ -10,10 +9,11 @@ Base100 acts as the canonical intermediate format.
 
 - Base256 is always normalized to Base100 before further processing
 
-The two primary input formats are:
+The three primary input formats are:
 
 - **Base256** → binary data  
-- **Base100** → text-based representation (e.g. password characters (100) in text)
+- **Base100** → text-based representation with only 100 characters
+- **Base10** → digit-based representation in pairs (02 89 12 => 028912)
 
 ---
 
@@ -21,10 +21,13 @@ The two primary input formats are:
 
 There are three types of conversion:
 
-### Precompute
-Internal formats:
+### Ingest
+Normalized formats:
 - Base256
 - Base100
+- Base10
+
+For default converts from(100) and to(10) only - not related to customTo(100) and customFrom(10)
 
 ### Compute
 Bases that are **not powers of two**  

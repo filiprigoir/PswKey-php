@@ -18,7 +18,7 @@ trait Base58Char {
     protected function lazyLoading_baseConfig58() : void {
         if($this->_baseConfig58 == null) {
             $this->_baseConfig58 = [
-                'checksum' => false,
+                'isCanonical' => false,
                 'bindingEncode' => '_base58',
                 'bindingDecode' => '_base58Reverse',
                 'bindingStr' => '_base58Str',

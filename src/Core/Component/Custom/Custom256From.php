@@ -19,7 +19,7 @@ trait Custom256From {
     protected function lazyLoading_customConfig256From() : void {
         if($this->_customConfig256From == null) {
             $this->_customConfig256From = [
-                'checksum' => false,
+                'isCanonical' => false,
                 'bindingEncode' => '_custom256From',
                 'bindingDecode' => '_custom256FromReverse',
                 'bindingStr' => '_custom256FromStr',

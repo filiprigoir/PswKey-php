@@ -92,7 +92,7 @@ abstract class ShuffleChars extends BaseConvert implements CustomKeyInterface {
             }
 
             //Internal role for standard base 100 and 10 convertion
-            if($config['checksum'] === true && $baseLength === 10 ) {$baseLength = 100;} 
+            if($config['isCanonical'] === true && $baseLength === 10 ) {$baseLength = 100;} 
 
             //Shuffle within the callable
             $this->_keyStream->derivedKey(
@@ -131,7 +131,7 @@ abstract class ShuffleChars extends BaseConvert implements CustomKeyInterface {
                         for ($i=0; $i < $baseLength; $i++) { 
                             $bindingEncode[$i] = $singleBytes[$outBuffer[$i]];
 
-                            if($config['checksum']) {
+                            if($config['isCanonical']) {
                                 $bindingDecode[$bindingEncode[$i]] = sprintf("%02d", $i);
                             }
                             else {
@@ -171,7 +171,7 @@ abstract class ShuffleChars extends BaseConvert implements CustomKeyInterface {
             include_once('Modifiers\RejectionSampling.php');
 
             //Specical role for standard base 100 and 10 convertion
-            if($config['checksum'] === true && $baseLength === 10 ) {$baseLength = 100;} 
+            if($config['isCanonical'] === true && $baseLength === 10 ) {$baseLength = 100;} 
 
             //Shuffle within the callable
             $this->_keyStream->derivedKey(
@@ -225,7 +225,7 @@ abstract class ShuffleChars extends BaseConvert implements CustomKeyInterface {
                         $t = ($index + $i) % $len;
                         $bindingEncode[$i] = $singleBytes[$indices[$t]];
 
-                        if($config['checksum']) {
+                        if($config['isCanonical']) {
                             $bindingDecode[$bindingEncode[$i]] = sprintf("%02d", $i);
                         }
                         else {

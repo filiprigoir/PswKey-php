@@ -18,7 +18,7 @@ trait Base64Char {
     protected function lazyLoading_baseConfig64() : void {
         if($this->_baseConfig64 == null) {
             $this->_baseConfig64 = [
-                'checksum' => false,
+                'isCanonical' => false,
                 'bindingEncode' => '_base64',
                 'bindingDecode' => '_base64Reverse',
                 'bindingStr' => '_base64Str',

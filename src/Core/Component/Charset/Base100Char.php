@@ -32,12 +32,12 @@ trait Base100Char {
 
     private function baseConfig100() : array {
         return [
-            'checksum' => true,
+            'isCanonical' => true,
             'bindingEncode' => '_base100',
             'bindingDecode' => '_base100Reverse',
             'bindingStr' => '_base100Str',
             'context' => DerivationProfile::getContextCharset(100),
-            'process'=> 'precompute',
+            'process'=> 'ingest',
             'block' => 64
         ];
     }

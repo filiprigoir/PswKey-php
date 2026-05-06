@@ -23,12 +23,12 @@ Handles single-byte representations and not-standalone UTF-8 bytes
 ---
 
 ### 🔹 Pipline conversion Endian & Exponentiation Chunk
-Describes how data flows through the conversion algorithm
+This document defines how data is normalized, chunked, and handled within the system.
 
 Inlcudes:
 - endian Chunking
 - exponentiation Chunking
-- encoding strategies
+- encoding mechanisms
 - normalization
 
 → See: [Pipeline.md](./Pipline.md)

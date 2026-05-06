@@ -64,7 +64,7 @@ abstract class BaseConvert {
      * - Encode
      * - Decode
      */
-    protected function precompute100Precompute10(string $singleBytes, array $configFrom, array $configTo) : ?string { 
+    protected function transformIngest100To10(string $singleBytes, array $configFrom, array $configTo) : ?string { 
         
         $len = \strlen($singleBytes);
         $quickCheck = $this->checkBase($singleBytes, $len, InitString::_base100(), $configFrom);
@@ -132,7 +132,7 @@ abstract class BaseConvert {
      * - Encode
      * - Decode
      */
-    protected function precompute10Precompute100(string $digitPairs, array $configFrom, array $configTo) : ?string { 
+    protected function transformIngest10To100(string $digitPairs, array $configFrom, array $configTo) : ?string { 
 
         $len = \strlen($digitPairs);    
         if($len % 2 === 1) {
@@ -207,7 +207,7 @@ abstract class BaseConvert {
     }
 
     /**
-     * Conversion from base256 (text) to base100
+     * Conversion from base256 (multibytes) to base100 (restricted single-bytes)
      *
      * Output is returned as a raw single-byte representation (e.g.: chr(169))
      * For readable symbol output (UTF-8), use Transcode::getUTF(x)
@@ -217,29 +217,29 @@ abstract class BaseConvert {
      * Used for:
      * - Encode
      */
-    protected function precompute256Precompute100(string $text, array $configFrom, array $configTo) : ?string { 
+    protected function transformIngest256To100(string $rawBytes, array $configFrom, array $configTo) : ?string { 
 
-        if(empty($text)) {
+        if(empty($rawBytes)) {
             $this->setErrorStatus(false)
                 ->setInternalMessage(
-                    Merge::string(InternalMessage::INVALID_EMPTY, ['%arg%' => 'text'])                  
+                    Merge::string(InternalMessage::INVALID_EMPTY, ['%arg%' => 'rawBytes'])                  
                 )
                 ->setClientMessage(ClientMessage::INVALID_EMPTY);
 
             return null;
         }
 
-        $len = strlen($text);
+        $len = strlen($rawBytes);
         $zeros = 0;
-        while (isset($text[$zeros]) && $text[$zeros] == "\0"){ 
+        while (isset($rawBytes[$zeros]) && $rawBytes[$zeros] == "\0"){ 
             if($zeros > $len) break;
             $zeros++;
         };
 
         //Snip all chr(0) from string
         $len -= $zeros;
-        $txt = $zeros > 0 ? substr($text, $zeros, null) : $text;
-        $digits = $this->getEndianChunk($txt, $len); //generates a uniform big endian number
+        $bytes = $zeros > 0 ? substr($rawBytes, $zeros, null) : $rawBytes;
+        $digits = $this->getEndianChunk($bytes, $len); //generates a uniform big endian number
 
         //Convertion
         $len = strlen($digits);      
@@ -290,7 +290,7 @@ abstract class BaseConvert {
     }
 
     /**
-     * Conversion from base100 to base256 (text)
+     * Conversion from base100 (restricted single-bytes) to base256 (multibytes)
      *
      * Use Transcode::getISO(x) when the input contains (or may contain)
      * single-byte characters with byte values greater than 127
@@ -304,7 +304,7 @@ abstract class BaseConvert {
      * Used for:
      * - Decode
      */
-    protected function precompute100Precompute256(string $symbol, array $configFrom, array $configTo) : ?string {
+    protected function transformIngest100To256(string $symbol, array $configFrom, array $configTo) : ?string {
 
         $len = strlen($symbol);
         $quickCheck = $this->checkBase($symbol, $len, InitString::_base100(), $configFrom);
@@ -372,12 +372,12 @@ abstract class BaseConvert {
             $converted .= str_repeat("\0", $symbolZeros);
         }
         
-        $converted .= $this->getText($endianChunk, ($len * 2));
+        $converted .= $this->getRawBytes($endianChunk, ($len * 2));
         return  $converted;
     }
 
     /**
-     * Conversion from base256 (text) to base10
+     * Conversion from base256 (multibytes) to base10 (digits 0 - 9)
 
      * Output is returned as digits (e.g.: 0123456789)
      * It is not recommended to use Transcode::getISO(x) on an input text
@@ -385,27 +385,27 @@ abstract class BaseConvert {
      * Used for:
      * - Encode
      */
-    protected function precompute256Precompute10(string $text, array $configFrom, array $configTo) : ?string { 
+    protected function transformIngest256To10(string $rawBytes, array $configFrom, array $configTo) : ?string { 
 
-        if(empty($text)) {
+        if(empty($rawBytes)) {
             $this->setErrorStatus(false)
                 ->setInternalMessage(
-                      Merge::string(InternalMessage::INVALID_EMPTY, ['%arg%' => 'text'])
+                      Merge::string(InternalMessage::INVALID_EMPTY, ['%arg%' => 'rawBytes'])
                     )
                 ->setClientMessage(ClientMessage::INVALID_EMPTY);
 
             return null;
         }
 
-        $len = strlen($text);
+        $len = strlen($rawBytes);
         $zeros = 0;
-        while (isset($text[$zeros]) && $text[$zeros] == "\0"){ 
+        while (isset($rawBytes[$zeros]) && $rawBytes[$zeros] == "\0"){ 
             if($zeros > $len) break;
             $zeros++;
         };
 
         $len -= $zeros;
-        $txt = $zeros > 0 ? substr($text, $zeros, null) : $text;
+        $bytes = $zeros > 0 ? substr($rawBytes, $zeros, null) : $rawBytes;
 
         //Add zerros in symbol digits
         $digits = "";
@@ -413,7 +413,7 @@ abstract class BaseConvert {
            $digits .= str_repeat("00", $zeros);
         }
 
-        $digits .= $this->getEndianChunk($txt, $len);
+        $digits .= $this->getEndianChunk($bytes, $len);
 
         //Count Endian chunks
         $len = strlen($digits);        
@@ -462,7 +462,7 @@ abstract class BaseConvert {
     }
 
     /**
-     * Conversion from base10 to base256 (text)
+     * Conversion from base10 (digits 0 - 9) to base256 (multibytes)
      *
      * Input should be uniform digits and generated by
      * precompute256Precompute10(), unless decoded is shorter than 169 bytes
@@ -473,7 +473,7 @@ abstract class BaseConvert {
      * Used for:
      * - Decode
      */
-    protected function precompute10Precompute256(string $digitPairs, array $configFrom, array $configTo) : ?string { 
+    protected function transformIngest10To256(string $digitPairs, array $configFrom, array $configTo) : ?string { 
         
         $len = \strlen($digitPairs);
         $quickCheck = $this->checkBase($digitPairs, $len, null, $configFrom);
@@ -569,17 +569,17 @@ abstract class BaseConvert {
 
         $len -= $symbolZeros;
 
-        $text = "";
+        $rawBytes = "";
         if($symbolZeros > 0) {
-           $text .= str_repeat("\0", (int)($symbolZeros/2)); 
+           $rawBytes .= str_repeat("\0", (int)($symbolZeros/2)); 
         }
         
-        $text .= $this->getText($digits, $len);
-        return $text;
+        $rawBytes .= $this->getRawBytes($digits, $len);
+        return $rawBytes;
     }
 
     /**
-     * Conversion from base100 to baseX (X = 4, 8, 16, 32, 64, 128)
+     * Conversion from base100 (restricted single-bytes) to baseX (X = 4, 8, 16, 32, 64, 128)
      * 
      * Output is returned as raw single-byte values (one byte per symbol), not as UTF-8 text
      * For readable UTF-8 output, use Transcode::getUTF(x)
@@ -587,7 +587,7 @@ abstract class BaseConvert {
      * Used for:
      * - Encode
      */
-    protected function precomputeBitshift100(string $symbol, array $configFrom, array $configTo) : ?string { 
+    protected function encodeIngest100ToBitshift(string $symbol, array $configFrom, array $configTo) : ?string { 
         
         $len = \strlen($symbol);
 
@@ -670,7 +670,7 @@ abstract class BaseConvert {
     }
 
     /**
-     * Conversion from baseX (X = 4, 8, 16, 32, 64, 128) to base100
+     * Conversion from baseX (X = 4, 8, 16, 32, 64, 128) to base100 (restricted single-bytes)
      * 
      * Output is returned as raw single-byte values (one byte per symbol), not as UTF-8 text
      * For readable UTF-8 output, use Transcode::getUTF(x)
@@ -678,7 +678,7 @@ abstract class BaseConvert {
      * Used for:
      * - Decode
      */
-    protected function bitshiftPrecompute100(string $symbol, array $configFrom, array $configTo) : ?string { 
+    protected function decodeBitshiftToIngest100(string $symbol, array $configFrom, array $configTo) : ?string { 
         
         $len = strlen($symbol);
         $allowedStr = &$this->{$configFrom['bindingStr']};
@@ -769,7 +769,7 @@ abstract class BaseConvert {
     }
 
     /**
-     * Conversion from base100 to non-power-of-2 bases (e.g. base5, base58, base62)
+     * Conversion from base100 (restricted single-bytes) to non-power-of-2 bases (e.g. base5, base58, base62)
      * 
      * Use Transcode::getISO(x) when the input contains (or may contain) 
      * single-byte characters with byte values higher than 127 (chr(128) to chr(255))
@@ -777,7 +777,7 @@ abstract class BaseConvert {
      * Used for:
      * - Encode
      */
-    protected function precomputeCompute100(string $symbol, array $configFrom, array $configTo) : ?string { 
+    protected function encodeIngest100ToCompute(string $symbol, array $configFrom, array $configTo) : ?string { 
         
         $len = strlen($symbol);
         //Full check is required here, because the compute2Endian() function is a number based operation 
@@ -808,7 +808,7 @@ abstract class BaseConvert {
      * Used for:
      * - Decode
      */
-    protected function computePrecompute100(string $symbol, array $configFrom, array $configTo) : ?string { 
+    protected function decodeComputeToIngest100(string $symbol, array $configFrom, array $configTo) : ?string { 
         
         $bigEndian = $this->compute2Endian($symbol, $configFrom, $configTo);
         if($bigEndian === null) {
@@ -816,7 +816,7 @@ abstract class BaseConvert {
         }
 
         $len = strlen($bigEndian);
-        $converted = $this->getText($bigEndian, $len);
+        $converted = $this->getRawBytes($bigEndian, $len);
     
         //Full check is required here, because the compute2Endian() function is a number based operation 
         $fullcheck = $this->fullCheck($converted, InitString::_base100(), strlen($converted));
@@ -846,7 +846,7 @@ abstract class BaseConvert {
      * Used for:
      * - Decode
      */
-    protected function computePrecompute10(string $symbol, array $configFrom, array $configTo) : ?string {
+    protected function decodeComputeToIngest10(string $symbol, array $configFrom, array $configTo) : ?string {
 
         $chunkEndian = $this->compute2Endian($symbol, $configFrom, $configTo);
         if($chunkEndian === null) {
@@ -854,10 +854,10 @@ abstract class BaseConvert {
         }
 
         $len = strlen($chunkEndian);
-        $converted = $this->getText($chunkEndian, $len);
+        $converted = $this->getRawBytes($chunkEndian, $len);
 
         $this->lazyLoading_baseConfig100();
-        return $this->precompute100Precompute10($converted, $this->_baseConfig100, $configTo);
+        return $this->transformIngest100To10($converted, $this->_baseConfig100, $configTo);
     }
 
     /**
@@ -866,10 +866,10 @@ abstract class BaseConvert {
      * Used for:
      * - Encode
      */
-    protected function precomputeCompute10(string $digitPairs, array $configFrom, array $configTo) : ?string { 
+    protected function encodeIngest10ToCompute(string $digitPairs, array $configFrom, array $configTo) : ?string { 
 
         $this->lazyLoading_baseConfig100();
-        $symbol = $this->precompute10Precompute100($digitPairs, $configFrom, $this->_baseConfig100);
+        $symbol = $this->transformIngest10To100($digitPairs, $configFrom, $this->_baseConfig100);
         if($symbol === null) {
             return $symbol;
         }
@@ -948,12 +948,12 @@ abstract class BaseConvert {
      * for printing the output
      *
      * Used for:
-     * - Encode
-     */
-    protected function precomputeCompute256(string $text, array $configFrom, array $configTo) : ?string { 
+     * - Encode 
+     */ 
+    protected function encodeIngest256ToCompute(string $rawBytes, array $configFrom, array $configTo) : ?string { 
         
-        $base100 = $this->precompute256Precompute100($text, $configFrom, ['base' => 100]);
-        return $this->precomputeCompute100($base100, ['bindingEncode' => "_base100"], $configTo);
+        $base100 = $this->transformIngest256To100($rawBytes, $configFrom, ['base' => 100]);
+        return $this->encodeIngest100ToCompute($base100, ['bindingEncode' => "_base100"], $configTo);
     }
 
     /**
@@ -965,7 +965,7 @@ abstract class BaseConvert {
      * Used for:
      * - Decode
      */
-    protected function computePrecompute256(string $symbol, array $configFrom, array $configTo) : ?string { 
+    protected function decodeComputeToIngest256(string $symbol, array $configFrom, array $configTo) : ?string { 
 
         $bigEndian = $this->compute2Endian($symbol, $configFrom, ['bindingEncode' => "_base100"]);
 
@@ -974,7 +974,7 @@ abstract class BaseConvert {
         }
 
         $len = strlen($bigEndian);
-        $converted = $this->getText($bigEndian, $len);
+        $converted = $this->getRawBytes($bigEndian, $len);
 
         return $this->base100Tobase256($converted, $configFrom, $configTo);
     }
@@ -985,9 +985,9 @@ abstract class BaseConvert {
      * Used for:
      * - Encode
      */
-    protected function precomputeBitshift256(string $text, array $configFrom, array $configTo) : ?string { 
+    protected function encodeIngest256ToBitshift(string $rawBytes, array $configFrom, array $configTo) : ?string { 
 
-        $base100 = $this->precompute256Precompute100($text, $configFrom, ['base' => 100]);
+        $base100 = $this->transformIngest256To100($rawBytes, $configFrom, ['base' => 100]);
         
         if($base100 === null) {
             return $base100;
@@ -1046,9 +1046,9 @@ abstract class BaseConvert {
      * Used for:
      * - Decode
      */
-    protected function bitshiftPrecompute256(string $symbol, array $configFrom, array $configTo) : ?string {
+    protected function decodeBitshiftToIngest256(string $symbol, array $configFrom, array $configTo) : ?string {
 
-        $base100 = $this->bitshiftPrecompute100($symbol, $configFrom, ['base' => 100, 'bindingEncode' => '_base100']);
+        $base100 = $this->decodeBitshiftToIngest100($symbol, $configFrom, ['base' => 100, 'bindingEncode' => '_base100']);
         if($base100 === null) {
             return $base100;
         }
@@ -1062,7 +1062,7 @@ abstract class BaseConvert {
      * Used for:
      * - checking full input validity for standard base100
      */
-    protected function precompute100Precompute100(string $symbol, array $configFrom, array $configTo) : ?string { 
+    protected function transformIngest100To100(string $symbol, array $configFrom, array $configTo) : ?string { 
         if(empty($symbol)) {
             $this->setErrorStatus(false)
                 ->setInternalMessage(
@@ -1097,7 +1097,7 @@ abstract class BaseConvert {
      * Used for:
      * - checking digits 0 to 9
      */
-    protected function precompute10Precompute10(string $digitPairs, array $configFrom, array $configTo) : ?string {
+    protected function transformIngest10To10(string $digitPairs, array $configFrom, array $configTo) : ?string {
         $fullcheck = \ctype_digit($digitPairs);
         if(!$fullcheck){
             $this->setErrorStatus(false)
@@ -1122,17 +1122,17 @@ abstract class BaseConvert {
      * Used for:
      * - empty check only, since the input is text and can contain any character
      */
-    protected function precompute256Precompute256(string $text, array $configFrom, array $configTo) : ?string { 
-        if(empty($text)) {
+    protected function transformIngest256To256(string $rawBytes, array $configFrom, array $configTo) : ?string { 
+        if(empty($rawBytes )) {
             $this->setErrorStatus(false)
                 ->setInternalMessage(
-                      Merge::string(InternalMessage::INVALID_EMPTY, ['%arg%' => 'text'])
+                      Merge::string(InternalMessage::INVALID_EMPTY, ['%arg%' => 'rawBytes'])
                     )
                 ->setClientMessage(ClientMessage::INVALID_EMPTY);
 
             return null;
         }
-        return $text;
+        return $rawBytes;
     }
 
     /**
@@ -1141,7 +1141,7 @@ abstract class BaseConvert {
      * Used for:
      * - Encode
      */
-    protected function precomputeBitshift10(string $digitPairs, array $configFrom, array $configTo) : ?string {
+    protected function encodeIngest10ToBitshift(string $digitPairs, array $configFrom, array $configTo) : ?string {
 
         //Sampling-quickcheck
         $len = \strlen($digitPairs);
@@ -1248,7 +1248,7 @@ abstract class BaseConvert {
      * Used for:
      * - Decode
      */
-    protected function bitshiftPrecompute10(string $symbol, array $configFrom, array $configTo) : ?string { 
+    protected function decodeBitshiftToIngest10(string $symbol, array $configFrom, array $configTo) : ?string { 
         
         $len = strlen($symbol);
         $allowedStr = &$this->{$configFrom['bindingStr']};
@@ -1344,7 +1344,7 @@ abstract class BaseConvert {
      * Used for:
      * - Encode
      */
-    protected function bitshift(string $symbol, array $configFrom, array $configTo): ?string { 
+    protected function reEncodeBitshift(string $symbol, array $configFrom, array $configTo): ?string { 
         
         $len = strlen($symbol);
         $allowedStr = &$this->{$configFrom['bindingStr']};
@@ -1468,14 +1468,14 @@ abstract class BaseConvert {
      * Used for:
      * - Encode
      */
-    protected function computeBitshift(string $symbol, array $configFrom, array $configTo) : ?string { 
+    protected function reEncodeComputeToBitshift(string $symbol, array $configFrom, array $configTo) : ?string { 
 
         $endianChunk = $this->compute2Endian($symbol, $configFrom, $configTo);
         if($endianChunk === null) {
             return $endianChunk;
         }
 
-        $txt = $this->getText($endianChunk, \strlen($endianChunk));
+        $txt = $this->getRawBytes($endianChunk, \strlen($endianChunk));
         $len = \strlen($txt);
 
         $buffer = 0;
@@ -1528,7 +1528,7 @@ abstract class BaseConvert {
      * Used for:
      * - Encode
      */
-    protected function bitshiftCompute(string $symbol, array $configFrom, array $configTo) : ?string { 
+    protected function reEncodeBitshiftToCompute(string $symbol, array $configFrom, array $configTo) : ?string { 
         
         $len = strlen($symbol);
         $allowedStr = &$this->{$configFrom['bindingStr']};
@@ -1612,7 +1612,7 @@ abstract class BaseConvert {
      * Used for:
      * - Encode
      */
-    protected function compute(string $symbol, array $configFrom, array $configTo) : ?string { 
+    protected function reEncodeCompute(string $symbol, array $configFrom, array $configTo) : ?string { 
         $bigEndian = $this->compute2Endian($symbol, $configFrom, $configTo);
         return $this->endianToCompute($bigEndian, $configTo);
     }
@@ -1624,8 +1624,9 @@ abstract class BaseConvert {
      * 
      * Used for:
      * - convert a uniform endian chunked decimal string into text
+     * - reused Logic
      */
-    private function getText(string $bigEndianChunk, int $len) : string {
+    private function getRawBytes(string $bigEndianChunk, int $len) : string {
 
         if(empty($bigEndianChunk)) return "";
 
@@ -1704,6 +1705,7 @@ abstract class BaseConvert {
      * 
      * Used for:
      * - convert text into a big endian chunked decimal string
+     * - reused Logic
      */
     private function getEndianChunk(string $txt, int $len) : string {
         //Calculate Bytes to Decimal with dynamic chunk endian-number
@@ -1752,7 +1754,7 @@ abstract class BaseConvert {
      * Conversion from Endian-Chunks (gmp/bc) to non-power-of-2 bases (e.g. base5, base58, base62)
      * 
      * Used for:
-     * - internal usage
+     * - reused logic
      */
     private function endianToCompute(string $bigEndian, array $configTo) : ?string {
 
@@ -1823,7 +1825,7 @@ abstract class BaseConvert {
      * Conversion from non-power-of-2 bases (e.g. base5, base58, base62) to Endian-Chunks (gmp/bc)
      * 
      * Used for:
-     * - internal usage
+     * - reused logic
      */
     private function compute2Endian(string $symbol, array $configFrom, array $configTo) : ?string {
     
@@ -1917,7 +1919,7 @@ abstract class BaseConvert {
      * Conversion from base100 to base256 (text) with Endian-Chunks (gmp/bc)
      * 
      * Used for:
-     * - Decode
+     * - Reused logic
      */
     private function base100Tobase256(string $symbol, array $configFrom, array $configTo) : ?string {
 
@@ -1994,7 +1996,7 @@ abstract class BaseConvert {
 
         $digits = $digs . $converted;
         $len = strlen($digits);
-        $text .= $this->getText($digits, $len);
+        $text .= $this->getRawBytes($digits, $len);
         return $text;
     }
  
@@ -2020,7 +2022,7 @@ abstract class BaseConvert {
             $bindingEncode = &$this->{$config['bindingEncode']};
             $bindingDecode = &$this->{$config['bindingDecode']};
 
-            if($config['checksum']) {
+            if($config['isCanonical']) {
                 foreach ($bindingEncode as $index => $value) {
                     $bindingDecode[$value] = sprintf("%02d", $index);
                 }

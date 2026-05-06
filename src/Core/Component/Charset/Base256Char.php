@@ -18,12 +18,12 @@ trait Base256Char {
     protected function lazyLoading_baseConfig256() : void {
         if($this->_baseConfig256 == null) {
             $this->_baseConfig256 = [
-                'checksum' => true,
+                'isCanonical' => true,
                 'bindingEncode' => '_base256',
                 'bindingDecode' => '_base256Reverse',
                 'bindingStr' => '_base256Str',
                 'context' => DerivationProfile::getContextCharset(256),
-                'process'=> 'precompute',
+                'process'=> 'ingest',
                 'base' => 256,
                 'block' => 64
             ];

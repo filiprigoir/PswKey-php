@@ -18,7 +18,7 @@ trait Base32Char {
     protected function lazyLoading_baseConfig32() : void {
         if($this->_baseConfig32 == null) {
             $this->_baseConfig32 = [
-                'checksum' => false,
+                'isCanonical' => false,
                 'bindingEncode' => '_base32',
                 'bindingDecode' => '_base32Reverse',
                 'bindingStr' => '_base32Str',

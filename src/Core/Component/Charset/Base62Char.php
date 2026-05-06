@@ -18,7 +18,7 @@ trait Base62Char {
     protected function lazyLoading_baseConfig62() : void {
         if($this->_baseConfig62 == null) {
             $this->_baseConfig62 = [
-                'checksum' => false,
+                'isCanonical' => false,
                 'bindingEncode' => '_base62',
                 'bindingDecode' => '_base62Reverse',
                 'bindingStr' => '_base62Str',

@@ -40,17 +40,20 @@ class PswKey extends ShuffleChars implements ConvertBaseInterface, ConvertEngine
             throw new ConfigurationException(InternalMessage::INCOMPLETE_METHOD_CHAIN);
         }
 
+        $from = $configFrom['base']; 
+        $to = $configTo['base'];
+
         //Binding methods
         $func = match ($configFrom['process'] . $configTo['process']) {
-            "precomputecompute" => "precomputeCompute{$configFrom['base']}",
-            "computeprecompute" => "computePrecompute{$configTo['base']}",
-            "precomputebitshift" => "precomputeBitshift{$configFrom['base']}", 
-            "bitshiftprecompute" => "bitshiftPrecompute{$configTo['base']}", 
-            "computebitshift" => "computeBitshift",
-            "bitshiftcompute" => "bitshiftCompute",
-            "precomputeprecompute" => "precompute{$configFrom['base']}precompute{$configTo['base']}",
-            "computecompute" => "compute",
-            "bitshiftbitshift" => "bitshift",
+            "ingestcompute" => "encodeIngest{$from}ToCompute",
+            "computeingest" => "decodeComputeToIngest{$to}",
+            "ingestbitshift" => "encodeIngest{$from}ToBitshift",
+            "bitshiftingest" => "decodeBitshiftToIngest{$to}",
+            "computebitshift" => "reEncodeComputeToBitshift",
+            "bitshiftcompute" => "reEncodeBitshiftToCompute",
+            "ingestingest" => "transformIngest{$from}To{$to}",
+            "computecompute" => "reEncodeCompute",
+            "bitshiftbitshift" => "reEncodeBitshift",
             default => throw new BaseException(InternalMessage::CONFIG_ERROR_DEFAULT)
         };
 

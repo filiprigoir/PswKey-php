@@ -17,11 +17,11 @@ trait ValidationManagerConvert {
 
     protected function checkBase(string $data, int $len, ?string $allowed, array $configFrom) : bool {
 
-        ['base' => $base, 'checksum' => $checksum] = $configFrom;
+        ['base' => $base, 'isCanonical' => $isCanonical] = $configFrom;
 
         $checkNumber = min($len / 2, 64);
 
-        if($checksum && $base === 100) {
+        if($isCanonical && $base === 100) {
             if($checkNumber < 0.50) {   
                 throw new InputException(
                     Merge::string(InternalMessage::LENGTH_REQUIRED, 
@@ -37,7 +37,7 @@ trait ValidationManagerConvert {
         }
 
         $snip = (int)ceil($checkNumber);
-        if($checksum && $base === 10) {
+        if($isCanonical && $base === 10) {
             return \ctype_digit(\substr($data, 0, $snip)) && \ctype_digit(\substr($data, -$snip));
         }
         else {
