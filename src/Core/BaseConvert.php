@@ -1638,7 +1638,7 @@ abstract class BaseConvert {
         $left = $left === 0 ? $digBlock : $left;
         $rounds = (int)floor(($len-$left) / $digBlock);
 
-        if($this->useGMP()) {
+        if($this->enabledGMP()) {
             //Use GMP if aivalaible othwise  PHP
             if($left > 0) {
                 $text .= \gmp_export(
@@ -1720,7 +1720,7 @@ abstract class BaseConvert {
 
         $digits = "";
         //Use GMP if aivalaible othwise use PHP
-        if($this->useGMP()) {
+        if($this->enabledGMP()) {
             if($left > 0) {
                 $digits .= \gmp_strval(\gmp_import(substr($txt, 0, $left)));
             }
@@ -2084,7 +2084,7 @@ abstract class BaseConvert {
     /**
      * Checks if GMP is available and can be used for conversions
      */
-    public function useGMP() : bool  {
+    public function enabledGMP() : bool  {
         return !empty($this->_gmp);
     }
 }

@@ -21,13 +21,18 @@ The three primary input formats are:
 
 There are three types of conversion:
 
-### Ingest
-Normalized formats:
+### Source
 - Base256
 - Base100
 - Base10
 
-For default converts from(100) and to(10) only - not related to customTo(100) and customFrom(10)
+Normalized formats:
+from(256) to To(100)
+
+Related formats
+source 100 and 10 is defined in the same table (index => value)
+
+Not related to customTo(100) and customFrom(10)
 
 ### Compute
 Bases that are **not powers of two**  
