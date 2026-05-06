@@ -2081,9 +2081,6 @@ abstract class BaseConvert {
         }
     }
     
-    /**
-     * Checks if GMP is available and can be used for conversions
-     */
     public function enabledGMP() : bool  {
         return !empty($this->_gmp);
     }
