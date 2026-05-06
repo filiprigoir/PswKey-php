@@ -23,7 +23,7 @@ trait Base256Char {
                 'bindingDecode' => '_base256Reverse',
                 'bindingStr' => '_base256Str',
                 'context' => DerivationProfile::getContextCharset(256),
-                'process'=> 'ingest',
+                'process'=> 'source',
                 'base' => 256,
                 'block' => 64
             ];

@@ -64,7 +64,7 @@ abstract class BaseConvert {
      * - Encode
      * - Decode
      */
-    protected function transformIngest100To10(string $singleBytes, array $configFrom, array $configTo) : ?string { 
+    protected function transformSource100To10(string $singleBytes, array $configFrom, array $configTo) : ?string { 
         
         $len = \strlen($singleBytes);
         $quickCheck = $this->checkBase($singleBytes, $len, InitString::_base100(), $configFrom);
@@ -132,7 +132,7 @@ abstract class BaseConvert {
      * - Encode
      * - Decode
      */
-    protected function transformIngest10To100(string $digitPairs, array $configFrom, array $configTo) : ?string { 
+    protected function transformSource10To100(string $digitPairs, array $configFrom, array $configTo) : ?string { 
 
         $len = \strlen($digitPairs);    
         if($len % 2 === 1) {
@@ -217,7 +217,7 @@ abstract class BaseConvert {
      * Used for:
      * - Encode
      */
-    protected function transformIngest256To100(string $rawBytes, array $configFrom, array $configTo) : ?string { 
+    protected function transformSource256To100(string $rawBytes, array $configFrom, array $configTo) : ?string { 
 
         if(empty($rawBytes)) {
             $this->setErrorStatus(false)
@@ -304,7 +304,7 @@ abstract class BaseConvert {
      * Used for:
      * - Decode
      */
-    protected function transformIngest100To256(string $symbol, array $configFrom, array $configTo) : ?string {
+    protected function transformSource100To256(string $symbol, array $configFrom, array $configTo) : ?string {
 
         $len = strlen($symbol);
         $quickCheck = $this->checkBase($symbol, $len, InitString::_base100(), $configFrom);
@@ -385,7 +385,7 @@ abstract class BaseConvert {
      * Used for:
      * - Encode
      */
-    protected function transformIngest256To10(string $rawBytes, array $configFrom, array $configTo) : ?string { 
+    protected function transformSource256To10(string $rawBytes, array $configFrom, array $configTo) : ?string { 
 
         if(empty($rawBytes)) {
             $this->setErrorStatus(false)
@@ -473,7 +473,7 @@ abstract class BaseConvert {
      * Used for:
      * - Decode
      */
-    protected function transformIngest10To256(string $digitPairs, array $configFrom, array $configTo) : ?string { 
+    protected function transformSource10To256(string $digitPairs, array $configFrom, array $configTo) : ?string { 
         
         $len = \strlen($digitPairs);
         $quickCheck = $this->checkBase($digitPairs, $len, null, $configFrom);
@@ -587,7 +587,7 @@ abstract class BaseConvert {
      * Used for:
      * - Encode
      */
-    protected function encodeIngest100ToBitshift(string $symbol, array $configFrom, array $configTo) : ?string { 
+    protected function encodeSource100ToBitshift(string $symbol, array $configFrom, array $configTo) : ?string { 
         
         $len = \strlen($symbol);
 
@@ -678,7 +678,7 @@ abstract class BaseConvert {
      * Used for:
      * - Decode
      */
-    protected function decodeBitshiftToIngest100(string $symbol, array $configFrom, array $configTo) : ?string { 
+    protected function decodeBitshiftToSource100(string $symbol, array $configFrom, array $configTo) : ?string { 
         
         $len = strlen($symbol);
         $allowedStr = &$this->{$configFrom['bindingStr']};
@@ -777,7 +777,7 @@ abstract class BaseConvert {
      * Used for:
      * - Encode
      */
-    protected function encodeIngest100ToCompute(string $symbol, array $configFrom, array $configTo) : ?string { 
+    protected function encodeSource100ToCompute(string $symbol, array $configFrom, array $configTo) : ?string { 
         
         $len = strlen($symbol);
         //Full check is required here, because the compute2Endian() function is a number based operation 
@@ -808,7 +808,7 @@ abstract class BaseConvert {
      * Used for:
      * - Decode
      */
-    protected function decodeComputeToIngest100(string $symbol, array $configFrom, array $configTo) : ?string { 
+    protected function decodeComputeToSource100(string $symbol, array $configFrom, array $configTo) : ?string { 
         
         $bigEndian = $this->compute2Endian($symbol, $configFrom, $configTo);
         if($bigEndian === null) {
@@ -846,7 +846,7 @@ abstract class BaseConvert {
      * Used for:
      * - Decode
      */
-    protected function decodeComputeToIngest10(string $symbol, array $configFrom, array $configTo) : ?string {
+    protected function decodeComputeToSource10(string $symbol, array $configFrom, array $configTo) : ?string {
 
         $chunkEndian = $this->compute2Endian($symbol, $configFrom, $configTo);
         if($chunkEndian === null) {
@@ -857,7 +857,7 @@ abstract class BaseConvert {
         $converted = $this->getRawBytes($chunkEndian, $len);
 
         $this->lazyLoading_baseConfig100();
-        return $this->transformIngest100To10($converted, $this->_baseConfig100, $configTo);
+        return $this->transformSource100To10($converted, $this->_baseConfig100, $configTo);
     }
 
     /**
@@ -866,10 +866,10 @@ abstract class BaseConvert {
      * Used for:
      * - Encode
      */
-    protected function encodeIngest10ToCompute(string $digitPairs, array $configFrom, array $configTo) : ?string { 
+    protected function encodeSource10ToCompute(string $digitPairs, array $configFrom, array $configTo) : ?string { 
 
         $this->lazyLoading_baseConfig100();
-        $symbol = $this->transformIngest10To100($digitPairs, $configFrom, $this->_baseConfig100);
+        $symbol = $this->transformSource10To100($digitPairs, $configFrom, $this->_baseConfig100);
         if($symbol === null) {
             return $symbol;
         }
@@ -950,10 +950,10 @@ abstract class BaseConvert {
      * Used for:
      * - Encode 
      */ 
-    protected function encodeIngest256ToCompute(string $rawBytes, array $configFrom, array $configTo) : ?string { 
+    protected function encodeSource256ToCompute(string $rawBytes, array $configFrom, array $configTo) : ?string { 
         
-        $base100 = $this->transformIngest256To100($rawBytes, $configFrom, ['base' => 100]);
-        return $this->encodeIngest100ToCompute($base100, ['bindingEncode' => "_base100"], $configTo);
+        $base100 = $this->transformSource256To100($rawBytes, $configFrom, ['base' => 100]);
+        return $this->encodeSource100ToCompute($base100, ['bindingEncode' => "_base100"], $configTo);
     }
 
     /**
@@ -965,7 +965,7 @@ abstract class BaseConvert {
      * Used for:
      * - Decode
      */
-    protected function decodeComputeToIngest256(string $symbol, array $configFrom, array $configTo) : ?string { 
+    protected function decodeComputeToSource256(string $symbol, array $configFrom, array $configTo) : ?string { 
 
         $bigEndian = $this->compute2Endian($symbol, $configFrom, ['bindingEncode' => "_base100"]);
 
@@ -985,9 +985,9 @@ abstract class BaseConvert {
      * Used for:
      * - Encode
      */
-    protected function encodeIngest256ToBitshift(string $rawBytes, array $configFrom, array $configTo) : ?string { 
+    protected function encodeSource256ToBitshift(string $rawBytes, array $configFrom, array $configTo) : ?string { 
 
-        $base100 = $this->transformIngest256To100($rawBytes, $configFrom, ['base' => 100]);
+        $base100 = $this->transformSource256To100($rawBytes, $configFrom, ['base' => 100]);
         
         if($base100 === null) {
             return $base100;
@@ -1046,9 +1046,9 @@ abstract class BaseConvert {
      * Used for:
      * - Decode
      */
-    protected function decodeBitshiftToIngest256(string $symbol, array $configFrom, array $configTo) : ?string {
+    protected function decodeBitshiftToSource256(string $symbol, array $configFrom, array $configTo) : ?string {
 
-        $base100 = $this->decodeBitshiftToIngest100($symbol, $configFrom, ['base' => 100, 'bindingEncode' => '_base100']);
+        $base100 = $this->decodeBitshiftToSource100($symbol, $configFrom, ['base' => 100, 'bindingEncode' => '_base100']);
         if($base100 === null) {
             return $base100;
         }
@@ -1062,7 +1062,7 @@ abstract class BaseConvert {
      * Used for:
      * - checking full input validity for standard base100
      */
-    protected function transformIngest100To100(string $symbol, array $configFrom, array $configTo) : ?string { 
+    protected function transformSource100To100(string $symbol, array $configFrom, array $configTo) : ?string { 
         if(empty($symbol)) {
             $this->setErrorStatus(false)
                 ->setInternalMessage(
@@ -1097,7 +1097,7 @@ abstract class BaseConvert {
      * Used for:
      * - checking digits 0 to 9
      */
-    protected function transformIngest10To10(string $digitPairs, array $configFrom, array $configTo) : ?string {
+    protected function transformSource10To10(string $digitPairs, array $configFrom, array $configTo) : ?string {
         $fullcheck = \ctype_digit($digitPairs);
         if(!$fullcheck){
             $this->setErrorStatus(false)
@@ -1122,7 +1122,7 @@ abstract class BaseConvert {
      * Used for:
      * - empty check only, since the input is text and can contain any character
      */
-    protected function transformIngest256To256(string $rawBytes, array $configFrom, array $configTo) : ?string { 
+    protected function transformSource256To256(string $rawBytes, array $configFrom, array $configTo) : ?string { 
         if(empty($rawBytes )) {
             $this->setErrorStatus(false)
                 ->setInternalMessage(
@@ -1141,7 +1141,7 @@ abstract class BaseConvert {
      * Used for:
      * - Encode
      */
-    protected function encodeIngest10ToBitshift(string $digitPairs, array $configFrom, array $configTo) : ?string {
+    protected function encodeSource10ToBitshift(string $digitPairs, array $configFrom, array $configTo) : ?string {
 
         //Sampling-quickcheck
         $len = \strlen($digitPairs);
@@ -1248,7 +1248,7 @@ abstract class BaseConvert {
      * Used for:
      * - Decode
      */
-    protected function decodeBitshiftToIngest10(string $symbol, array $configFrom, array $configTo) : ?string { 
+    protected function decodeBitshiftToSource10(string $symbol, array $configFrom, array $configTo) : ?string { 
         
         $len = strlen($symbol);
         $allowedStr = &$this->{$configFrom['bindingStr']};

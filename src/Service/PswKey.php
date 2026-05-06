@@ -42,16 +42,16 @@ class PswKey extends ShuffleChars implements ConvertBaseInterface, ConvertEngine
 
         $from = $configFrom['base']; 
         $to = $configTo['base'];
-
+ 
         //Binding methods
         $func = match ($configFrom['process'] . $configTo['process']) {
-            "ingestcompute" => "encodeIngest{$from}ToCompute",
-            "computeingest" => "decodeComputeToIngest{$to}",
-            "ingestbitshift" => "encodeIngest{$from}ToBitshift",
-            "bitshiftingest" => "decodeBitshiftToIngest{$to}",
+            "sourcecompute" => "encodeSource{$from}ToCompute",
+            "computesource" => "decodeComputeToSource{$to}",
+            "sourcebitshift" => "encodeSource{$from}ToBitshift",
+            "bitshiftsource" => "decodeBitshiftToSource{$to}",
             "computebitshift" => "reEncodeComputeToBitshift",
             "bitshiftcompute" => "reEncodeBitshiftToCompute",
-            "ingestingest" => "transformIngest{$from}To{$to}",
+            "sourcesource" => "transformSource{$from}To{$to}",
             "computecompute" => "reEncodeCompute",
             "bitshiftbitshift" => "reEncodeBitshift",
             default => throw new BaseException(InternalMessage::CONFIG_ERROR_DEFAULT)
