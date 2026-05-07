@@ -8,14 +8,14 @@ namespace PswKey\Core\Modifiers;
  */
 final class DerivationProfile
 {
-    //derivation context: must be excactly 5 bytes here (radix will be added dynamically, e.g.: 64 -> 064)
-    private const DERIVATION_CHARSET = 'DECHA';
-    private const DERIVATION_CUSTOM = 'DECUS';
+    //shuffle profile: must be excactly 5 bytes here (radix will be added dynamically, e.g.: 64 -> 064)
+    private const SHUFFLE_DEFAULT_CHARSET = 'SDEFC';
+    private const SHUFFLE_CUSTOM_ALPHABET = 'SCUSA';
 
-    //stream context: must be excactly 8 bytes
+    //stream profile: must be excactly 8 bytes
     public const DERIVATION_STREAM = 'DERSTRKY';
 
-    //onetimepad default context: must be excactly 8 bytes
+    //onetimepad default profile: must be excactly 8 bytes
     public const DEFAULT_OTP_BYTES = 'DEFOTPBY';
     public const DEFAULT_OTP_DIGITS = 'DEFOTPDI';
 
@@ -24,11 +24,11 @@ final class DerivationProfile
     public const ENDIAN_CHUNK_SHORT = [22, 53];
 
     public static function getContextCharset(int $radix) : string {
-        return self::DERIVATION_CHARSET . str_pad((string)$radix, 3, '0', STR_PAD_LEFT);
+        return self::SHUFFLE_DEFAULT_CHARSET . str_pad((string)$radix, 3, '0', STR_PAD_LEFT);
     }
 
     public static function getContextCustom(int $radix) : string {
-        return self::DERIVATION_CUSTOM . str_pad((string)$radix, 3, '0', STR_PAD_LEFT);
+        return self::SHUFFLE_CUSTOM_ALPHABET . str_pad((string)$radix, 3, '0', STR_PAD_LEFT);
     }
 
     private function __construct() {}

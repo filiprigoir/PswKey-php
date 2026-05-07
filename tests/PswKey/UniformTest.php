@@ -72,7 +72,7 @@ class UniformTest extends TestCase
         //169 bytes is the limit for random digits
         //Note: entering free digits are not always possible, because the uniform format is designed to be deterministic output
         $digits = $this->getDigits();
-        $pswkey = $this->instancePswKey("deterministic validation", "1777936375199218");
+        $pswkey = $this->instancePswKey("deterministic validation", "1778163450466704");
         
         $encode = $pswkey
             ->from(10)

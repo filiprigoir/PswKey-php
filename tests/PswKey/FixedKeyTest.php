@@ -26,7 +26,7 @@ class FixedKeyTest extends TestCase
     }
 
     private function getConvertedBase10() : string {
-        return "4745230109642248634440516889918019976399508540611087636888174985145349047762557713265088556651762091049578346175316588431185222138999821017974972480162941138219367618141098289069652425387426171274919298407579874081778113433690494207518741643593";
+        return "0195691692470282763320226064535861237634176620779352766007136866288068253803083878961707082722461153258404757788513707156366029745342197163944231958309135785961004650289321997985371972454496134944534221208839522083388378150079687465225235479809";
     }
 
     private function getConvertedBase100() : string {
@@ -34,23 +34,23 @@ class FixedKeyTest extends TestCase
     }
 
     private function getConvertedBase32() : string {
-        return "zkTm8yya7PDkbF5TRtbmvR7Exh2zFFhNRkfyz8yfmhDkvU2RhmfPvkjhxuIKzRIz3hCy5U2jEDb787KExtIRDITKzNF4tUWEEkf42ay33kCmfyjW8uRmqf45tTkKPt4qmEjm5DKfE84qF4Cz5hKREDyI5FbPzyTmE5CIEDh5RuWztDTjmFkPF4u8utb2Pj4N7DPz";
+        return "QkMK2ppf0q9kwglME4wKDE0ztRUQggRcEkopQ2poKR9kD5UERKoqDkxRt3hyQEhQsRNpl5Uxz9w020yzt4hE9hMyQcgP45nzzkoPUfpsskNKopxn23EKboPl4Mkyq4PbKzxKl9yoz2PbgPNQlRyEz9phlgwqQpMKzlNhz9RlE3nQ49MxKgkqgP3234wUqxPc09qb";
     }
 
     private function getConvertedBase58() : string {
-        return "WcwDj27JCM3v5RVwDyUJLX1DQN9KLXYMZQWnatB5qqrV5awepmNXTRUHiYY3ztKP6Qgcy5QurP18NrQVedoinmVkdxgfWVvh6kpePc8VULFhotioyKd1i4Gmnzucn3LckShMgj9p5mswYwF6hQ68RFtrySvmBovdPZKPjWyh";
+        return "ySa2J7HmxqUfjnKa2NTmevB2ohRXevkqWoyPMYVjGGEKjMa4wDhvZnTAdkkU5YXc8oCSNjo3EcBihEoK4tbdPDKFtuC9yKf18Fw4cSiKTeL1bYdbNXtBd6zDP53SPUeSFs1qCJRwjDpakaL81o8inLYENsfDVbftcWXcJyN1";
     }
 
     private function getConvertedBase62() : string {
-        return "25ad7kQvuYwOGcNYxWKqBYHj2wlOYm3UkqtqOsxXBCy0jYhsSaJ6Ue9NQeWptwUnAts1dJ34lacjBTYcVSZrLWXoD0enKoHKAT3kSrmfR3DJ5cRQwX9am5NzMUUpKFGlJgaQYkpmWA3QB6aI78qovCouwe6tFVjdl7BR9L1k";
+        return "oSsCLYd3eBfbGqpBjIZmgB8EofTbBQV9YmumbKjxgF6PEBcKks0h97Opd7Iauf9HUuKtC0VXTsqEgvBqDk1RyIx4lP7HZ48ZUvVYkRQwiVl0SqidfxOsQSpr599aZMGT0nsdBYaQIUVdghszLNm43F4ef7huMDECTLgiOytY";
     }
 
     private function getConvertedBase64() : string {
-        return "RZ0iXyNNaxFuiXQziGljLo+1WJ4m3XQr3KguiPYZHCmhx6lq7rRn7rgf5CYnNIK6bcFq04uVafNY0SpjNC6uC4OwOlweEiR1iSgB7cA/QoEk5Gxh3SaoJT12ioNSEyRZViRj0CBfR6Tt1602ErAjB6Y0tc1zB2gNCv9";   
+        return "4tJPTvnnColUPThAPEuHWqI/aBNZxThixL6UP9MtVRZpo1u82i4Y2i6ckRMYnjL1Kzl8JNUgCcnMJrFHnR1URNwfwufD+P4/Pr672zSbhq+ykEopxrCqBs/GPqnr+v4tgP4HJR7c41s3/1JG+iSH71MJ3z/A7G6nRed";   
     }
 
     private function getConvertedCustom_32() : string {
-        return "9{'3:&&X}s~{l_T'GMl3!G}(¨S£9__S=G{i&9:&i3S~{!^£GS3is!{,S¨u6§9G69`So&T^£,(~l}:}§(¨M6G~6'§9=_OM^x(({iO£X&``{o3i&,x:uG34iOTM'{§sMO43(,3T~§i(:O4_Oo9TS§G(~&6T_ls9&'3(To6(~STGux9M~',3_{s_Ou:uMl£s,O=}~sx";
+        return "^~_cl66XP[$~W\"Y_xwWc°xPZQ,µ^\"\",mx~´6^l6´c,$~°5µx,c´[°~f,QKMk^xM^e,{6Y5µfZ\$WPlPkZQwMx\$M_k^m\"jw5hZZ~´jµX6ee~{c´6fhlKxcs´jYw_~k[wjscZfcY\$k´Zljs\"j{^Y,kxZ$6MY\"W[^6_cZY{MZ$,YxKh^w\$_fc\"~[\"jKlKwWµ[fjmP$[°";
     }
 
     public function test_from_base100(): void
