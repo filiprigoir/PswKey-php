@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace PswKey\Core\Component\Custom;
 
-use PswKey\Core\Modifiers\DerivationProfile;
+use PswKey\Core\Modifier\DerivationProfile;
 
 /**  
 * Configuration for baseX encoding

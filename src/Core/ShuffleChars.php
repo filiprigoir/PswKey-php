@@ -5,7 +5,7 @@ namespace PswKey\Core;
 
 use FFI;
 use SensitiveParameter;
-use PswKey\Core\Modifiers\ImplementationType;
+use PswKey\Core\Modifier\ImplementationType;
 use PswKey\ErrorMessage\InternalMessage;
 use PswKey\Interface\CustomKeyInterface;
 use PswKey\Service\KeyStream;
@@ -168,7 +168,7 @@ abstract class ShuffleChars extends BaseConvert implements CustomKeyInterface {
             $len = count($singleBytes);
 
             //Table rejection sampling
-            include_once('Modifiers\RejectionSampling.php');
+            include_once('Modifier\RejectionSampling.php');
 
             //Specical role for standard base 100 and 10 convertion
             if($config['isCanonical'] === true && $baseLength === 10 ) {$baseLength = 100;} 

@@ -4,7 +4,7 @@ declare(strict_types=1);
 namespace PswKey\Service;
 
 use Exception;
-use PswKey\Core\Modifiers\DerivationProfile;
+use PswKey\Core\Modifier\DerivationProfile;
 use PswKey\Core\ShuffleChars;
 use PswKey\ErrorMessage\ErrorMessage;
 use PswKey\ErrorMessage\InternalMessage;

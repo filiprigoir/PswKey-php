@@ -11,7 +11,7 @@ The Core is responsible for deterministic byte-level operations, including base 
 ### 🔹 Contract of the shuffle pipeline
 Defines a deterministic derivation domain for the shuffle pipeline
 
-→ See: [ShuffleProfile.md](./ShuffleProfile.md)
+→ See: [ShuffleProfile.md](./Contract/ShuffleProfile.md)
 
 ---
 

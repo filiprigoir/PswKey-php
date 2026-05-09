@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace PswKey\Core\Modifiers;
+namespace PswKey\Core\Modifier;
 
 final class ImplementationType
 {

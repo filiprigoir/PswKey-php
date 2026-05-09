@@ -1,8 +1,8 @@
-# Deterministic Shuffle (FFI + PHP)
+# Deterministic Shuffle contract (FFI + PHP)
 
 ## Overview
 
-This component provides a deterministic index shuffle based on a cryptographic entropy source and ShuffleProfile (directory: Modifiers) configuration.
+This component provides a deterministic index shuffle based on a cryptographic entropy source and ShuffleProfile (directory: Modifier) configuration.
 
 It combines:
 
@@ -71,9 +71,11 @@ full blocks are grouped in 64-byte segments.
 
 Examples:
 
+```text
 * 6 → 8 → 16 (1 * 16)
 * 58 → 79 → 80 (1 * 64 + 16)
 * 129 → 184 → 184 (2 * 64 + 56)
+```
 
 The first value is the requested length, the second is the entropy size after rejection sampling compensation, and the final value is the normalized size adjusted to comply with libsodium's minimum length constraints.
 

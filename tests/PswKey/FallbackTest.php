@@ -5,7 +5,7 @@ namespace Tests\Unit\PswKey;
 use FFI;
 use DateTime;
 use PHPUnit\Framework\TestCase;
-use PswKey\Core\Modifiers\ImplementationType;
+use PswKey\Core\Modifier\ImplementationType;
 use PswKey\Service\KeyStream;
 use PswKey\Service\PswKey;
 

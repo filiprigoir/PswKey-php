@@ -5,9 +5,9 @@ This includes:
  
 - rejection sampling behavior (FFI & PURE PHP)
 - shuffle algorithm semantics in Core implementations
-- entropy derivation or KeyStream sizing formulas
+- entropy derivation and KeyStream sizing formulas
 - normalization rules influenced by libsodium-derived entropy
-- byte consumption order or chunking strategy
+- byte consumption order and chunking strategy
 
 ---
 
@@ -15,4 +15,4 @@ This includes:
 
 This repository is deterministic by design. To maintain interoperability, Shuffle Profile Contracts should remain unchanged. Modifying them results in a divergent variant that should be treated as a private fork.
 
-→ See: [DerivationProfile.php](../Modifiers/DerivationProfile.php)
+→ See: [DerivationProfile.php](../Modifier/DerivationProfile.php)

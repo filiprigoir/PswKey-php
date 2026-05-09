@@ -11,7 +11,7 @@ use PswKey\Core\Component\Charset\Base62Char;
 use PswKey\Core\Component\Charset\Base64Char;
 use PswKey\Core\Component\Custom\Custom256From;
 use PswKey\Core\Component\Custom\Custom256To;
-use PswKey\Core\Modifiers\DerivationProfile;
+use PswKey\Core\Modifier\DerivationProfile;
 use PswKey\ErrorMessage\ClientMessage;
 use PswKey\ErrorMessage\InternalMessage;
 use PswKey\Exception\InputException;

@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace PswKey\Core\Component\Charset;
 
-use PswKey\Core\Modifiers\DerivationProfile;
+use PswKey\Core\Modifier\DerivationProfile;
 
 /**
 * Configuration for Base58 encoding and decoding

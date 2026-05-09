@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace PswKey\Service;
 
-use PswKey\Core\Modifiers\DerivationProfile;
+use PswKey\Core\Modifier\DerivationProfile;
 use PswKey\ErrorMessage\InternalMessage;
 use PswKey\Exception\ConfigurationException;
 use PswKey\Interface\CustomKeyInterface;
@@ -60,7 +60,7 @@ class KeyStream implements CustomKeyInterface {
             $this->_streamKey = sodium_crypto_kdf_derive_from_key(
                 SODIUM_CRYPTO_KDF_KEYBYTES, 
                 $this->_seedId,
-                DerivationProfile::DERIVATION_STREAM,
+                DerivationProfile::getContextStream(),
                 $this->_mainKey
             ); 
         }

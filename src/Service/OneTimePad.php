@@ -3,8 +3,8 @@ declare(strict_types=1);
 
 namespace PswKey\Service;
 
-use PswKey\Core\Modifiers\ImplementationType;
-use PswKey\Core\Modifiers\DerivationProfile;
+use PswKey\Core\Modifier\ImplementationType;
+use PswKey\Core\Modifier\DerivationProfile;
 use PswKey\ErrorMessage\ClientMessage;
 use PswKey\ErrorMessage\InternalMessage;
 use PswKey\Exception\ConfigurationException;
