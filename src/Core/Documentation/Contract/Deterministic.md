@@ -2,7 +2,7 @@
 
 ## Overview
 
-This component provides a deterministic index shuffle based on a cryptographic entropy source and ShuffleProfile (directory: Modifier) configuration.
+This component provides a deterministic index shuffle based on a single entropy source and Shuffle profile contract (directory: Modifier -> DerivationProfile.php).
 
 It combines:
 
@@ -11,8 +11,8 @@ It combines:
 
 Two execution backends are supported:
 
-* Native implementation via PHP FFI (preferred)
-* Pure PHP implementation (fallback)
+* Native implementation via PHP FFI
+* Pure PHP implementation
 
 Both implementations are functionally equivalent and produce identical results.
 
@@ -57,7 +57,7 @@ If the entropy buffer is too small, it will be reused cyclically, which may redu
 
 The entropy buffer is scaled relative to the input size using a factor.
 
-The sizing formula in the ShuffleChars (ShuffleFFI & ShufflePHP) is:
+The sizing formula in the ShuffleChars (Shuffle FFI & Shuffle PHP) is:
 
 * factor = 1.3 + (N / 256) * 0.25;
 * KeyLength = ceil(N * factor);
@@ -95,5 +95,5 @@ Precompiled native binaries are provided for:
 ## Maintenance Notes
 
 * Any change to the algorithm must preserve output parity between PHP and FFI implementations
-* The entropy consumption order MUST remain identical across implementations
-* The rejection sampling logic MUST remain consistent to avoid bias
+* The entropy consumption order must remain identical across implementations
+* The rejection sampling logic must remain consistent to avoid bias

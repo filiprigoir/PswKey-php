@@ -22,8 +22,6 @@ The exact mapping depends on:
 - the target radix
 - the selected configuration set
 
-→ See: [Precompute.php](../../Util/Base/Precompute.php)
-
 ---
 
 ## Base-Specific Configuration
@@ -48,9 +46,9 @@ $base >= 43 && $base <= 46 => [
 
 This means:
 
-14 digits are processed per chunk
-the chunk is decomposed through 8 exponentiation steps
-the result produces 9 output symbols
+- 14 digits are processed per chunk
+- the chunk is decomposed through 8 exponentiation steps
+- the result produces 9 output symbols
 
 ---
 
@@ -60,8 +58,8 @@ Digits are processed in fixed-size chunks.
 
 Example:
 
-[14 digits] → [9 symbols]
-[14 digits] → [9 symbols]
+- [14 digits] → [9 symbols]
+- [14 digits] → [9 symbols]
 
 Each chunk is processed independently.
 
@@ -77,6 +75,7 @@ Each chunk is encoded through positional decomposition using precomputed exponen
 
 Example for Base62:
 
+```php
 3521614606208
 56800235584
 916132832
@@ -85,17 +84,8 @@ Example for Base62:
 3844
 62
 1
+```
 
 Each iteration decomposes the chunk into symbols using these positional weights.
 
 After processing, the encoder resets and starts again with the next chunk.
-
----
-
-## Relation to Normalization
-
-Compute mode operates on normalized numeric input.
-
-Base256 input must first pass through the normalization pipeline before compute conversion begins.
-
-→ More about normalization and chunking: [Normalization](Normalization.md)

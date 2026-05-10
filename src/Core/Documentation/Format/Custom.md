@@ -6,12 +6,20 @@ This document describes how custom conversion is configured and how user-defined
 
 ## Overview
 
-Custom conversion allows developers to provide their own alphabet definition instead of using the built-in Base100 alphabet system.
+Custom conversion allows developers to provide their own alphabet definition instead of using the built-in from() and to() alphabet system.
 
 Configuration is performed through:
 
+- Encode:
+
 ```php
 customTo(array $singleBytes, int $baseLength, bool $shuffle = true): self;
+```
+
+- Decode:
+
+```php
+customFrom(array $singleBytes, int $baseLength, bool $shuffle = true): self;
 ```
 
 ### array $singleBytes
@@ -19,7 +27,7 @@ customTo(array $singleBytes, int $baseLength, bool $shuffle = true): self;
 Defines the custom alphabet.
 
 The array must contain unique single-byte values only.
-Unique Array is responsibility of the client, it is not checking
+Unique Array is responsibility of the client, not checked by system
 
 Requirements:
 
@@ -32,13 +40,13 @@ Possible input methods:
 * UTF-8 → ISO conversion:
 
 ```php
-$string = 'abcde';
+$string = 'abcde'; //most be minium 4
 $bytes  = str_split(transcode::getISO($string));
 ```
 * Integer loop with chr():
 
 ```php
-for ($i = 0; $i < 255; $i++) {
+for ($i = 1; $i < 255; $i++) {
     $bytes[] = chr($i);
 }
 ```
@@ -67,11 +75,11 @@ Example:
 
 In this case:
 
-- the alphabet is optionally shuffled
+- the alphabet is shuffled
 - an index with fisher-yates and rejection sampling is selected
 - the alphabet is sliced to the requested radix length
 
-→ More about using fisher-Yates: [Deterministic.php](../contract/Deterministic.md)
+→ More about using fisher-Yates: [Deterministic.md](/src/Core/Documentation/Contract/Deterministic.md)
 
 ---
 
@@ -80,8 +88,9 @@ In this case:
 Controls alphabet randomization.
 
 true:
--- alphabet is shuffled deterministically (via seedphrase and optional keyphrase)
+- alphabet is shuffled deterministically (via seedphrase and optional keyphrase)
 - uses the active key derivation system
+
 false:
 - preserves original alphabet order
 - disables shuffle randomization
@@ -104,15 +113,6 @@ Reason:
 - alphabet definitions may change dynamically
 - custom keys may change between calls
 
-Example:
-
-```php
-customTo($alphabet62, 62);
-customTo($alphabet62, 50);
-```
-
-Both calls generate independent configurations.
-
 based on:
 - salt
 - optional pepper
@@ -128,7 +128,8 @@ The custom key defaults to `null` and can be configured through a fluent interfa
 When present:
 
 - the custom key participates in shuffle derivation
-- the main key remains active
+- relates to customFrom() and customTo() only
+- the main key remains active for built-in from() and to() bases
 - both keys are internally combined through Libsodium
 
 Characteristics:
