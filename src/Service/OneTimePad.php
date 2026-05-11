@@ -69,8 +69,10 @@ class OneTimePad implements ConvertEngineInterface, CustomKeyInterface {
         else {
             if(mb_strlen($context, '8bit') !== 8) {
                 throw new ConfigurationException(
-                    InternalMessage::INVALID_LIBSODIUM_CONTEXT
-                );  
+                    Merge::string(InternalMessage::INVALID_LIBSODIUM_CONTEXT, 
+                        ["%length%" => 8]
+                    )
+                );
             } 
         }
 
@@ -162,8 +164,10 @@ class OneTimePad implements ConvertEngineInterface, CustomKeyInterface {
         
         if(mb_strlen($context, '8bit') !== 8) {
             throw new ConfigurationException(
-                InternalMessage::INVALID_LIBSODIUM_CONTEXT
-            ); 
+                Merge::string(InternalMessage::INVALID_LIBSODIUM_CONTEXT, 
+                    ["%length%" => 8]
+                )
+            );
         } 
       
         $otp = '';

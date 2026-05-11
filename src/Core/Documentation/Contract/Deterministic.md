@@ -2,7 +2,9 @@
 
 ## Overview
 
-This component provides a deterministic index shuffle based on a single entropy source and Shuffle profile contract (directory: Modifier -> DerivationProfile.php).
+This component provides a deterministic index shuffle based on a single entropy source and Shuffle profile contract.
+
+→ See: [DerivationProfile.php](/src/Core/Modifier/DerivationProfile.php)
 
 It combines:
 

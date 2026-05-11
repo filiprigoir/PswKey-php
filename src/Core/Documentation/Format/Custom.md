@@ -1,6 +1,6 @@
 # Custom Conversion Pipeline
 
-This document describes how custom conversion is configured and how user-defined alphabets are handled.
+This document describes how custom conversion is configured and how client-defined alphabets are handled.
 
 ---
 
@@ -13,13 +13,13 @@ Configuration is performed through:
 - Encode:
 
 ```php
-customTo(array $singleBytes, int $baseLength, bool $shuffle = true): self;
+customTo($singleBytes, $baseLength, $shuffle = true);
 ```
 
 - Decode:
 
 ```php
-customFrom(array $singleBytes, int $baseLength, bool $shuffle = true): self;
+customFrom($singleBytes, $baseLength, $shuffle = true);
 ```
 
 ### array $singleBytes
@@ -27,7 +27,6 @@ customFrom(array $singleBytes, int $baseLength, bool $shuffle = true): self;
 Defines the custom alphabet.
 
 The array must contain unique single-byte values only.
-Unique Array is responsibility of the client, not checked by system
 
 Requirements:
 
@@ -124,18 +123,16 @@ based on:
 Custom conversion supports an optional custom key.
 
 The custom key defaults to `null` and can be configured through a fluent interface.
+If no custom key is configured, the system uses the main key derivation only.
 
 When present:
 
 - the custom key participates in shuffle derivation
-- relates to customFrom() and customTo() only
+- only relates to customFrom() and customTo()
 - the main key remains active for built-in from() and to() bases
-- both keys are internally combined through Libsodium
 
 Characteristics:
 
 - deterministic derivation
 - isolated custom shuffle domains
 - dynamic reconfiguration support
-
-If no custom key is configured via fluent interface, the system uses the main key derivation only.

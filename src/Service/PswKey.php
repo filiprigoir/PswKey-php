@@ -12,7 +12,7 @@ use PswKey\Exception\BaseException;
 use PswKey\Exception\ConfigurationException;
 use PswKey\Interface\ConvertEngineInterface;
 use PswKey\Interface\ConvertBaseInterface;
-use PswKey\Util\Base\CheckBase;
+use PswKey\Util\Base\Radix;
 use PswKey\Util\Base\InitArray;
 use PswKey\Util\Base\Precompute;
 use PswKey\Util\Mapping\Merge;
@@ -75,7 +75,7 @@ class PswKey extends ShuffleChars implements ConvertBaseInterface, ConvertEngine
      */
     public function from(int $base) : self {
 
-        if(!CheckBase::defaultShuffle($base)) {
+        if(!Radix::allowedRadix($base)) {
             throw new BaseException(
                 Merge::string(InternalMessage::RADIX_UNSUPPORTED, [
                     '%base%', "Base{$base}"
@@ -110,7 +110,7 @@ class PswKey extends ShuffleChars implements ConvertBaseInterface, ConvertEngine
      */
     public function to(int $base) : self {
 
-        if(!CheckBase::defaultShuffle($base)) {
+        if(!Radix::allowedRadix($base)) {
             throw new BaseException(
                 Merge::string(InternalMessage::RADIX_UNSUPPORTED, [
                     '%base%', "Base{$base}"

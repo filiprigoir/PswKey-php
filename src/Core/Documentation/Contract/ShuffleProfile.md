@@ -19,15 +19,11 @@ This repository is deterministic by design.
 
 By default, the standard derivation context is used to preserve interoperability between installations.
 
-The derivation context may also be customized through environment configuration to create an isolated deterministic namespace.
+The derivation context may also be customized through the setters to create an isolated deterministic namespace.
 
-Environment configuration variables are:
-
-```php
-PSWKEY_CONTEXT_CHARSET=requires_5_bytes
-PSWKEY_CONTEXT_CUSTOM=requires_8_bytes
-PSWKEY_CONTEXT_STREAM=requires_8_bytes
-```
+- setContextCharset(requires_5_bytes);
+- setContextCustom(requires_5_bytes);
+- setContextStream(requires_8_bytes);
 
 Note: Default and customized derivation contexts are equally valid and secure. Different context configurations simply produce different deterministic outputs and can be used for private deterministic domain isolation.
 

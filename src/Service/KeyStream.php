@@ -7,6 +7,7 @@ use PswKey\Core\Modifier\DerivationProfile;
 use PswKey\ErrorMessage\InternalMessage;
 use PswKey\Exception\ConfigurationException;
 use PswKey\Interface\CustomKeyInterface;
+use PswKey\Util\Mapping\Merge;
 use PswKey\Util\Secure\MemeZero;
 use SensitiveParameter;
 
@@ -89,8 +90,10 @@ class KeyStream implements CustomKeyInterface {
 
         if($context === null || mb_strlen($context, '8bit') !== 8) {
             throw new ConfigurationException(
-                InternalMessage::INVALID_LIBSODIUM_CONTEXT
-            );  
+                Merge::string(InternalMessage::INVALID_LIBSODIUM_CONTEXT, 
+                    ["%length%" => 8]
+                )
+            );
         }
 
         $buffer = [];
@@ -133,8 +136,10 @@ class KeyStream implements CustomKeyInterface {
 
         if(mb_strlen($context, '8bit') !== 8) {
             throw new ConfigurationException(
-                InternalMessage::INVALID_LIBSODIUM_CONTEXT
-            );  
+                Merge::string(InternalMessage::INVALID_LIBSODIUM_CONTEXT, 
+                    ["%length%" => 8]
+                )
+            );
         }
 
         if($length < SODIUM_CRYPTO_KDF_BYTES_MIN) {
