@@ -28,7 +28,7 @@ final class DerivationProfile
     public const ENDIAN_CHUNK_LONG = [169, 407];
     public const ENDIAN_CHUNK_SHORT = [22, 53];
 
-    //optional bootstrap context
+    //Optional bootstrap context
     private static ?string $_contextCharset = null;
     private static ?string $_contextCustom = null;
     private static ?string $_contextStream = null;
@@ -61,13 +61,9 @@ final class DerivationProfile
         return self::DERIVATION_STREAM;
     }
 
-    public static function setContextCharset(string $context) : void {
- 
-        if($context === null) {
-            self::$_contextCharset = null;
-        }
-        
-        if(mb_strlen($context, '8bit') !== 5) {
+    public static function setContextCharset(?string $context) : void {
+    
+        if($context !== null && mb_strlen($context, '8bit') !== 5) {
             throw new ConfigurationException(
                 Merge::string(InternalMessage::INVALID_LIBSODIUM_CONTEXT, 
                     ["%length%" => 5]
@@ -78,13 +74,9 @@ final class DerivationProfile
         self::$_contextCharset = $context;
     }
 
-    public static function setContextCustom(string $context) : void {
+    public static function setContextCustom(?string $context) : void {
 
-        if($context === null) {
-            self::$_contextCustom = null;
-        }
-
-        if(mb_strlen($context, '8bit') !== 5) {
+        if($context !== null && mb_strlen($context, '8bit') !== 5) {
             throw new ConfigurationException(
                 Merge::string(InternalMessage::INVALID_LIBSODIUM_CONTEXT, 
                     ["%length%" => 5]
@@ -94,13 +86,9 @@ final class DerivationProfile
         self::$_contextCustom = $context;
     }
 
-    public static function setContextStream(string $context) : void {
+    public static function setContextStream(?string $context) : void {
 
-        if($context === null) {
-            self::$_contextStream = null;
-        }
-
-        if(mb_strlen($context, '8bit') !== 8) {
+        if($context !== null && mb_strlen($context, '8bit') !== 8) {
             throw new ConfigurationException(
                 Merge::string(InternalMessage::INVALID_LIBSODIUM_CONTEXT, 
                     ["%length%" => 8]

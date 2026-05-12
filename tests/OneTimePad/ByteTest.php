@@ -7,6 +7,8 @@ use PHPUnit\Framework\TestCase;
 use PswKey\Service\KeyStream;
 use PswKey\Service\OneTimePad;
 use PswKey\Exception\InputException;
+use PswKey\Core\Modifier\DerivationProfile;
+use PswKey\Exception\ConfigurationException;
 
 class ByteTest extends TestCase
 {
@@ -14,6 +16,40 @@ class ByteTest extends TestCase
         $date = new DateTime();
         $key = \strtotime($date->format('Y-m-d H:i:s')) . $date->format('u');
         return new KeyStream($seedPhrase, $key);
+    }
+
+    public function test_bootstrap_context_must_failed() : void {
+
+        DerivationProfile::setContextStream("MyStream");
+
+        $oneTimePad = new OneTimePad(
+            $this->getKeyStream('Test OneTimePad (OTP)')
+        );
+
+        $input = 'Use the function for OneTimePad with text and bytes';
+        $output = $oneTimePad->byte($input, 1); //without context default. custumize context given
+
+        DerivationProfile::setContextStream(null); //reset context to custumize
+        $oneTimePad = new OneTimePad(
+            $this->getKeyStream('Test OneTimePad (OTP)') //new instance with default context needed
+        );
+
+        $original = $oneTimePad->byte($output, 1);   //without context default. Fixed context is used
+
+        $this->assertNotEquals(
+            $input,
+            $original
+        );
+    }
+
+    public function test_bootstrap_context_empty() : void {
+        $this->expectException(ConfigurationException::class);
+        DerivationProfile::setContextStream("");
+    }
+
+    public function test_bootstrap_context_not_8_bytes() : void {
+        $this->expectException(ConfigurationException::class);
+        DerivationProfile::setContextStream("TEST3");
     }
 
     public function test_input_empty_fail(): void
@@ -164,4 +200,8 @@ class ByteTest extends TestCase
             $decode
         );
     }
+    
+    //check context empty
+    //check context null 
+    //check context diffrent failed
 }

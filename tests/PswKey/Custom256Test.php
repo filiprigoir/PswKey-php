@@ -7,6 +7,9 @@ use PHPUnit\Framework\TestCase;
 use PswKey\Service\KeyStream;
 use PswKey\Service\PswKey;
 use PswKey\Util\Char\Transcode;
+use PswKey\Core\Modifier\DerivationProfile;
+use PswKey\Exception\ConfigurationException;
+
 
 class Custom256Test extends TestCase
 {
@@ -38,6 +41,43 @@ class Custom256Test extends TestCase
             "\x70","\x71","\x72","\x73","\x74","\x75","\x76","\x77","\x78","\x79","\x7a","\x30","\x49","\x4f","\x6c",
             "\x31","\x32","\x33","\x34","\x35","\x36","\x37","\x38","\x39","\x41"
         ];
+    }
+
+    public function test_bootstrap_context_must_failed() : void {
+
+        $pswKey = $this->instancePswKey();  
+        $arrSingleBytes = $this->getSingleBytes();
+
+        $encodedefaultContext = $pswKey
+            ->from(100)
+            ->customTo($arrSingleBytes, 100, true)
+            ->convert(
+                transcode::getISO($this->getBase100UTF())
+            );
+
+        DerivationProfile::setContextCustom("TESTC");
+        $pswKey->customfrom($arrSingleBytes, 100); 
+
+        $decodeSetCustomizeContext = $pswKey
+            ->to(100)
+            ->convert($encodedefaultContext);
+
+        DerivationProfile::setContextCustom(null);
+
+        $this->assertNotEquals(
+            $encodedefaultContext,
+            $decodeSetCustomizeContext
+        );
+    }
+
+    public function test_bootstrap_context_empty() : void {
+        $this->expectException(ConfigurationException::class);
+        DerivationProfile::setContextCustom("");
+    }
+
+    public function test_bootstrap_context_not_5_bytes() : void {
+        $this->expectException(ConfigurationException::class);
+        DerivationProfile::setContextCustom("TOOLONG");
     }
 
     public function test_all_possible_custom(): void

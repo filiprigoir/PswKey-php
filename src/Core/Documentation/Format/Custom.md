@@ -39,7 +39,7 @@ Possible input methods:
 * UTF-8 → ISO conversion:
 
 ```php
-$string = 'abcde'; //most be minium 4
+$string = 'abcµde'; //most be minium 4
 $bytes  = str_split(transcode::getISO($string));
 ```
 * Integer loop with chr():
@@ -55,6 +55,7 @@ for ($i = 1; $i < 255; $i++) {
 [
     "\x31",
     "\x32",
+    "\xb4",
     "\x33"
 ]
 ```
@@ -136,3 +137,27 @@ Characteristics:
 - deterministic derivation
 - isolated custom shuffle domains
 - dynamic reconfiguration support
+
+---
+
+## Built-in vs Custom Lifecycle
+
+Built-in alphabets are persistent.
+
+Once a base is requested:
+
+```php
+from(100)->to(62)
+```
+
+The alphabet shuffle for that base remains active during the PswKey-class lifecycle.
+
+Characteristics:
+
+- order of method calls does not matter
+- uses the main key material
+- deterministic across requests
+
+based on:
+- salt
+- optional pepper

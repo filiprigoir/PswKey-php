@@ -88,4 +88,4 @@ Example for Base62:
 
 Each iteration decomposes the chunk into symbols using these positional weights.
 
-After processing, the encoder resets and starts again with the next chunk.
+After processing, the loop starts again with the next chunk.
