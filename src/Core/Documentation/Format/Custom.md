@@ -1,4 +1,4 @@
-# Custom Conversion Pipeline
+# Custom-defined Alphabet
 
 This document describes how custom conversion is configured and how client-defined alphabets are handled.
 
@@ -6,7 +6,7 @@ This document describes how custom conversion is configured and how client-defin
 
 ## Overview
 
-Custom conversion allows developers to provide their own alphabet definition instead of using the built-in from() and to() alphabet system.
+Custom conversion allows developers to provide their own alphabet definition instead of using the system-defined from() and to() alphabet system.
 
 Configuration is performed through:
 
@@ -130,7 +130,7 @@ When present:
 
 - the custom key participates in shuffle derivation
 - only relates to customFrom() and customTo()
-- the main key remains active for built-in from() and to() bases
+- the main key remains active for system-defined from() and to() bases
 
 Characteristics:
 
@@ -140,9 +140,9 @@ Characteristics:
 
 ---
 
-## Built-in vs Custom Lifecycle
+## System-defined vs Custom-defined Lifecycle
 
-Built-in alphabets are persistent.
+System-definedn alphabets are persistent.
 
 Once a base is requested:
 
@@ -155,9 +155,5 @@ The alphabet shuffle for that base remains active during the PswKey-class lifecy
 Characteristics:
 
 - order of method calls does not matter
-- uses the main key material
-- deterministic across requests
-
-based on:
-- salt
-- optional pepper
+- order of bases does not matter
+- uses always the main key material

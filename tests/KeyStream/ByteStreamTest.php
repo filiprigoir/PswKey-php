@@ -28,7 +28,7 @@ class ByteStreamTest extends TestCase
             "TestKey8"
         );
 
-        //When no streamId is entered, streamID is encremented by 1 for each call
+        //When no streamId is entered, streamID is encremented by 1 for each call (for security reason)
         $key2 = '';
         $keyStream->byteStream(
             function($secretKey) use (&$key2) {

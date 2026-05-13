@@ -28,11 +28,14 @@ final class DerivationProfile
     public const ENDIAN_CHUNK_LONG = [169, 407];
     public const ENDIAN_CHUNK_SHORT = [22, 53];
 
-    //Optional bootstrap context
+    //Optional service contexts
     private static ?string $_contextCharset = null;
     private static ?string $_contextCustom = null;
     private static ?string $_contextStream = null;
 
+    /**
+     * Internal use by the derivation pipeline
+     */
     public static function getContextCharset(int $radix) : string {
     
         $concat = Radix::bindRadix($radix);
@@ -43,6 +46,9 @@ final class DerivationProfile
         return self::SHUFFLE_DEFAULT_CHARSET . $concat;
     }
 
+    /**
+     * Internal use by the derivation pipeline
+     */
     public static function getContextCustom(int $radix) : string {    
     
         $concat = Radix::bindRadix($radix);
@@ -53,6 +59,9 @@ final class DerivationProfile
         return self::SHUFFLE_CUSTOM_ALPHABET . $concat;
     }
 
+    /**
+     * Internal use by the derivation pipeline
+     */
     public static function getContextStream() : string {
         
         if(self::$_contextStream !== null) {
@@ -61,6 +70,13 @@ final class DerivationProfile
         return self::DERIVATION_STREAM;
     }
 
+    /**
+     * Assigns a service context to the system-defined alphabet system.
+     *
+     * May be used during runtime or service initialization.
+     *
+     * More info: pswkey/src/Core/Documentation/Contract/shuffleProfile.md
+     */
     public static function setContextCharset(?string $context) : void {
     
         if($context !== null && mb_strlen($context, '8bit') !== 5) {
@@ -74,6 +90,13 @@ final class DerivationProfile
         self::$_contextCharset = $context;
     }
 
+    /**
+     * Assigns a service context to the custom-defined alphabet system.
+     *
+     * May be used during runtime or service initialization.
+     *
+     * More info: pswkey/src/Core/Documentation/Contract/shuffleProfile.md
+     */
     public static function setContextCustom(?string $context) : void {
 
         if($context !== null && mb_strlen($context, '8bit') !== 5) {
@@ -86,6 +109,13 @@ final class DerivationProfile
         self::$_contextCustom = $context;
     }
 
+    /**
+     * Assigns a service context to the stream key system.
+     *
+     * May be used during runtime or service initialization.
+     *
+     * More info: pswkey/src/Core/Documentation/Contract/shuffleProfile.md
+     */
     public static function setContextStream(?string $context) : void {
 
         if($context !== null && mb_strlen($context, '8bit') !== 8) {

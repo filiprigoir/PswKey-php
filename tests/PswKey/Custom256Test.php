@@ -43,7 +43,7 @@ class Custom256Test extends TestCase
         ];
     }
 
-    public function test_bootstrap_context_must_failed() : void {
+    public function test_bootstrap_context_must_fail() : void {
 
         $pswKey = $this->instancePswKey();  
         $arrSingleBytes = $this->getSingleBytes();

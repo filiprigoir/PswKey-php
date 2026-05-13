@@ -80,7 +80,7 @@ Base100 only supports:
 - numeric characters
 - 38 predefined symbols
 
-Built-in Base100 uses the following character set:
+system-defined Base100 uses the following character set:
 
 ```text
 0987654321abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!"#$%&'()*+,-./:;\=´?@[]^_`{|}~£§¨²³µ°

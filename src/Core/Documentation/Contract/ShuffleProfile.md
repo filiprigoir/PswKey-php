@@ -19,11 +19,13 @@ This repository is deterministic by design.
 
 By default, the standard derivation context is used to preserve interoperability between installations.
 
-The derivation context may also be customized through the setters to create an isolated deterministic namespace.
+The derivation context may also be customized through the setters to create an isolated deterministic own service.
 
-- setContextCharset(requires_5_bytes);
-- setContextCustom(requires_5_bytes);
-- setContextStream(requires_8_bytes);
+```php
+setContextCharset(requires_5_bytes); //the radix is added before use (ie.: 64 => 064)
+setContextCustom(requires_5_bytes); //the radix is added before use (ie.: 100 => 100)
+setContextStream(requires_8_bytes);
+```
 
 Note: Default and customized derivation contexts are equally valid and secure. Different context configurations simply produce different deterministic outputs and can be used for private deterministic domain isolation.
 

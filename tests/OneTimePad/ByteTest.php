@@ -18,7 +18,7 @@ class ByteTest extends TestCase
         return new KeyStream($seedPhrase, $key);
     }
 
-    public function test_bootstrap_context_must_failed() : void {
+    public function test_bootstrap_context_must_fail() : void {
 
         DerivationProfile::setContextStream("MyStream");
 

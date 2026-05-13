@@ -32,7 +32,7 @@ class PswKey extends ShuffleChars implements ConvertBaseInterface, ConvertEngine
 
         $this->resetValidator();
 
-        //Binding properties
+        //Binding dynamic property dispatch
         $configFrom = $this->{$this->_from} ?? null;
         $configTo = $this->{$this->_to} ?? null;
 
@@ -43,7 +43,7 @@ class PswKey extends ShuffleChars implements ConvertBaseInterface, ConvertEngine
         $from = $configFrom['base']; 
         $to = $configTo['base'];
  
-        //Binding methods
+        //Binding: dynamic function dispatch
         $func = match ($configFrom['process'] . $configTo['process']) {
             "sourcecompute" => "encodeSource{$from}ToCompute",
             "computesource" => "decodeComputeToSource{$to}",
@@ -58,7 +58,7 @@ class PswKey extends ShuffleChars implements ConvertBaseInterface, ConvertEngine
         };
 
         try {
-            return $this->$func($mix, $configFrom, $configTo); 
+            return $this->{$func}($mix, $configFrom, $configTo);
         }
         catch(Exception $e) {
             $messages = ErrorMessage::create($e->getMessage());

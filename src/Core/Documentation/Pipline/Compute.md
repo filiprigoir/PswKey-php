@@ -6,7 +6,7 @@ This document describes how compute-based conversion is performed for bases that
 
 ## Compute
 
-Compute mode is used for bases that are **not powers of two**.
+Compute mode is used for bases that are **non-power-of-two bases**.
 
 Examples:
 
@@ -89,3 +89,20 @@ Example for Base62:
 Each iteration decomposes the chunk into symbols using these positional weights.
 
 After processing, the loop starts again with the next chunk.
+
+---
+
+## Unified behavior
+
+Both system-defined and custo-defined bases follow the same routing logic for consistency.
+
+---
+
+## Selection rule
+
+The repo automatically selects:
+
+- Compute: non-power-of-two bases
+- Bitshift: power-of-two bases
+
+→ See: [Bitshift.md](/src/Core/Documentation/Pipline/Bitshift.md)

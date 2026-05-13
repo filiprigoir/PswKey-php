@@ -32,7 +32,7 @@ class Base100Test extends TestCase
         return  Transcode::getISO($this->getBase100UTF());
     }
 
-    public function test_bootstrap_context_must_failed() : void {
+    public function test_bootstrap_context_must_fail() : void {
 
         DerivationProfile::setContextCharset("TestC");
 
