@@ -1,6 +1,6 @@
 {
     "name": "filiprigoir/pswkey",
-    "description": "A deterministic base encoder/decoder shaped by a salt and optional pepper, with built-in keystream and one-time-pad support.",
+    "description": "A deterministic base converter using shuffled alphabets derived from salt and optional pepper, with streamkey and one-time-pad support.",
     "keywords": [
         "php", 
         "base",

@@ -93,8 +93,8 @@ class UniformTest extends TestCase
         );
     }
 
-    //Note: here it is possible beause less then 169 bytes. More than 169 bytes cannot be guaranteed during decoding, unless started from base256
-    //Keep in mind, base100 is de encoded here, so it goes reverse to base256 decoded.
+    //Note: decode is possible beause digits are uniform and less then 169 bytes. 
+    //More than 169 bytes cannot be guaranteed during decoding, unless started from encode base256
     public function test_base100_to_base256_ok(): void
     {
         $bytes100 = Transcode::getISO("0987654321abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!\"#$%&'()*+,-./:;\\=´?@[]^_`{|}~£§¨²³µ°");
