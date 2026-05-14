@@ -8,30 +8,10 @@ The Core is responsible for deterministic byte-level operations, including base 
 
 ## Modules
 
-### 🔹 Contract of the shuffle pipeline
+### 🔹 Deterministic Shuffle contract (FFI + PHP)
 Defines a deterministic derivation domain for the shuffle pipeline
 
-→ See: [ShuffleProfile.md](./Contract/ShuffleProfile.md)
-
----
-
-### 🔹 Encoding & Single-Bytes
-Handles single-byte representations and not-standalone UTF-8 bytes
-
-→ See: [Encoding.md](./Encoding.md)
-
----
-
-### 🔹 Pipline conversion Endian & Exponentiation Chunk
-This document defines how data is normalized, chunked, and handled within the system.
-
-Inlcudes:
-- endian Chunking
-- exponentiation Chunking
-- encoding mechanisms
-- normalization
-
-→ See: [Pipeline.md](./Pipline.md)
+→ See: [ShuffleProfile.md](/src/Core/Documentation/Contract/ShuffleProfile.md)
 
 ---
 
@@ -43,43 +23,77 @@ Includes:
 - entropy sizing rules
 - reuse behavior constraints
 
-→ See: [Deterministic.md](./Deterministic.md)
+→ See: [Deterministic.md](/src/Core/Documentation/Contract/Deterministic.md)
 
 ---
 
-### 🔹 Custom
-Defines system limits and invariants that must be preserved across all implementations.
+### 🔹 Encoding
+Handles single-byte representations and not-standalone UTF-8 bytes
 
-Includes:
-- input/output bounds
-- base limits
-- parity requirements between PHP and FFI
+→ See: [Encoding.md](/src/Core/Documentation/Format/Encoding.md)
 
-→ See: [Custom.md](./Custom.md)
+---
+
+### 🔹 Pipline conversion Endian & Exponentiation Chunk
+Describes the normalization stage used in the conversion pipeline.
+
+Inlcudes:
+- bytes chunking
+- endian Chunking
+- encoding mechanisms
+- normalization
+
+→ See: [Normalization.md](/src/Core/Documentation/Pipline/Normalization.md)
+
+---
+
+### 🔹 Custom-Defined
+Describes how custom conversion is configured and how client-defined alphabets are handled.
+
+→ See: [Custom.md](/src/Core/Documentation/Format/Custom.md)
 
 ---
 
 ### 🔹 Encode
-Defines system limits and invariants that must be preserved across all implementations.
+Defines how encode conversion works in the repository.
 
 Includes:
 - input/output bounds
 - base limits
-- parity requirements between PHP and FFI
 
-→ See: [Encode.md](./Encode.md)
+→ See: [Encode.md](/src/Core/Documentation/Conversion/Encode.md)
 
 ---
 
 ### 🔹 Decode
-Defines system limits and invariants that must be preserved across all implementations.
+Defines how decode conversion works in the repository.
 
 Includes:
 - input/output bounds
 - base limits
-- parity requirements between PHP and FFI
 
-→ See: [Decode.md](./Decode.md)
+→ See: [Decode.md](/src/Core/Documentation/Conversion/Decode.md)
+
+---
+
+### 🔹 Bitshift
+Describes how compute-based conversion is performed for bases that are not powers of two.
+
+→ See: [Bitshift.md](/src/Core/Documentation/Pipline/Bitshift.md)
+
+---
+
+### 🔹 Compute
+Describes how compute-based conversion is performed for bases that are not powers of two.
+
+→ See: [Compute.md](/src/Core/Documentation/Pipline/Compute.md)
+
+---
+
+### 🔹 System-Defined
+Defines the system-defined alphabets used by the conversion system.
+
+→ See: [System.md](/src/Core/Documentation/Format/System.md)
 
 ---
 

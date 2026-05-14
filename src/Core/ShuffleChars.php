@@ -31,11 +31,7 @@ abstract class ShuffleChars extends BaseConvert implements CustomKeyInterface {
     }
 
     protected function setAvailability() : void {
-        /**
-         * Optional feature checks:
-         * If you are certain that GMP and/or FFI are available or not,
-         * you may manually set the corresponding properties to true
-         */
+
         $ffi = ini_get('ffi.enable');
         if (class_exists('FFI') && ($ffi === '1' || $ffi === 'preload')) {
             //Setup configuration
@@ -91,7 +87,7 @@ abstract class ShuffleChars extends BaseConvert implements CustomKeyInterface {
                 $flipped = array_flip($singleBytes);
             }
 
-            //Internal role for standard base 100 and 10 convertion
+            //Internal rule for standard base 100 and 10 convertion
             if($config['isCanonical'] === true && $baseLength === 10 ) {$baseLength = 100;} 
 
             //Shuffle within the callable
@@ -170,7 +166,7 @@ abstract class ShuffleChars extends BaseConvert implements CustomKeyInterface {
             //Table rejection sampling
             include_once('Modifier\RejectionSampling.php');
 
-            //Specical role for standard base 100 and 10 convertion
+            //Specical rule for standard base 100 and 10 convertion
             if($config['isCanonical'] === true && $baseLength === 10 ) {$baseLength = 100;} 
 
             //Shuffle within the callable

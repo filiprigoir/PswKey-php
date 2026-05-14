@@ -43,43 +43,6 @@ class Custom256Test extends TestCase
         ];
     }
 
-    public function test_bootstrap_context_must_fail() : void {
-
-        $pswKey = $this->instancePswKey();  
-        $arrSingleBytes = $this->getSingleBytes();
-
-        $encodedefaultContext = $pswKey
-            ->from(100)
-            ->customTo($arrSingleBytes, 100, true)
-            ->convert(
-                transcode::getISO($this->getBase100UTF())
-            );
-
-        DerivationProfile::setContextCustom("TESTC");
-        $pswKey->customfrom($arrSingleBytes, 100); 
-
-        $decodeSetCustomizeContext = $pswKey
-            ->to(100)
-            ->convert($encodedefaultContext);
-
-        DerivationProfile::setContextCustom(null);
-
-        $this->assertNotEquals(
-            $encodedefaultContext,
-            $decodeSetCustomizeContext
-        );
-    }
-
-    public function test_bootstrap_context_empty() : void {
-        $this->expectException(ConfigurationException::class);
-        DerivationProfile::setContextCustom("");
-    }
-
-    public function test_bootstrap_context_not_5_bytes() : void {
-        $this->expectException(ConfigurationException::class);
-        DerivationProfile::setContextCustom("TOOLONG");
-    }
-
     public function test_all_possible_custom(): void
     {
         //Prepare array 255 allowed Single bytes
@@ -192,5 +155,42 @@ class Custom256Test extends TestCase
             transcode::getISO($this->getBase100UTF()),
             $decode
         );
+    }
+
+    public function test_customized_context_must_fail() : void {
+
+        $pswKey = $this->instancePswKey();  
+        $arrSingleBytes = $this->getSingleBytes();
+
+        $encodedefaultContext = $pswKey
+            ->from(100)
+            ->customTo($arrSingleBytes, 100, true)
+            ->convert(
+                transcode::getISO($this->getBase100UTF())
+            );
+
+        DerivationProfile::setContextCustom("TESTC");
+        $pswKey->customfrom($arrSingleBytes, 100); 
+
+        $decodeSetCustomizeContext = $pswKey
+            ->to(100)
+            ->convert($encodedefaultContext);
+
+        DerivationProfile::setContextCustom(null);
+
+        $this->assertNotEquals(
+            $encodedefaultContext,
+            $decodeSetCustomizeContext
+        );
+    }
+
+    public function test_customized_context_empty() : void {
+        $this->expectException(ConfigurationException::class);
+        DerivationProfile::setContextCustom("");
+    }
+
+    public function test_customized_context_not_5_bytes() : void {
+        $this->expectException(ConfigurationException::class);
+        DerivationProfile::setContextCustom("TOOLONG");
     }
 }

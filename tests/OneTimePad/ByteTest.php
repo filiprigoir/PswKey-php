@@ -18,40 +18,6 @@ class ByteTest extends TestCase
         return new KeyStream($seedPhrase, $key);
     }
 
-    public function test_bootstrap_context_must_fail() : void {
-
-        DerivationProfile::setContextStream("MyStream");
-
-        $oneTimePad = new OneTimePad(
-            $this->getKeyStream('Test OneTimePad (OTP)')
-        );
-
-        $input = 'Use the function for OneTimePad with text and bytes';
-        $output = $oneTimePad->byte($input, 1); //without context default. custumize context given
-
-        DerivationProfile::setContextStream(null); //reset context to custumize
-        $oneTimePad = new OneTimePad(
-            $this->getKeyStream('Test OneTimePad (OTP)') //new instance with default context needed
-        );
-
-        $original = $oneTimePad->byte($output, 1);   //without context default. Fixed context is used
-
-        $this->assertNotEquals(
-            $input,
-            $original
-        );
-    }
-
-    public function test_bootstrap_context_empty() : void {
-        $this->expectException(ConfigurationException::class);
-        DerivationProfile::setContextStream("");
-    }
-
-    public function test_bootstrap_context_not_8_bytes() : void {
-        $this->expectException(ConfigurationException::class);
-        DerivationProfile::setContextStream("TEST3");
-    }
-
     public function test_input_empty_fail(): void
     {
         $oneTimePad = new OneTimePad(
@@ -201,7 +167,37 @@ class ByteTest extends TestCase
         );
     }
     
-    //check context empty
-    //check context null 
-    //check context diffrent failed
+    public function test_customized_context_must_fail() : void {
+
+        DerivationProfile::setContextStream("MyStream");
+
+        $oneTimePad = new OneTimePad(
+            $this->getKeyStream('Test OneTimePad (OTP)')
+        );
+
+        $input = 'Use the function for OneTimePad with text and bytes';
+        $output = $oneTimePad->byte($input, 1); //without context default. custumize context given
+
+        DerivationProfile::setContextStream(null); //reset context to custumize
+        $oneTimePad = new OneTimePad(
+            $this->getKeyStream('Test OneTimePad (OTP)') //new instance with default context needed
+        );
+
+        $original = $oneTimePad->byte($output, 1);   //without context default. Fixed context is used
+
+        $this->assertNotEquals(
+            $input,
+            $original
+        );
+    }
+
+    public function test_customized_context_empty() : void {
+        $this->expectException(ConfigurationException::class);
+        DerivationProfile::setContextStream("");
+    }
+
+    public function test_customized_context_not_8_bytes() : void {
+        $this->expectException(ConfigurationException::class);
+        DerivationProfile::setContextStream("TEST3");
+    }
 }

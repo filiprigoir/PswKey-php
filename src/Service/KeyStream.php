@@ -42,11 +42,6 @@ class KeyStream implements CustomKeyInterface {
     }
 
     protected function availability() : void {
-        /**
-         * Optional feature checks:
-         * If you are certain that GMP, Libsodium is available,
-         * you may comment out or remove this section in constructor
-         */
         if(!function_exists('sodium_memzero')) {
             throw new ConfigurationException(
                 InternalMessage::LIBSODIUM_REQUIRED
@@ -54,7 +49,7 @@ class KeyStream implements CustomKeyInterface {
         }
     }
 
-    //Get main streamkey
+    //Set main streamkey
     protected function setStreamKey() : void {
 
         if(empty($this->_streamKey)) {

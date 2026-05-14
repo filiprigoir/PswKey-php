@@ -32,42 +32,6 @@ class Base100Test extends TestCase
         return  Transcode::getISO($this->getBase100UTF());
     }
 
-    public function test_bootstrap_context_must_fail() : void {
-
-        DerivationProfile::setContextCharset("TestC");
-
-        $base100 = $this->getBase100ISO();
-        $pswkey = $this->instancePswKey();
-
-        $encode = $pswkey
-            ->from(100)
-            ->to(32)
-            ->convert($base100);
-
-        DerivationProfile::setContextCharset(null);         
-        $pswkey = $this->instancePswKey(); //new instance with default context
-
-        $decode = $pswkey
-            ->from(32)
-            ->to(100)
-            ->convert($encode);
-
-        $this->assertNotEquals(
-            $base100,
-            $decode
-        );
-    }
-
-    public function test_bootstrap_context_empty() : void {
-        $this->expectException(ConfigurationException::class);
-        DerivationProfile::setContextCharset("");
-    }
-
-    public function test_bootstrap_context_not_5_bytes() : void {
-        $this->expectException(ConfigurationException::class);
-        DerivationProfile::setContextCharset("TOOLONG");
-    }
-
     public function test_empty_fail(): void
     {
         $base100 = "";
@@ -349,7 +313,39 @@ class Base100Test extends TestCase
         );
     }
 
-    //check context empty
-    //check context null 
-    //check context diffrent failed
+    public function test_customized_context_must_fail() : void {
+
+        DerivationProfile::setContextCharset("TestC");
+
+        $base100 = $this->getBase100ISO();
+        $pswkey = $this->instancePswKey();
+
+        $encode = $pswkey
+            ->from(100)
+            ->to(32)
+            ->convert($base100);
+
+        DerivationProfile::setContextCharset(null);         
+        $pswkey = $this->instancePswKey(); //new instance with default context
+
+        $decode = $pswkey
+            ->from(32)
+            ->to(100)
+            ->convert($encode);
+
+        $this->assertNotEquals(
+            $base100,
+            $decode
+        );
+    }
+
+    public function test_customized_context_empty() : void {
+        $this->expectException(ConfigurationException::class);
+        DerivationProfile::setContextCharset("");
+    }
+
+    public function test_customized_context_not_5_bytes() : void {
+        $this->expectException(ConfigurationException::class);
+        DerivationProfile::setContextCharset("TOOLONG");
+    }
 }

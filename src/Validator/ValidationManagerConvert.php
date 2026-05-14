@@ -9,7 +9,7 @@ use PswKey\Exception\InputException;
 use PswKey\Util\Mapping\Merge;
 
 /**              
-* Inject ErrorHandling-methods in class BaseConvert
+* Inject Validation-methods in class BaseConvert
 */
 trait ValidationManagerConvert {
 

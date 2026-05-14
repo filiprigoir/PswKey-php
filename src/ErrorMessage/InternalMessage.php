@@ -4,7 +4,7 @@ declare(strict_types=1);
 namespace PswKey\ErrorMessage;
 
 /**
- * InternalMessage class contains predefined error messages for internal errors.
+ * Internal Message class contains predefined error messages for internal errors.
  */
 final class InternalMessage {
 

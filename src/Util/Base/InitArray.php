@@ -36,16 +36,16 @@ class InitArray {
     }
 
     public static function dimensionalIndex100() : array {
-        static $demensional = null;
-        if($demensional === null) {
-            $demensional = [];
+        static $dimensional = null;
+        if($dimensional === null) {
+            $dimensional = [];
             foreach (self::_base100() as $key => $value) {
                 $index = sprintf("%02d", $key);
-                $demensional[$index[0]][$index[1]] = $value;
+                $dimensional[$index[0]][$index[1]] = $value;
             }
         }
 
-        return $demensional;
+        return $dimensional;
     }
 
     /**

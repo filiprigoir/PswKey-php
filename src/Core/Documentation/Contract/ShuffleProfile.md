@@ -22,9 +22,9 @@ By default, the standard derivation context is used to preserve interoperability
 The derivation context may also be customized through the setters to create an isolated deterministic own service.
 
 ```php
-setContextCharset(requires_5_bytes); //the radix is added before use (ie.: 64 => 064)
-setContextCustom(requires_5_bytes); //the radix is added before use (ie.: 100 => 100)
-setContextStream(requires_8_bytes);
+DerivationProfile::setContextCharset(requires_5_bytes); //becomes 8 bytes (ie.: 64 => 064)
+DerivationProfile::setContextCustom(requires_5_bytes); //becomes 8 bytes (ie.: 100 => 100)
+DerivationProfile::setContextStream(requires_8_bytes);
 ```
 
 Note: Default and customized derivation contexts are equally valid and secure. Different context configurations simply produce different deterministic outputs and can be used for private deterministic domain isolation.
