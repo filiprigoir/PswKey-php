@@ -11,7 +11,7 @@ The Core is responsible for deterministic byte-level operations, including base 
 ### 🔹 Deterministic Shuffle contract (FFI + PHP)
 Defines a deterministic derivation domain for the shuffle pipeline
 
-→ See: [ShuffleProfile.md](/src/Core/Documentation/Contract/ShuffleProfile.md)
+→ See: [ShuffleProfile](/src/Core/Documentation/Contract/ShuffleProfile.md)
 
 ---
 
@@ -23,7 +23,7 @@ Includes:
 - entropy sizing rules
 - reuse behavior constraints
 
-→ See: [Deterministic.md](/src/Core/Documentation/Contract/Deterministic.md)
+→ See: [Deterministic](/src/Core/Documentation/Contract/Deterministic.md)
 
 ---
 
@@ -34,7 +34,7 @@ Includes:
 - input/output bounds
 - base limits
 
-→ See: [Encode.md](/src/Core/Documentation/Conversion/Encode.md)
+→ See: [Encode](/src/Core/Documentation/Conversion/Encode.md)
 
 ---
 
@@ -45,28 +45,28 @@ Includes:
 - input/output bounds
 - base limits
 
-→ See: [Decode.md](/src/Core/Documentation/Conversion/Decode.md)
+→ See: [Decode](/src/Core/Documentation/Conversion/Decode.md)
 
 ---
 
 ### 🔹 System-Defined
 Defines the system-defined alphabets used by the conversion system.
 
-→ See: [System.md](/src/Core/Documentation/Format/System.md)
+→ See: [System-defined](/src/Core/Documentation/Format/System.md)
 
 ---
 
 ### 🔹 Custom-Defined
 Describes how custom conversion is configured and how client-defined alphabets are handled.
 
-→ See: [Custom.md](/src/Core/Documentation/Format/Custom.md)
+→ See: [Custom-defined](/src/Core/Documentation/Format/Custom.md)
 
 ---
 
 ### 🔹 Encoding
 Handles single-byte representations and not-standalone UTF-8 bytes
 
-→ See: [Encoding.md](/src/Core/Documentation/Format/Encoding.md)
+→ See: [Encoding](/src/Core/Documentation/Format/Encoding.md)
 
 ---
 
@@ -79,21 +79,21 @@ Inlcudes:
 - encoding mechanisms
 - normalization
 
-→ See: [Normalization.md](/src/Core/Documentation/Pipline/Normalization.md)
+→ See: [Normalization](/src/Core/Documentation/Pipline/Normalization.md)
 
 ---
 
 ### 🔹 Bitshift
 Describes how compute-based conversion is performed for bases that are not powers of two.
 
-→ See: [Bitshift.md](/src/Core/Documentation/Pipline/Bitshift.md)
+→ See: [Bitshift](/src/Core/Documentation/Pipline/Bitshift.md)
 
 ---
 
 ### 🔹 Compute
 Describes how compute-based conversion is performed for bases that are not powers of two.
 
-→ See: [Compute.md](/src/Core/Documentation/Pipline/Compute.md)
+→ See: [Compute](/src/Core/Documentation/Pipline/Compute.md)
 
 ---
 
