@@ -6,17 +6,17 @@
         "base",
         "converter",
         "deterministic",
-        "transportkey",
+        "transport key",
         "pepper",
         "salt",
-        "onetimepad",
-        "streamkey",
+        "one-time-pad",
+        "stream key",
         "shuffle",
         "charset",
         "encoding",
         "decoding",
-        "validation",
-        "filtering"
+        "derivation",
+        "derived key"
     ],
     "license": "MIT",
     "authors": [
@@ -30,10 +30,10 @@
         "ext-sodium": "*"
     },
     "suggest": {
-        "ext-gmp": "Used for faster base conversions, optional"
+        "ext-gmp": "Used for faster base conversions when available."
     },
     "require-dev": {
-        "php": ">=8.1",
+        "php": "^8.2",
         "ext-sodium": "*",
         "phpunit/phpunit": "^11.5"
     },
