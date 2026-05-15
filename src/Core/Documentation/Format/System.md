@@ -55,7 +55,7 @@ External or arbitrary encoded input from Base100 and Base10 to Base256 that does
 
 ---
 
-## Base32, 62 and 64
+## Base32, 58, 62 and 64
 
 These bases define encoded output formats provided by the conversion pipeline.
 
@@ -73,7 +73,7 @@ $validate = $pswKey->status();
 
 //Available properties:
 $validate->name; //name Class
-$validate->internalMessage; //message for devs
+$validate->internalMessage; //message for devs/logs
 $validate->clientMessage; //message for API clients
 $validate->warningMessage; //warnings about FFI & Falback PHP
 $validate->valid; 
