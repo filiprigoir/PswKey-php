@@ -15,7 +15,7 @@ public function test_readme_common_usage() : void {
 
     //key change in time
     $date = new DateTime();
-    $key = $key = \strtotime($date->format('Y-m-d H:i:s')) . $date->format('u'); 
+    $key = \strtotime($date->format('Y-m-d H:i:s')) . $date->format('u'); 
 
     //Derived Provider
     $keyStream = new KeyStream("Service=README.md : user=536984 : alias=VisalStudio", $key);
@@ -33,6 +33,11 @@ public function test_readme_common_usage() : void {
     $status = $pswkey->status();
 
     if($status->valid) { //$encode !== null => is also possible
+
+            $this->assertNotEquals(
+                $encode,
+                $randomBytes
+            );
         
             //Decode
             $decode = $pswkey->from(32)->to(256)->convert($encode);
