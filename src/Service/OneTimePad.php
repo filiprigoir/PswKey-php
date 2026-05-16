@@ -19,7 +19,7 @@ use PswKey\Validator\ValidationManagerOneTimePad;
 use SensitiveParameter;
 
 /**
- * OTP with bytes or digits
+ * OTP with bytes or digits for intermediate steps
  */
 class OneTimePad implements ConvertEngineInterface, CustomKeyInterface {
 

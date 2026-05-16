@@ -12,7 +12,7 @@ use PswKey\Util\Secure\MemeZero;
 use SensitiveParameter;
 
 /**
- * Generates derived stream with a seed (salt) and optional key (pepper)
+ * Standalone stream and derived key provider with a seed (salt) and optional key (pepper)
  */
 class KeyStream implements CustomKeyInterface {
 

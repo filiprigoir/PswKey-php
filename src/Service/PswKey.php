@@ -19,8 +19,9 @@ use PswKey\Util\Mapping\Merge;
 use PswKey\Util\Secure\MemeZero;
 
 /**
- * Encodes and decodes single-byte input as deterministic context-bound transport keys.
- * For multibyte strings, explicitly use Transcode::getISO(input) and Transcode::getUTF(output).
+ * Deterministic base converter.
+ * 
+ * For multibyte (utf-8) inputs/outputs see how to handle: src/Core/Documentation/Format/Encoding.md
  */
 class PswKey extends ShuffleChars implements ConvertBaseInterface, ConvertEngineInterface {
 
