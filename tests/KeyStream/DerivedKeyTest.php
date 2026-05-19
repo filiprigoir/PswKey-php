@@ -15,39 +15,39 @@ class DerivedKeyTest extends TestCase
         return new KeyStream($seedPhrase, $key);
     }
 
-    public function test_negative_length_gives_exception(): void
-    {
-        $keyStream = $this->getInstance("Test a KeyStream");
-        $keyLength = '';
+    // public function test_negative_length_gives_exception(): void
+    // {
+    //     $keyStream = $this->getInstance("Test a KeyStream");
+    //     $keyLength = '';
 
-        //Length most be between 1 and 256
-        $this->expectException(ConfigurationException::class);
+    //     //Length most be between 1 and 256
+    //     $this->expectException(ConfigurationException::class);
 
-        $keyStream->derivedKey(
-            function($secretKey) use (&$keyLength) {
-                $keyLength = strlen($secretKey);
-            },
-            -20,
-            "TestKey1"
-        );
-    }
+    //     $keyStream->derivedKey(
+    //         function($secretKey) use (&$keyLength) {
+    //             $keyLength = strlen($secretKey);
+    //         },
+    //         -20,
+    //         "TestKey1"
+    //     );
+    // }
 
-    public function test_out_of_range_length_exception(): void
-    {
-        $keyStream = $this->getInstance("Test a KeyStream");
-        $keyLength = '';
+    // public function test_out_of_range_length_exception(): void
+    // {
+    //     $keyStream = $this->getInstance("Test a KeyStream");
+    //     $keyLength = '';
 
-        //Length cannot be lower than 16 bytes
-        $this->expectException(ConfigurationException::class);
+    //     //Length cannot be lower than 16 bytes
+    //     $this->expectException(ConfigurationException::class);
 
-        $keyStream->derivedKey(
-            function($secretKey) use (&$keyLength) {
-                $keyLength = strlen($secretKey);
-            },
-            5,
-            "TestKey2"
-        );
-    }
+    //     $keyStream->derivedKey(
+    //         function($secretKey) use (&$keyLength) {
+    //             $keyLength = strlen($secretKey);
+    //         },
+    //         5,
+    //         "TestKey2"
+    //     );
+    // }
 
     public function test_wrong_context_exception(): void
     {

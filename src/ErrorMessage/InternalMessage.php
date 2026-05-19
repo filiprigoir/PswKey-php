@@ -11,7 +11,6 @@ final class InternalMessage {
     public const CONFIG_ERROR_DEFAULT = 'Unexpected configuration error occurred'; 
     public const INVALID_EMPTY = "Variable %arg% may not be empty";
     public const INVALID_LIBSODIUM_CONTEXT = "Context name must be exactly %length% bytes";
-    public const INVALID_DERIVE_LENGTH = "Derive-length must be at least 16 bytes"; 
     public const CHECK_VALIDATION_FAILED = "%check% found invalid input while validating %bases%";
     public const BUFFER_PROCESS_FAILED = "BufferProcess found invalid input while converting %bases%: invalid character '%char%' at position %pos%";
     public const LENGTH_REQUIRED = "At least %required% must be provided";

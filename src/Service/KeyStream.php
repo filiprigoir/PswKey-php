@@ -78,9 +78,7 @@ class KeyStream implements CustomKeyInterface {
     public function derivedKey(callable $callback, int $length, string $context, bool $customEnable = false) : void {
 
         if($length < SODIUM_CRYPTO_KDF_BYTES_MIN) {
-            throw new ConfigurationException(
-                InternalMessage::INVALID_DERIVE_LENGTH
-            );  
+            $length = 16;
         }
 
         if($context === null || mb_strlen($context, '8bit') !== 8) {
@@ -138,9 +136,7 @@ class KeyStream implements CustomKeyInterface {
         }
 
         if($length < SODIUM_CRYPTO_KDF_BYTES_MIN) {
-            throw new ConfigurationException(
-                InternalMessage::INVALID_DERIVE_LENGTH
-            );  
+            $length = 16;
         }
 
         //provided or increament streamID

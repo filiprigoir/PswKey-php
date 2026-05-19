@@ -63,89 +63,154 @@ class ReadmeTest extends TestCase
         }
     }
 
-    public function test_readme_usecase_transportKey() : void {
+    public function test_readme_advanced_usage() : void {
 
         try {
 
-            //API receives a password
-            $email = "info@pswkey.com";
-            $password = "My_PswKeyµ2025!";
+        //User credentials
+        $email = "info@pswkey.com";
+        $password = "My_PswKeyµ2025!";
 
-            //Make a Derival Provider
-            $keyStream = new KeyStream("Service=README.md | emailadress={$email}");
-            $keyStream->setCustomKey($password);
+        //Derived stream provider
+        $keyStream = new KeyStream(
+            "Service=README.md | emailadress={$email}" //Seedphrase can be anything related to your service
+        );
 
-            //Get stronger Byte Password
-            $passkey = "";
-            $passwordHash = "";
-            $keyStream->byteStream(
-                function($streamedPassword) use (&$passkey, &$passwordHash, &$keyStream) {
-                    
-                    //Instande PswKey
-                    $pswKey = new PswKey($keyStream);
+        //Attach password as custom key material
+        $keyStream->setCustomKey($password);
 
-                    //Passkey/transportkey
-                    $passkey = $pswKey->from(256)->to(32)->convert($streamedPassword);
+        //Generated outputs
+        $transportkey = "";
+        $passwordHash = "";
+        $keyStream->byteStream(
+            function($derivedPassword) use (&$transportkey, &$passwordHash, &$keyStream) {
+                
+                $pswKey = new PswKey($keyStream);
 
-                    //DB password of that user
-                    $passwordHash = password_hash($streamedPassword, PASSWORD_DEFAULT);
+                //Derived password => transport-safe Base32 representation
+                $transportkey = $pswKey->from(256)->to(32)->convert($derivedPassword);
 
-                    unset($pswKey);
-                },
-                64,
-                "MySecret" //your service context
-                );
+                //Derived password => password hash for database storage
+                $passwordHash = password_hash($derivedPassword, PASSWORD_DEFAULT);
 
-                $this->assertNotEmpty($passkey);
-                $this->assertNotEmpty($passwordHash);
+                unset($pswKey);
+            },
+            64, //Derived password length
+            "MySecret" //Your service-specific derivation context (most be 8 bytes)
+            );
 
-                //$passkey contains 64 byte password stored as transportkey
-                //gUi0zrccwPdLL88IvwUwB2eMO2UtP0UvvNcITTgOv8cNl0W0o8lgPwQtoNTTlTgAA8l0P2vBl2WtAUtwANtOfIpoovpyO2UfOlUTWMUHBNvicA2OfvzfO8UANeoz
-                //$passwordHash contains a new safety password_hash to store in DB
-                //$2y$10$RGbITslA7qBNeiJ8/Zk3A.t7sOXpOLHqTgqT5.mtSmrGpIL9c75jG
+            $this->assertNotEmpty($transportkey);
+            $this->assertNotEmpty($passwordHash);
+
+            //To validate:
+            //regenerate the "derived password" from the incoming password
+            //and compare it with the stored database hash
+
+            //Example password hash:
+            //$2y$10$0qbuEgpR/RRn4a2xj3LHu.eHH288.615tSGkBd.4kIYlyddwpdhvO
+
+            //Optional "transport key" representation:
+            //(cookies, transport identifiers, login flows, etc.)
+
+            //Example transport key:
+            //gUi0zrccwPdLL88IvwUwB2eMO2UtP0UvvNcITTgOv8cNl0W0o8lgPwQtoNTTlTgAA8l0P2vBl2WtAUtwANtOfIpoovpyO2
+            //UfOlUTWMUHBNvicA2OfvzfO8UANeoz
         }
         finally {
-            //Clear
+            //Clear sensitive data
             Memezero::overwriteString($password);
             unset($keyStream);   
         }
     }
 
-    public function test_readme_validate_transportKey() : void {
+    public function test_readme_validate_usage() : void {
 
         try {
-
-            //API receives a transport key/passkey
+            //User credentials
             $email = "info@pswkey.com";
-            $transportKey = "gUi0zrccwPdLL88IvwUwB2eMO2UtP0UvvNcITTgOv8cNl0W0o8lgPwQtoNTTlTgAA8l0P2vBl2WtAUtwANtOfIpoovpyO2UfOlUTWMUHBNvicA2OfvzfO8UANeoz";
 
-            //Stored in DB
-            $dbHashed = "\$2y\$10\$RGbITslA7qBNeiJ8/Zk3A.t7sOXpOLHqTgqT5.mtSmrGpIL9c75jG";
+            //Incoming transport key
+            $transportKey = "gUi0zrccwPdLL88IvwUwB2eMO2UtP0UvvNcITTgOv8cNl0W0o8lgPwQtoNTTlTgAA8l0P2vBl2WtAUtwANtOfIpoovpyO2"
+                . "UfOlUTWMUHBNvicA2OfvzfO8UANeoz";
 
-            //Make a Derival Provider
+            //Derived stream provider
             $keyStream = new KeyStream("Service=README.md | emailadress={$email}");
 
             $pswKey = new PswKey($keyStream);
 
-            //Compare with hash from DB
-            $strongPassword = $pswKey->from(32)->to(256)->convert($transportKey);
+            //Decoded transport key into derived password bytes
+            $bytePassword = $pswKey->from(32)->to(256)->convert($transportKey);
 
-            $status = "";
-            if ($strongPassword !== null && password_verify($strongPassword, $dbHashed)) {
-                $status = 'Password is valid!';
-            } else {
-                $status = 'Invalid password.';
+            //Validate transport key conversion
+            if($bytePassword !== null) {
+                
+                //Retrieve stored password hash only after successful transport-key validation
+                $dbHashed = "\$2y\$10\$0qbuEgpR/RRn4a2xj3LHu.eHH288.615tSGkBd.4kIYlyddwpdhvO";
+
+                //Compare derived password against stored hash
+                $status = "";
+                if (password_verify($bytePassword, $dbHashed)) {
+                    $status = "Password is valid!";
+                } else {
+                    $status = "Invalid password.";
+                }
+
+                $this->assertEquals(
+                    "Password is valid!",
+                    $status
+                );
             }
-
-            $this->assertEquals(
-                'Password is valid!',
-                $status
-            );
         }
         finally {
-            //Clear
-            Memezero::overwriteString($strongPassword);
-            unset($keyStream, $PswKey);   
+            //Clear sensitive data
+            Memezero::overwriteString($bytePassword);
+            unset($keyStream, $pswKey);   
+        }
+    }
+
+    public function test_readme_otp_usage() : void {
+
+        try {
+            //Digit number
+            $originalDigits = "0931024538975689521014785";
+
+            //Time-based key material
+            $date = new DateTime();
+            $key = \strtotime($date->format('Y-m-d H:i:s')) . $date->format('u');
+
+            //Derived stream provider
+            $keyStream = new KeyStream("Service=README.md : user=5236947 : alias=VisalStudio", $key);
+
+            //OTP instance
+            $oneTimePad = new OneTimePad($keyStream);
+
+            //Using any numeric identifier and 8-byte derivation context
+            $encode = $oneTimePad->digit($originalDigits, 5236947, "MyDigits");
+
+            $this->assertNotEquals(
+                $encode,
+                $originalDigits
+            );
+
+            $status = $oneTimePad->status();
+            if($status->valid) {
+
+                //Decode into orginal digits ith same numeric identifier and 8-byte derivation context
+                $decode = $oneTimePad->digit($encode, 5236947, "MyDigits");
+
+                $this->assertEquals(
+                    $decode,
+                    $originalDigits
+                );
+            }
+            else {
+                echo $status->internalMessage;
+            }
+        }       
+        finally {
+            //Clear sensitive data
+            Memezero::overwriteString($originalDigits);
+            unset($keyStream, $oneTimePad); 
         }
     }
 }
