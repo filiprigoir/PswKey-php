@@ -76,7 +76,7 @@ class ReadmeTest extends TestCase
             "Service=README.md | emailadress={$email}" //Seedphrase can be anything related to your service
         );
 
-        //Attach password as custom key material
+        //Attach password as custom key
         $keyStream->setCustomKey($password);
 
         //Generated outputs
@@ -174,7 +174,7 @@ class ReadmeTest extends TestCase
             //Digit number
             $originalDigits = "0931024538975689521014785";
 
-            //Time-based key material
+            //Time-based key
             $date = new DateTime();
             $key = \strtotime($date->format('Y-m-d H:i:s')) . $date->format('u');
 
