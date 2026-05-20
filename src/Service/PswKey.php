@@ -72,7 +72,7 @@ class PswKey extends ShuffleChars implements ConvertBaseInterface, ConvertEngine
     }
 
     /**
-     * Standard base from conversion with predefined alphabets for common bases
+     * Default base from conversion with predefined alphabets for common bases
      */
     public function from(int $base) : self {
 
@@ -107,7 +107,7 @@ class PswKey extends ShuffleChars implements ConvertBaseInterface, ConvertEngine
     }
 
     /**
-     * Standard base to conversion with predefined alphabets for common bases
+     * Default base to conversion with predefined alphabets for common bases
      */
     public function to(int $base) : self {
 
@@ -142,6 +142,7 @@ class PswKey extends ShuffleChars implements ConvertBaseInterface, ConvertEngine
     }
 
     /**
+     * Custom use
      * Parameter singleByte expected input: 4–256 unique single-byte characters in any order (e.g. chr(201))
      */
     public function customFrom(array $singleBytes, int $baseLength, bool $shuffle = true) : self {
@@ -224,6 +225,7 @@ class PswKey extends ShuffleChars implements ConvertBaseInterface, ConvertEngine
     }
 
     /**
+     * Custom use
      * Parameter singleByte expected input: 4–256 unique single-byte characters in any order (e.g. chr(201))
      */    
     public function customTo(array $singleBytes, int $baseLength, bool $shuffle = true) : self {
