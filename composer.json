@@ -33,8 +33,6 @@
         "ext-gmp": "Used for faster base conversions when available."
     },
     "require-dev": {
-        "php": "^8.2",
-        "ext-sodium": "*",
         "phpunit/phpunit": "^11.5"
     },
     "autoload": {
