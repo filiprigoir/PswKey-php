@@ -164,7 +164,7 @@ abstract class ShuffleChars extends BaseConvert implements CustomKeyInterface {
             $len = count($singleBytes);
 
             //Table rejection sampling
-            include_once('Modifier\RejectionSampling.php');
+            include_once(__DIR__ . '/Modifier/RejectionSampling.php');
 
             //Specical rule for standard base 100 and 10 convertion
             if($config['isCanonical'] === true && $baseLength === 10 ) {$baseLength = 100;} 
