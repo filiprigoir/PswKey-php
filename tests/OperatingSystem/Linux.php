@@ -33,10 +33,10 @@ else {
     /*
     * Convert to C uint8_t array
     */
-    $randBytes = FFI::new("uint8_t[$randLen]");
+    $randBytes =  $ffi->new("uint8_t[$randLen]");
     FFI::memcpy($randBytes, $deriveKey, $randLen);
 
-    $outArray = FFI::new("uint8_t[$requiredLen]");
+    $outArray =  $ffi->new("uint8_t[$requiredLen]");
 
     $func = "shuffle_indices_secure";
     $res = $ffi->{$func}(

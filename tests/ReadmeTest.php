@@ -72,11 +72,11 @@ class ReadmeTest extends TestCase
                 $pswKey = new PswKey($keyStream);
 
                 $transportkey = $pswKey->from(256)->to(32)->convert($derivedPassword);
-                $passwordHash = password_hash($derivedPassword, PASSWORD_DEFAULT);
+                $passwordHash = password_hash(base64_encode($derivedPassword), PASSWORD_DEFAULT);
 
                 unset($pswKey);
             },
-            64, 
+            32, 
             "MySecret"
             );
 

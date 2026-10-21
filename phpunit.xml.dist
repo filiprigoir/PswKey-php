@@ -1,5 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<phpunit bootstrap="vendor/autoload.php" colors="true" cacheDirectory=".phpunit.cache">
+<phpunit 
+    bootstrap="vendor/autoload.php" 
+    colors="true" 
+    cacheDirectory=".phpunit.cache"
+    displayDetailsOnTestsThatTriggerDeprecations="true"
+    displayDetailsOnPhpunitDeprecations="true"
+  >
   <testsuites>
     <testsuite name="PswKey Test Suite">
       <directory>tests</directory>

@@ -99,7 +99,7 @@ abstract class ShuffleChars extends BaseConvert implements CustomKeyInterface {
 
                     //Get random bytes by ID and Context.
                     $derivedLength = strlen($secretBytes);
-                    $derivedBuffer = FFI::new("uint8_t[$derivedLength]");
+                    $derivedBuffer = $this->_ffi->new("uint8_t[$derivedLength]");
                     FFI::memcpy($derivedBuffer, $secretBytes, $derivedLength);
 
                     //Call C function 
