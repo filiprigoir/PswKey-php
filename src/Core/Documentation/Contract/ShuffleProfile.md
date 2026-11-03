@@ -24,7 +24,8 @@ The derivation context may also be customized through the setters to create an i
 ```php
 DerivationProfile::setContextCharset(requires_5_bytes); //becomes 8 bytes (ie.: 64 => 064)
 DerivationProfile::setContextCustom(requires_5_bytes); //becomes 8 bytes (ie.: 100 => 100)
-DerivationProfile::setContextStream(requires_8_bytes);
+DerivationProfile::setContextPermutation(requires_6_bytes); //becomes 8 bytes (ie.: 8 => 08)
+DerivationProfile::setContextStream(requires_8_bytes); //Directly 8 bytes
 ```
 
 Note: Default and customized derivation contexts are equally valid and secure. Different context configurations simply produce different deterministic outputs and can be used for private deterministic domain isolation.

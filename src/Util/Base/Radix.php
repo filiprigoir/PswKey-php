@@ -30,4 +30,8 @@ class Radix {
     public static function bindRadix(int $radix) : string {
         return str_pad((string)$radix, 3, '0', STR_PAD_LEFT);
     }
+
+    public static function bindPermutation(int $radix) : string {
+        return str_pad((string)$radix, 2, '0', STR_PAD_LEFT);
+    }
 }

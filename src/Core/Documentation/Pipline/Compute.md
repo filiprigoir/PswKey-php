@@ -59,7 +59,7 @@ Digits are processed in fixed-size chunks.
 Example:
 
 - [14 digits] → [9 symbols]
-- [14 digits] → [9 symbols]
+- [13 digits] → [9 symbols]
 
 Each chunk is processed independently.
 
@@ -94,7 +94,7 @@ After processing, the loop starts again with the next chunk.
 
 ## Unified behavior
 
-Both system-defined and custo-defined bases follow the same routing logic for consistency.
+Both system-defined and custom-defined bases follow the same routing logic for consistency.
 
 ---
 

@@ -65,4 +65,24 @@ class Precompute {
             default => null
         };
     }
+
+    public static function initPermutation(int $maxLength) : array {
+        return match($maxLength) {
+            4 => [7, 0x7F, 9999],
+            5 => [9, 0x1FF, 99999],
+            6 => [10, 0x3FF, 999999],
+            7 => [12, 0xFFF, 9999999],
+            9 => [15, 0x7FFF, 999999999],
+            10 => [17, 0x1FFFF, 9999999999],
+            11 => [19, 0x7FFFF, 99999999999],
+            12 => [20, 0xFFFFF, 999999999999],
+            13 => [22, 0x3FFFFF, 9999999999999],
+            14 => [24, 0xFFFFFF, 99999999999999],
+            15 => [25, 0x1FFFFFF, 999999999999999],
+            16 => [27, 0x7FFFFFF, 9999999999999999],
+            17 => [29, 0x1FFFFFFF, 99999999999999999],
+            18 => [30, 0x3FFFFFFF, 999999999999999999],
+            default => [14, 0x3FFF, 99999999]
+        };
+    }
 }

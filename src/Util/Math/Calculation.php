@@ -8,7 +8,7 @@ class Calculation {
         $dec = '0';
         $len = strlen($bytes);
         for ($i = 0; $i < $len; $i++) {
-            $dec = bcadd(bcmul($dec, '256'), (string)ord($bytes[$i]));
+            $dec = bcadd(bcmul($dec, '256', 0), (string)ord($bytes[$i]), 0);
         }
         return $dec;
     }
@@ -16,8 +16,8 @@ class Calculation {
     public static function decToBytes(string $dec): string
     {
         $str = "";
-        while (bccomp($dec, '0') > 0) {
-            $str .= chr((int)bcmod($dec, '256'));
+        while (bccomp($dec, '0', 0) > 0) {
+            $str .= chr((int)bcmod($dec, '256', 0));
             $dec = bcdiv($dec, '256', 0);
         }
         return strrev($str);

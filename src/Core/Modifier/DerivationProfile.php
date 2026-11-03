@@ -13,9 +13,12 @@ use PswKey\Util\Mapping\Merge;
  */
 final class DerivationProfile
 {
-    //shuffle profile: must be excactly 5 bytes here (radix will be added dynamically, e.g.: 64 -> 064)
+    //shuffle profile: must be excactly 5 bytes (radix will be added dynamically, e.g.: 64 -> 064)
     private const SHUFFLE_DEFAULT_CHARSET = 'SDEFC';
     private const SHUFFLE_CUSTOM_ALPHABET = 'SCUSA';
+
+    //Permutation ID's: must be excactly 6 bytes (length will be added dynamically, e.g.: 8 -> 08)
+    private const DEFAULT_PERMUTATION = 'DEPMTN';
 
     //stream profile: must be excactly 8 bytes
     private const DERIVATION_STREAM = 'DERSTRKY';
@@ -32,6 +35,7 @@ final class DerivationProfile
     private static ?string $_contextCharset = null;
     private static ?string $_contextCustom = null;
     private static ?string $_contextStream = null;
+    private static ?string $_contextPermutation = null;
 
     /**
      * Internal use by the derivation pipeline
@@ -71,9 +75,22 @@ final class DerivationProfile
     }
 
     /**
-     * Assigns a service context to the system-defined alphabet system.
+     * Internal use by the derivation pipeline
+     */
+    public static function getContextPermutation(int $length) : string {
+
+        $concat = Radix::bindPermutation($length);
+        
+        if(self::$_contextPermutation !== null) {
+                return self::$_contextPermutation . $concat;
+        }
+        return self::DEFAULT_PERMUTATION . $concat;
+    }
+
+    /**
+     * Assigns a service context to the system-defined alphabet system  (must be 5 bytes)
      *
-     * May be used during runtime or service initialization.
+     * May be used during runtime or service initialization
      *
      * More info: pswkey/src/Core/Documentation/Contract/shuffleProfile.md
      */
@@ -91,9 +108,9 @@ final class DerivationProfile
     }
 
     /**
-     * Assigns a service context to the custom-defined alphabet system.
+     * Assigns a service context to the custom-defined alphabet system  (must be 5 bytes)
      *
-     * May be used during runtime or service initialization.
+     * May be used during runtime or service initialization
      *
      * More info: pswkey/src/Core/Documentation/Contract/shuffleProfile.md
      */
@@ -110,9 +127,9 @@ final class DerivationProfile
     }
 
     /**
-     * Assigns a service context to the stream key system.
+     * Assigns a service context to the stream key system (must be 8 bytes)
      *
-     * May be used during runtime or service initialization.
+     * May be used during runtime or service initialization
      *
      * More info: pswkey/src/Core/Documentation/Contract/shuffleProfile.md
      */
@@ -126,6 +143,25 @@ final class DerivationProfile
             );
         }
         self::$_contextStream = $context;
+    }
+
+    /**
+     * Assigns a service context to the Permutation ID system (must be 6 bytes)
+     *
+     * May be used during runtime or service initialization
+     *
+     * More info: pswkey/src/Core/Documentation/Contract/shuffleProfile.md
+     */
+    public static function setContextPermutation(?string $context) : void {
+
+            if($context !== null && mb_strlen($context, '8bit') !== 6) {
+            throw new ConfigurationException(
+                Merge::string(InternalMessage::INVALID_LIBSODIUM_CONTEXT, 
+                    ["%length%" => 6]
+                )
+            );
+        }
+        self::$_contextPermutation = $context;
     }
 
     private function __construct() {}

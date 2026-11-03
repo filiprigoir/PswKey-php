@@ -1,11 +1,17 @@
 {
     "name": "filiprigoir/pswkey",
-    "description": "A deterministic base converter using shuffled alphabets derived from salt and optional pepper, with streamkey and one-time-pad support.",
+    "description": "A deterministic base converter using shuffled alphabets derived from salt and optional pepper, with streamkey, Format-Preserving permutation and one-time-pad support.",
     "keywords": [
         "php", 
         "base",
         "converter",
         "deterministic",
+        "Permutation id",
+        "Format-Preserving Encryption",
+        "Format-Preserving Permutation",
+        "FPE",
+        "FPP",
+        "Feistel-network",
         "transport key",
         "pepper",
         "salt",

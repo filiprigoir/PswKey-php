@@ -10,6 +10,7 @@ final class InternalMessage {
 
     public const CONFIG_ERROR_DEFAULT = 'Unexpected configuration error occurred'; 
     public const INVALID_EMPTY = "Variable %arg% may not be empty";
+    public const OUT_OF_RANGE = "Variable %arg% contains a number out of range (only between 4 and 18)";
     public const INVALID_LIBSODIUM_CONTEXT = "Context name must be exactly %length% bytes";
     public const CHECK_VALIDATION_FAILED = "%check% found invalid input while validating %bases%";
     public const BUFFER_PROCESS_FAILED = "BufferProcess found invalid input while converting %bases%: invalid character '%char%' at position %pos%";
