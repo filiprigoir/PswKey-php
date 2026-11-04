@@ -41,6 +41,7 @@ class OneTimePad implements ConvertEngineInterface, CustomKeyInterface {
 
     private function setAvailability() : void {     
         $this->_gmp = function_exists('gmp_init');
+        Calculation::$initSize = PHP_INT_SIZE === 8 ? 7 : 3;
     }
 
     /**

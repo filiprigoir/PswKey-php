@@ -3,24 +3,33 @@
 namespace PswKey\Util\Math;
 
 class Calculation {
+
+    public static $initSize = 7; //default 64-bit, otherwise 3 = 32-bit
+
     public static function bytesToDec(string $bytes): string {
-        
-        $dec = '0';
-        $len = strlen($bytes);
-        for ($i = 0; $i < $len; $i++) {
-            $dec = bcadd(bcmul($dec, '256', 0), (string)ord($bytes[$i]), 0);
+        $step = self::$initSize;
+        $dec  = '0';
+        for ($i = 0, $len = strlen($bytes); $i < $len; $i += $step) {
+            $part = substr($bytes, $i, $step);
+            $val  = 0;
+            foreach (unpack('C*', $part) as $b) { $val = ($val << 8) | $b; }
+            $dec = bcadd(bcmul($dec, (string) (256 ** strlen($part)), 0), (string) $val, 0);
         }
         return $dec;
     }
 
-    public static function decToBytes(string $dec): string
-    {
-        $str = "";
-        while (bccomp($dec, '0', 0) > 0) {
-            $str .= chr((int)bcmod($dec, '256', 0));
-            $dec = bcdiv($dec, '256', 0);
+    public static function decToBytes(string $dec): string {
+        $step = self::$initSize;
+        $mod  = (string) (256 ** $step);
+        $groups = [];
+        while(bccomp($dec, '0', 0) > 0) {
+            $rest = (int) bcmod($dec, $mod, 0);
+            $dec  = bcdiv($dec, $mod, 0);
+            $g = '';
+            for ($j = 0; $j < $step; $j++) { $g = chr($rest & 0xFF) . $g; $rest >>= 8; }
+            $groups[] = $g;
         }
-        return strrev($str);
+        return ltrim(implode('', array_reverse($groups)), "\0");
     }
     
     public static function checkLength(int $length) : int {

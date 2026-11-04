@@ -69,6 +69,7 @@ abstract class ShuffleChars extends BaseConvert implements CustomKeyInterface {
         }
 
         $this->_gmp = function_exists('gmp_init');
+        Calculation::$initSize = PHP_INT_SIZE === 8 ? 7 : 3;
     }
     
     //Shuffle with C (FFI) if enable
