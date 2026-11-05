@@ -34,7 +34,7 @@ class FixedKeyTest extends TestCase
     }
 
     private function getConvertedBase32() : string {
-        return "QkMK2ppf0q9kwglME4wKDE0ztRUQggRcEkopQ2poKR9kD5UERKoqDkxRt3hyQEhQsRNpl5Uxz9w020yzt4hE9hMyQcgP45nzzkoPUfpsskNKopxn23EKboPl4Mkyq4PbKzxKl9yoz2PbgPNQlRyEz9phlgwqQpMKzlNhz9RlE3nQ49MxKgkqgP3234wUqxPc09qb";
+        return "JUXTj22bdnvURKFXyLRTaydiAISJKKIlyU02Jj20TIvUa4SyIT0naUsIAWD1JyDJOIQ2F4SsivRdjd1iALDyvDX1JlKBL47iiU0BSb2OOUQT02s7jWyTC0BFLXU1nLBCTisTFv10ijBCKBQJFI1yiv2DFKRnJ2XTiFQDivIFyW7JLvXsTKUnKBWjWLRSnsBldvn7";
     }
 
     private function getConvertedBase58() : string {
@@ -50,7 +50,7 @@ class FixedKeyTest extends TestCase
     }
 
     private function getConvertedCustom_32() : string {
-        return "^~_cl66XP[$~W\"Y_xwWc°xPZQ,µ^\"\",mx~´6^l6´c,$~°5µx,c´[°~f,QKMk^xM^e,{6Y5µfZ\$WPlPkZQwMx\$M_k^m\"jw5hZZ~´jµX6ee~{c´6fhlKxcs´jYw_~k[wjscZfcY\$k´Zljs\"j{^Y,kxZ$6MY\"W[^6_cZY{MZ$,YxKh^w\$_fc\"~[\"jKlKwWµ[fjmP$[°";
+        return "`G/Lo¨¨|intG°+@/£2°LB£iq.=p`++=h£Gµ¨`o¨µL=tGBkp£=LµnBG8=.bU'`£U`F=D¨@kp8qt°ioi'q.2U£tU/'`h+)2kHqqGµ)p|¨FFGDLµ¨8Hob£L²µ)@2/G'n2)²Lq8L@t'µqo)²+)D`@='£qt¨U@+°n`¨/Lq@DUqt=@£bH`2t/8L+Gn+)bob2°pn8)hitnp";
     }
 
     public function test_from_base100(): void
@@ -58,7 +58,7 @@ class FixedKeyTest extends TestCase
         $text = $this->getText();
         $pswkey = $this->instancePswKey();
 
-        //Create single bytes first. Some chars are over 127 so use getISO
+        //Create single bytes first. Some chars are more than 127
         $base100 = Transcode::getISO($this->getConvertedBase100());
 
         //Note: This repo only accepts single bytes. It does not work with multiple bytes with prefixes in string.
@@ -78,7 +78,7 @@ class FixedKeyTest extends TestCase
         $text = $this->getText();
         $pswkey = $this->instancePswKey();
 
-        $base10 = Transcode::getISO($this->getConvertedBase10());
+        $base10 = $this->getConvertedBase10();
 
         $decode = $pswkey
             ->from(10)
@@ -171,7 +171,7 @@ class FixedKeyTest extends TestCase
         $custom32 = Transcode::getISO($this->getConvertedCustom_32());
 
         $decode = $pswkey
-            ->customFrom(initArray::_base100(), 32, true) //true = shuffles 100 char but take only 32 char 
+            ->customFrom(initArray::_base100(), 32, true) //true = shuffles 100 char but takes only 32 char 
             ->to(256)
             ->convert($custom32);
 

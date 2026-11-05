@@ -70,6 +70,13 @@ Handles single-byte representations and not-standalone UTF-8 bytes
 
 ---
 
+### 🔹 Permutation ID
+Describes how a format-preserving permutation turns an ID into a permuted ID and back.
+
+→ See: [Custom-defined](/src/Core/Documentation/Conversion/Permutation.md)
+
+---
+
 ### 🔹 Pipline conversion Endian & Exponentiation Chunk
 Describes the normalization stage used in the conversion pipeline.
 

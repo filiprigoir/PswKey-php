@@ -13,7 +13,7 @@ use PswKey\Util\Mapping\Merge;
 use PswKey\Util\Secure\MemeZero;
 
 /**
- * Deterministic Unique Permatutation Key derived from incremental IDs
+ * Deterministic Format-Preserving Encryption via a Balanced Feistel Network
  * 
  * For more information about the availability see: src/Core/Documentation/Conversion/Permutation.md
  */
@@ -29,6 +29,7 @@ final class Permutation {
     private int $_maxID = 99999999;
     private int $_halfShift = 14;
     private int $_halfMask = 0x3FFF;
+    private int $_rounds = 4;
 
     public function __construct(KeyStream $keyStream) {
         $this->_keyStream = $keyStream;
@@ -51,6 +52,11 @@ final class Permutation {
             [$this->_halfShift, $this->_halfMask, $this->_maxID] = Precompute::initPermutation($numberLength);            
         }
 
+        return $this;
+    }
+
+    public function rounds(int $rounds) : self {
+        if($rounds >= 4 && $rounds <= 24) $this->_rounds = $rounds;
         return $this;
     }
     
@@ -80,44 +86,44 @@ final class Permutation {
             );
         }
 
-        $permutatedId = $originalId;
+        $permutedId = $originalId;
         //Format-Preserving Encryption (FPE) via Cycle-Walking
         do {
             //Split in bits
-            $l = ($permutatedId >> $this->_halfShift) & $this->_halfMask;
-            $r = $permutatedId & $this->_halfMask;
+            $l = ($permutedId >> $this->_halfShift) & $this->_halfMask;
+            $r = $permutedId & $this->_halfMask;
 
             //4 rounds to avoid bias
-            for ($round = 0; $round < 4; $round++) {
+            for ($round = 0; $round < $this->_rounds; $round++) {
                 $nextL = $r;
                 $nextR = $l ^ $this->pseudoRandom($r, $round);
                 $l = $nextL;
                 $r = $nextR;
             }
 
-            $permutatedId = ($l << $this->_halfShift) | $r;
+            $permutedId = ($l << $this->_halfShift) | $r;
 
-        } while ($permutatedId > $this->_maxID);
+        } while($permutedId > $this->_maxID);
 
-        return $permutatedId;
+        return $permutedId;
     }
 
-    public function decode(int $permutatedId) : int {
+    public function decode(int $permutedId) : int {
 
-        if ($permutatedId < 0 || $permutatedId > $this->_maxID) {
+        if ($permutedId < 0 || $permutedId > $this->_maxID) {
             throw new InputException(
                 Merge::string(InternalMessage::OUT_OF_RANGE, 
-                ['%arg%' => 'permutatedId'] ) . "/" . ClientMessage::INVALID_INPUT
+                ['%arg%' => 'permutedId'] ) . "/" . ClientMessage::INVALID_INPUT
             );
         }
 
-        $originalId = $permutatedId;
+        $originalId = $permutedId;
         //Format-Preserving Encryption (FPE) via Cycle-Walking
         do {
             $l = ($originalId >> $this->_halfShift) & $this->_halfMask;
             $r = $originalId & $this->_halfMask;
 
-            for ($round = 3; $round >= 0; $round--) {
+            for ($round = ($this->_rounds-1); $round >= 0; $round--) {
                 $prevR = $l;
                 $prevL = $r ^ $this->pseudoRandom($l, $round);
                 $l = $prevL;
@@ -126,7 +132,7 @@ final class Permutation {
 
             $originalId = ($l << $this->_halfShift) | $r;
 
-        } while ($originalId > $this->_maxID);
+        } while($originalId > $this->_maxID);
 
         return $originalId;
     }
@@ -136,8 +142,7 @@ final class Permutation {
         unset($this->_secretKey);
     }
 
-    public function __debugInfo(): array
-    {
+    public function __debugInfo(): array {
         return ['key' => '*** hidden ***'];
     }
 }

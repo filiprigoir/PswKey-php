@@ -225,8 +225,7 @@ class OneTimePad implements ConvertEngineInterface, CustomKeyInterface {
         }
     }
 
-    public function __debugInfo(): array
-    {
+    public function __debugInfo(): array {
         return ['key' => '*** hidden ***'];
     }
 }

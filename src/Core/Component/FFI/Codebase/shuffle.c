@@ -77,26 +77,7 @@ EXPORT int shuffle_indices_secure(
     }
 
     /* ---------- slice ---------- */
-    if (required_len == input_len) {
-        memcpy(out_array, work_buffer, input_len * sizeof(uint8_t));
-    } else {
-        int start_idx = -1;
-        while (start_idx < 0) {
-            if (pos >= rand_len) pos = 0;
-            uint8_t byte = rand_bytes[pos++];
-
-            if (byte < LIMITS_TABLE[input_len])
-                start_idx = byte % input_len;
-
-            secure_zero(&byte, 1);
-        }
-
-        for (size_t i = 0; i < required_len; i++) {
-            out_array[i] = work_buffer[(start_idx + i) % input_len];
-        }
-
-        secure_zero(&start_idx, sizeof(start_idx));
-    }
+    memcpy(out_array, work_buffer, required_len * sizeof(uint8_t));
 
     /* ---------- wipe ---------- */
     secure_zero(work_buffer, input_len * sizeof(uint8_t));

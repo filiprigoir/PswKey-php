@@ -17,6 +17,7 @@ final class InternalMessage {
     public const LENGTH_REQUIRED = "At least %required% must be provided";
     public const WARNING_EMPTY = "Variable %arg% is empty - a default value is used";
     public const LIBSODIUM_REQUIRED = "Libsodium extension is required to use instance KeyStream()";
+    public const GMP_NOT_FOUND = "GMP extension must be loaded to enable gmpEnable";
     public const DIGIT_PAIR_REQUIRED = "Input must contain an even number of digits";
     public const INVALID_DIGITS = "Only digits 0-9 are allowed";
     public const INVALID_UNIFORM_CHUNK = "A non-uniform number was detected: a numeric chunk exceeds the 169-byte uniform limit after digit-to-byte conversion";

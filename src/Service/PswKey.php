@@ -310,6 +310,9 @@ class PswKey extends ShuffleChars implements ConvertBaseInterface, ConvertEngine
     }
 
     public function gmpEnable(bool $useGMP) : self {
+        if($useGMP === true && !function_exists('gmp_init')) {
+            throw new ConfigurationException(InternalMessage::GMP_NOT_FOUND);
+        }
         $this->_gmp = $useGMP;
         return $this;
     }
@@ -320,8 +323,7 @@ class PswKey extends ShuffleChars implements ConvertBaseInterface, ConvertEngine
         $this->clearShuffleChars();
     }
 
-    public function __debugInfo(): array
-    {
+    public function __debugInfo(): array {
         return ['key' => '*** hidden ***'];
     }
 }

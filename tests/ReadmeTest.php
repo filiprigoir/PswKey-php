@@ -6,12 +6,16 @@ use DateTime;
 use PHPUnit\Framework\TestCase;
 use PswKey\Service\KeyStream;
 use PswKey\Service\OneTimePad;
+use PswKey\Service\Permutation;
 use PswKey\Service\PswKey;
 use PswKey\Util\Secure\MemeZero;
 
-//Base256 always returns a uniform representation
+/**
+ * Code defined in README.md
+ */
 class ReadmeTest extends TestCase
 {
+    //Base256 always returns a uniform representation
     public function test_readme_common_usage() : void {
 
         $date = new DateTime();
@@ -95,8 +99,7 @@ class ReadmeTest extends TestCase
             $email = "info@pswkey.com";
 
             //Incoming transport key
-            $transportKey = "gUi0zrccwPdLL88IvwUwB2eMO2UtP0UvvNcITTgOv8cNl0W0o8lgPwQtoNTTlTgAA8l0P2vBl2WtAUtwANtOfIpoovpyO2"
-                . "UfOlUTWMUHBNvicA2OfvzfO8UANeoz";
+            $transportKey = "nVffjAflteuyIIZDKsyfzpfBPPofb8yevVoOZsZspbOgAz7BDevBflsPD8tOpes";
 
             $keyStream = new KeyStream("Service=README.md | emailadress={$email}");
             $pswKey = new PswKey($keyStream);
@@ -105,10 +108,10 @@ class ReadmeTest extends TestCase
 
             if($bytePassword !== null) {
                 
-                $dbHashed = "\$2y\$10\$0qbuEgpR/RRn4a2xj3LHu.eHH288.615tSGkBd.4kIYlyddwpdhvO";
+                $dbHashed = "\$2y\$12\$vMMA/l7JKMXvgeJavf5WAuvGMdFhfypltZfAyNyNyIyku1SDUf4zq";
 
                 $status = "";
-                if (password_verify($bytePassword, $dbHashed)) {
+                if (password_verify(base64_encode($bytePassword), $dbHashed)) {
                     $status = "Password is valid!";
                 } else {
                     $status = "Invalid password.";
@@ -117,6 +120,13 @@ class ReadmeTest extends TestCase
                 $this->assertEquals(
                     "Password is valid!",
                     $status
+                );
+            }
+            else {
+                //Standard fail test messages (make sure you got message when it goed wrong)
+                $this->assertEquals(
+                    "Password is valid!",
+                    "Password is not the same"
                 );
             }
         }
@@ -160,5 +170,33 @@ class ReadmeTest extends TestCase
             Memezero::overwriteString($originalDigits);
             unset($keyStream, $oneTimePad); 
         }
+    }
+
+    public function test_permutation() : void {
+        //Int number
+        $originalInt = 53210;
+
+        //Derived stream provider
+        $keyStream = new KeyStream('Your MasterKey'); //If first arg is public, than second must be Masterkey
+
+        //Permutation instance (range is default 8 => 0 to 99999999)
+        $permutation = new Permutation($keyStream);
+
+        //Create a new unique ID (not recognizable as: 1, 2, 3, etc... but each total chaos)
+        //encode:
+        $permutedId = $permutation->encode($originalInt);
+
+        $this->assertNotEquals(
+            $permutedId,
+            $originalInt
+        );
+
+        //Decode
+        $originalBack = $permutation->decode($permutedId);
+
+        $this->assertEquals(
+            $originalBack,
+            $originalInt
+        );
     }
 }

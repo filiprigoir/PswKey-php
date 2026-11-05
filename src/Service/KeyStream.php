@@ -191,8 +191,7 @@ class KeyStream implements CustomKeyInterface {
         $this->clearKeyStream();
     }
 
-    public function __debugInfo(): array
-    {
+    public function __debugInfo(): array {
         return ['key' => '*** hidden ***'];
     }
 }

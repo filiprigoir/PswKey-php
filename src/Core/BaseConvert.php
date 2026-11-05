@@ -12,6 +12,7 @@ use PswKey\Core\Component\Charset\Base64Char;
 use PswKey\Core\Component\Custom\Custom256From;
 use PswKey\Core\Component\Custom\Custom256To;
 use PswKey\Core\Modifier\DerivationProfile;
+use PswKey\Core\Modifier\ImplementationType;
 use PswKey\ErrorMessage\ClientMessage;
 use PswKey\ErrorMessage\InternalMessage;
 use PswKey\Exception\InputException;
@@ -33,6 +34,8 @@ abstract class BaseConvert {
     /** Binding properties */
     protected ?string $_from = null;
     protected ?string $_to = null;
+
+    public string $implementation = ImplementationType::PHP;
 
     /** 
      * Endian chunk mode: 22 bytes (false) or 169 bytes (true) 
@@ -1631,7 +1634,8 @@ abstract class BaseConvert {
         $rounds = (int)floor(($len-$left) / $digBlock);
 
         if($this->enabledGMP()) {
-            //Use GMP if aivalaible othwise  PHP
+            //Use GMP if aivalaible othwise  PHP            
+            $this->implementation = ImplementationType::GMP;
             if($left > 0) {
                 $text .= \gmp_export(
                     \gmp_init(substr($bigEndianChunk, 0, $left), 10)
@@ -1662,6 +1666,7 @@ abstract class BaseConvert {
         }
         else {
             //Use PHP BC (same genarated decimals as GMP)
+            $this->implementation = ImplementationType::BC;
             if($left > 0) {
                 $text .= Calculation::decToBytes(substr($bigEndianChunk, 0, $left));
 

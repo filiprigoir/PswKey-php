@@ -23,8 +23,6 @@ abstract class ShuffleChars extends BaseConvert implements CustomKeyInterface {
     //standard dissabled & blocked by shared servers
     protected ?FFI $_ffi = null; 
 
-    public string $implementation = ImplementationType::PHP;
-
     public function __construct(#[SensitiveParameter] KeyStream $keyStream) {
         $this->_keyStream = $keyStream;
         $this->setAvailability();
@@ -188,14 +186,14 @@ abstract class ShuffleChars extends BaseConvert implements CustomKeyInterface {
 
                     //Shuffle the indices
                     $pos = 0;     
-                    for ($i = $len - 1; $i > 0; $i--) {
+                    for($i = $len - 1; $i > 0; $i--) {
                         $val = -1;
                         $m = $i + 1;     
-                        while ($val < 0) {
-                            if ($pos >= $derivedLength) $pos = 0;
+                        while($val < 0) {
+                            if($pos >= $derivedLength) $pos = 0;
 
                             $byte = ord($secretBytes[$pos++]);
-                            if ($byte < REJECTION_SAMPLING[$m]) $val = $byte % $m;
+                            if($byte < REJECTION_SAMPLING[$m]) $val = $byte % $m;
                             $byte = 0;
                         }
 
@@ -205,22 +203,9 @@ abstract class ShuffleChars extends BaseConvert implements CustomKeyInterface {
                         $tmp = 0;               
                     }
 
-                    $index = 0;
-                    if($baseLength !== $len) {
-                        //Grab a new index via Fisher-Yates
-                        $index = -1;
-                        while ($index < 0) {
-                            if ($pos >= $derivedLength) $pos = 0;
-
-                            $pointer = ord($secretBytes[$pos++]);
-                            if ($pointer < REJECTION_SAMPLING[$len]) $index = $pointer % $len;
-                        }
-                    }
- 
                     //Snip the required base length
-                    for ($i=0; $i < $baseLength; $i++) {  
-                        $t = ($index + $i) % $len;
-                        $bindingEncode[$i] = $singleBytes[$indices[$t]];
+                    for($i=0; $i < $baseLength; $i++) {  
+                        $bindingEncode[$i] = $singleBytes[$indices[$i]];
 
                         if($config['isCanonical']) {
                             $bindingDecode[$bindingEncode[$i]] = sprintf("%02d", $i);

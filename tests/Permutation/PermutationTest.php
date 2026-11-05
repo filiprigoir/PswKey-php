@@ -63,16 +63,25 @@ class PermutationTest extends TestCase
 
         //Permutation instance
         $permutation = new Permutation($keyStream);
-        $permutation->maxLength(18);
 
         //Create a new unique ID (not recognizable as: 1, 2, 3, etc... but each total chaos)
         //encode:
-        $permutatedId = $permutation->encode($originalInt);
+        $permutatedId4 = $permutation
+            ->rounds(4)
+            ->maxLength(18)
+            ->encode($originalInt);
+
+        $permutatedId8 = $permutation
+            ->rounds(8)
+            ->encode($originalInt);
 
         //Decode
-        $originalBack = $permutation->decode($permutatedId);
+        $originalBack = $permutation->decode($permutatedId8);
 
         $this->assertEquals($originalInt, $originalBack);
+
+        //different rounds gives a totaly different output
+        $this->assertNotEquals($permutatedId4, $permutatedId8);
     }
 
     public function test_ok_penultimate() : void {

@@ -6,10 +6,10 @@ This document defines how permutation works in the repository.
 ## What is Permutation?
 Permutation turns an integer ID into another integer ID and back again. It is a format-preserving permutation: the output is always a number in the same range as the input, so a 10-digit configuration never produces more than 10 digits.
 
-The technical building blocks Format-Preserving Encryption (FPE) via Cycle-Walking:
+The technical building blocks Format-Preserving Encryption (FPE) via Balanced Feistel Network:
 
-- Feistel-network: a reversible construction that mixes the bits of the ID.
-- Cycle-walking: keeps the result inside the configured range, so the range does not have to be a power of two.
+- Format-Preserving Encryption: a reversible construction that mixes the bits of the ID.
+- Balanced Feistel Network: keeps the result inside the configured range.
 
 Properties you can rely on:
 
@@ -20,7 +20,7 @@ Properties you can rely on:
 - Range-bound: max is the largest number with the configured number of digits (for 10 digits: 9999999999).
 - Supported lengths are 4 to 18 digits.
 
-Permutation is meant to produce IDs that are not sequential, not guessable in order, and that can be checked before they reach a database. It is a consistency and obfuscation tool, not an encryption layer.
+Permutation is meant to produce IDs that are not sequential and not guessable in order.
 
 
 ## How to use Permutation? 
@@ -58,20 +58,19 @@ Keep in mind:
 
 ## Pswkey instance
 
-Permutation gives you the ID. After that you can decide for your own how to handle it further:
+Permutation gives you the ID. After that, you can decide to handle it into:
 
-Translate into:
 - Own key-conversion.
-- an existing conversion such as base32 or base64.
-- Keep the Permutated ID as it is.
-- Create a modulo check 97
+- An existing conversion such as base32 or base64.
+- Keep the Permuted ID as it is.
+- Adda modulo check
 - etc.
 
-Or a PswKey instance via this repo, which converts the ID with a derived, shuffled alphabet
+Or use a PswKey instance via this repo, which converts the ID with a derived shuffled alphabet:
 
 → See: [System-defined](/src/Core/Documentation/Format/System.md)
 → See: [Custom-defined](/src/Core/Documentation/Format/Custom.md.md)
 
-More about configuration possibility
+More about configuration possibility:
 
 → See: [ShuffleProfile.md](/src/Core/Documentation/Contract/ShuffleProfile.md)
