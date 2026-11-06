@@ -28,6 +28,14 @@ When FFI is unavailable, disabled, or misconfigured, the system automatically fa
 
 The fallback preserves functional correctness and determinism, but does not guarantee identical memory behavior.
 
+FFI is by default dissabled now. For activate use follow function (and config your php.init file):
+
+```php 
+InstanceFFI::enabled(); //default is true
+InstanceFFI::enabled(true);
+InstanceFFI::enabled(false);
+```
+
 ---
 
 ## Algorithm
@@ -55,7 +63,7 @@ If the entropy buffer is too small, it will be reused cyclically, which may redu
 
 * minimum input length: 4
 * maximum input length: 256
-* maximum base: 252
+* maximum base: 255
 
 The entropy buffer is scaled relative to the input size using a factor.
 

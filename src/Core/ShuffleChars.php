@@ -3,8 +3,10 @@ declare(strict_types=1);
 
 namespace PswKey\Core;
 
+use Exception;
 use FFI;
 use SensitiveParameter;
+use PswKey\Core\Component\FFI\InstanceFFI;
 use PswKey\Core\Modifier\ImplementationType;
 use PswKey\ErrorMessage\InternalMessage;
 use PswKey\Interface\CustomKeyInterface;
@@ -29,45 +31,23 @@ abstract class ShuffleChars extends BaseConvert implements CustomKeyInterface {
     }
 
     protected function setAvailability() : void {
-
-        $ffi = ini_get('ffi.enable');
-        if (class_exists('FFI') && ($ffi === '1' || $ffi === 'preload')) {
-            //Setup configuration
-            $file = match(PHP_OS_FAMILY) {
-                'Windows' => 'shuffleindice.dll', //Windows
-                'Darwin'  => match (php_uname('m')) {
-                    'x86_64' => 'shuffleindice_x86_64.dylib', //old Mac with Intel CPU
-                    default => 'shuffleindice.dylib', //new Mac with Apple Silicon
-                },
-                default   => 'shuffleindice.so',  //Linux and other Unix-systems
-            };
-
-            $allowed = __DIR__ . "/Component/FFI/Compiled/{$file}";
-
-            //Load C library
-            try {
-                $this->_ffi = FFI::cdef("
-                    int shuffle_indices_secure(
-                        const uint8_t *rand_bytes, size_t rand_len,
-                        size_t input_len,
-                        size_t required_len,
-                        uint8_t *out_array
-                    );
-                ", $allowed);
-            } 
-            catch (FFI\Exception) {
-                $this->_ffi = null;
-                $this->implementation = ImplementationType::FALLBACK;
-                $this->setWarningMessage(
-                    Merge::string(InternalMessage::INVALID_FFI_PATH, [
-                        '%path%' => $allowed
-                    ])
-                );
-            }
+        try {
+            $this->_ffi = InstanceFFI::scope();
+            if($this->_ffi) $this->implementation = ImplementationType::FFI;
         }
-
-        $this->_gmp = function_exists('gmp_init');
-        Calculation::$initSize = PHP_INT_SIZE === 8 ? 7 : 3;
+        catch(Exception $e) {
+            $this->_ffi = null;
+            $this->implementation = ImplementationType::FALLBACK;
+            $this->setWarningMessage(
+                Merge::string(InternalMessage::INVALID_FFI_PATH, [
+                    '%path%' => $e->getMessage()
+                ])
+            );
+        }
+        finally {
+            $this->_gmp = function_exists('gmp_init');
+            Calculation::$initSize = PHP_INT_SIZE === 8 ? 7 : 3;            
+        }
     }
     
     //Shuffle with C (FFI) if enable
@@ -113,8 +93,6 @@ abstract class ShuffleChars extends BaseConvert implements CustomKeyInterface {
                     FFI::memset($derivedBuffer, 0, $derivedLength);
 
                     if($c === 0) {
-                        $this->implementation = ImplementationType::FFI;
-
                         //Initialization
                         $this->{$config['bindingEncode']} = [];
                         $this->{$config['bindingDecode']} = $flipped;

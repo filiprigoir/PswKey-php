@@ -2,9 +2,9 @@
 
 namespace Tests\Unit\PswKey;
 
-use FFI;
 use DateTime;
 use PHPUnit\Framework\TestCase;
+use PswKey\Core\Component\FFI\InstanceFFI;
 use PswKey\Core\Modifier\ImplementationType;
 use PswKey\Service\KeyStream;
 use PswKey\Service\PswKey;
@@ -16,139 +16,56 @@ class FallbackTest extends TestCase
         return new KeyStream($seedPhrase, $key);
     }
 
-    public function test_disabledFFI(): void
+    public function test_FFI_disabled(): void 
     {
-        $date = new DateTime();
-        $text = "Library for deterministic validation of a context-bound generated pswkey";
-        $pswkey = new DisabledFFI(
-            $this->getKeyStream("deterministic validation", $date)
-        );
+        InstanceFFI::Enabled(false); //default is dissabled too
 
-        $encode = $pswkey
-            ->from(256)
-            ->to(64)
-            ->convert($text);
+        if(!InstanceFFI::getState()) {
+            $date = new DateTime();
+            $pswkey = new PswKey(
+                $this->getKeyStream("deterministic validation", $date)
+            );
 
-        $this->assertNotNull($encode);
-
-        $this->assertEquals(
-            'PHP',
-            $pswkey->implementation
-        );
-    }
-
-    public function test_missConfigFFI(): void
-    {
-        $date = new DateTime();
-        $text = "Library for deterministic validation of a context-bound generated pswkey";
-        $pswkey = new MissConfigFFI(
-            $this->getKeyStream("deterministic validation", $date)
-        );
-
-        $encode = $pswkey
-            ->from(256)
-            ->to(64)
-            ->convert($text);
-
-        $this->assertNotNull($encode);
-
-        $this->assertEquals(
-            'PHP_FALLBACK',
-            $pswkey->implementation
-        );
-    }
-
-    public function test_regressionProof(): void
-    {
-        $date = new DateTime();
-        $text = "Library for deterministic validation of a context-bound generated pswkey";
-        $pswkey1 = new pswKey(
-            $this->getKeyStream("deterministic validation", $date)
-        );
-
-        $enabledFFI = $pswkey1
-            ->from(256)
-            ->to(64)
-            ->convert($text);
-
-        $this->assertNotNull($enabledFFI);
-
-        if(ini_get('ffi.enable')) {
             $this->assertEquals(
-                'FFI',
-               \strtoupper($pswkey1->implementation)
+                ImplementationType::PHP,
+                $pswkey->implementation
             );
         }
+    }
 
-        $pswkey2 = new DisabledFFI(
+    public function test_FFI_enabled(): void 
+    {
+        InstanceFFI::Enabled(true);
+
+        $date = new DateTime();
+        $pswkey = new Pswkey(
             $this->getKeyStream("deterministic validation", $date)
         );
 
-        $disabledFFI = $pswkey2
-            ->from(256)
-            ->to(64)
-            ->convert($text);
+        $ffi = ini_get('ffi.enable');
 
-        $this->assertNotNull($disabledFFI);
-
-        $this->assertEquals(
-            'PHP',
-            \strtoupper($pswkey2->implementation)
-        );
-
-        $this->assertEquals(
-            $enabledFFI,
-            $disabledFFI
-        );
-    }
-}
-
-//Inherits from Pswkey and force FFI disable
-class DisabledFFI extends PswKey {
-    
-    public function __construct(KeyStream $keyStream) {
-        parent::__construct($keyStream);
-    }
-
-    protected function setAvailability() : void {
-       $this->_ffi = null;
-    }
-}
-
-//Inherits from Pswkey and force bad FFI configuration: "Components" in path must be "Component"
-class MissConfigFFI extends PswKey {
-    
-    public function __construct(KeyStream $keyStream) {
-        parent::__construct($keyStream);
-    }
-
-    protected function setAvailability() : void {
-
-    $ffi = ini_get('ffi.enable'); //set enable or disable
-        if (class_exists('FFI') && $ffi !== false && $ffi !== '0') {
-            //Setup configuration
-            $extension = match(PHP_OS_FAMILY) {
-                'Windows' => 'dll',   //Win
-                'Darwin'  => 'dylib', // macOS
-                default   => 'so',    // Linux en other Unix-systems
-            };
-
-            //Load C library
-            try {
-                $this->_ffi = FFI::cdef("
-                    int shuffle_indices_secure(
-                        const uint8_t *rand_bytes, size_t rand_len,
-                        size_t input_len,
-                        size_t required_len,
-                        uint8_t *out_array
-                    );
-                ", __DIR__ . "/Components/FFI/Compiled/shuffleindice.{$extension}"); //path is wrong on purpose
-            } catch (FFI\Exception) {
-                $this->_ffi = null;
-                $this->implementation = ImplementationType::FALLBACK;
-            }
+        $state = InstanceFFI::getState();
+        if($state) {
+            //If FFI is set to 'true' in php.ini, it uses FFI
+            $this->assertEquals(
+                ImplementationType::FFI,
+                $pswkey->implementation
+            );   
         }
-
-        $this->_gmp = function_exists('gmp_init');
+        elseif($ffi === 'preload') {
+            //If FFI is set to 'preload' in php.ini, the 'if' check above succeeds; otherwise, it falls back to PHP
+            //Also when FFI is commented out, it passes here (see -> PHP-documentation FFI)
+            $this->assertEquals(
+                ImplementationType::FALLBACK,
+                $pswkey->implementation
+            );
+        }
+        else {
+            //If php.ini FFI is set to false, it uses PHP
+            $this->assertEquals(
+                ImplementationType::PHP,
+                $pswkey->implementation
+            );            
+        }
     }
 }
