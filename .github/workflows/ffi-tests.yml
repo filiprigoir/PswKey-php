@@ -24,6 +24,12 @@ jobs:
           php-version: 8.3
           extensions: ffi, sodium
 
+      - name: Install dependencies
+        run: composer install --no-interaction --prefer-dist
+
+      - name: Check Composer autoloader
+        run: ls -l vendor/autoload.php
+
       - name: Show environment
         run: php -r "echo PHP_OS_FAMILY . PHP_EOL . php_uname('m') . PHP_EOL;"
 
