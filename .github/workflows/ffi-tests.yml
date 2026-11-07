@@ -35,7 +35,7 @@ jobs:
 
       - name: Run Linux test
         if: matrix.os == 'ubuntu-latest'
-        run: php tests/OperatingSystem/Linux.php
+        run: php -d ffi.enable=1 tests/OperatingSystem/Linux.php
 
       - name: Run Windows test
         if: matrix.os == 'windows-latest'
