@@ -38,3 +38,11 @@ jobs:
       - name: Run macOS test
         if: matrix.os == 'macos-latest'
         run: php tests/OperatingSystem/Mac.php
+
+      - name: Run Linux preload test
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          php \
+            -d ffi.enable=preload \
+            -d ffi.preload="$GITHUB_WORKSPACE/src/Core/Component/FFI/Preload/shuffleindice.h" \
+            tests/OperatingSystem/Preload.php

@@ -14,6 +14,8 @@ if (!class_exists('FFI') || !extension_loaded('ffi')) {
 }
 else {
 
+    require dirname(__DIR__, 2) . '/vendor/autoload.php';
+
     InstanceFFI::enabled();
     $ffi = InstanceFFI::scope(); //Linux and other Unix-systems
 

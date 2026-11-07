@@ -22,6 +22,8 @@ else {
         $path = '/src/Core/Component/FFI/Compiled/shuffleindice_x86_64.dylib';
     }
 
+    require dirname(__DIR__, 2) . '/vendor/autoload.php';
+
     InstanceFFI::enabled();
     $ffi = InstanceFFI::scope();
 
