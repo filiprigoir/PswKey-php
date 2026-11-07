@@ -1,24 +1,20 @@
 <?php declare(strict_types=1);
 
+use PswKey\Core\Component\FFI\InstanceFFI;
+
 /**
  * Test for Linux and other Unix-systems
  * Use terminal command: php tests/OperatingSystem/Linux.php
  * Result with this derived key must be: 15 0 9 4 7 14 6 12 13 5 2 8 1 11 10 3
+ * 
  */
 if (!class_exists('FFI') || !extension_loaded('ffi')) {
     echo "[SKIP] FFI not enabled\n";
     exit(0);
 }
 else {
-    $ffi = FFI::cdef('
-        int shuffle_indices_secure(
-            const uint8_t *rand_bytes,
-            size_t rand_len,
-            size_t input_len,
-            size_t required_len,
-            uint8_t *out_array
-        );
-    ', dirname(__DIR__, 2) . '/src/Core/Component/FFI/Compiled/shuffleindice.so'); //Linux and other Unix-systems
+
+    $ffi = InstanceFFI::scope(); //Linux and other Unix-systems
 
     $inputLen = 16;
     $requiredLen = 16;

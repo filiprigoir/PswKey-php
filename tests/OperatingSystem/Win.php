@@ -1,5 +1,7 @@
 <?php declare(strict_types=1);
 
+use PswKey\Core\Component\FFI\InstanceFFI;
+
 /**
  * Test for Windows
  * Use terminal command: php __DIR__ . '/compiled/shuffleindice.dll'
@@ -11,15 +13,8 @@ if (!class_exists('FFI') || !extension_loaded('ffi')) {
     exit(0);
 }
 else {
-    $ffi = FFI::cdef('
-        int shuffle_indices_secure(
-            const uint8_t *rand_bytes,
-            size_t rand_len,
-            size_t input_len,
-            size_t required_len,
-            uint8_t *out_array
-        );
-    ', dirname(__DIR__, 2) . '/src/Core/Component/FFI/Compiled/shuffleindice.dll'); //Windows
+    
+    $ffi = InstanceFFI::scope(); //Windows
 
     $inputLen = 16;
     $requiredLen = 16;

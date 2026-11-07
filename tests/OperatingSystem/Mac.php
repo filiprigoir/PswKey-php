@@ -1,5 +1,7 @@
 <?php declare(strict_types=1);
 
+use PswKey\Core\Component\FFI\InstanceFFI;
+
 /**
  * Test for iOS on Apple Silicon CPU (new Mac)
  * Note: old Mac with Intel CPU should use iOS_x86_64.php test file
@@ -20,15 +22,7 @@ else {
         $path = '/src/Core/Component/FFI/Compiled/shuffleindice_x86_64.dylib';
     }
 
-    $ffi = FFI::cdef('
-        int shuffle_indices_secure(
-            const uint8_t *rand_bytes,
-            size_t rand_len,
-            size_t input_len,
-            size_t required_len,
-            uint8_t *out_array
-        );
-    ', dirname(__DIR__, 2) . $path);
+    $ffi = InstanceFFI::scope();
 
     $inputLen = 16;
     $requiredLen = 16;

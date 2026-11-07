@@ -28,12 +28,18 @@ When FFI is unavailable, disabled, or misconfigured, the system automatically fa
 
 The fallback preserves functional correctness and determinism, but does not guarantee identical memory behavior.
 
-FFI is by default dissabled now. For activate use follow function (and config your php.init file):
+FFI is by default dissabled now. For activate use follow function (don't forget config your php.init):
 
 ```php 
 InstanceFFI::enabled(); //default is true
 InstanceFFI::enabled(true);
 InstanceFFI::enabled(false);
+```
+
+```ini
+The work safely, activate FFI preload, setting are follow:
+- ffi.enable=preload
+- ffi.preload=/path/to/workspace/src/Core/Component/FFI/Preload/shuffleindice.h
 ```
 
 ---

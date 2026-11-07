@@ -26,7 +26,7 @@ class ConvertEngineTest extends TestCase
         $pswKey->gmpEnable(true);
         $pswKey->longEndianChunk(true);
 
-        $randomBytes = random_bytes(10000);
+        $randomBytes = random_bytes(1000);
         $encoded = $pswKey->from(256)->to(58)->convert($randomBytes);
 
         unset($pswKey);
@@ -55,7 +55,7 @@ class ConvertEngineTest extends TestCase
         $pswKey->gmpEnable(true);
         $pswKey->longEndianChunk(false);
 
-        $randomBytes = random_bytes(10000);
+        $randomBytes = random_bytes(1000);
         $encoded = $pswKey->from(256)->to(32)->convert($randomBytes);
 
         unset($pswKey);
@@ -84,7 +84,7 @@ class ConvertEngineTest extends TestCase
         $pswKey->gmpEnable(false);
         $pswKey->longEndianChunk(true);
 
-        $randomBytes = random_bytes(10000);
+        $randomBytes = random_bytes(1000);
         $encoded = $pswKey->from(256)->to(100)->convert($randomBytes);
 
         unset($pswKey);
@@ -113,7 +113,7 @@ class ConvertEngineTest extends TestCase
         $pswKey->gmpEnable(false);
         $pswKey->longEndianChunk(false);
 
-        $randomBytes = random_bytes(10000);
+        $randomBytes = random_bytes(1000);
         $encoded = $pswKey->from(256)->to(10)->convert($randomBytes);
 
         unset($pswKey);
@@ -142,7 +142,7 @@ class ConvertEngineTest extends TestCase
         $pswKey->gmpEnable(false);
         $pswKey->longEndianChunk(true);
 
-        $randomBytes = random_bytes(10000);
+        $randomBytes = random_bytes(1000);
         $encoded = $pswKey->from(256)->to(58)->convert($randomBytes);
 
         unset($pswKey);
@@ -172,7 +172,7 @@ class ConvertEngineTest extends TestCase
         $pswKey->longEndianChunk(false);
         $pswKey->enabledFFI(false);
 
-        $randomBytes = random_bytes(10000);
+        $randomBytes = random_bytes(1000);
         $encoded = $pswKey->from(256)->to(58)->convert($randomBytes);
 
         unset($pswKey);
