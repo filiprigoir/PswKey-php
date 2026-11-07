@@ -22,6 +22,7 @@ else {
         $path = '/src/Core/Component/FFI/Compiled/shuffleindice_x86_64.dylib';
     }
 
+    InstanceFFI::enabled();
     $ffi = InstanceFFI::scope();
 
     $inputLen = 16;

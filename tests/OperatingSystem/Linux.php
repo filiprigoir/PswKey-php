@@ -14,6 +14,7 @@ if (!class_exists('FFI') || !extension_loaded('ffi')) {
 }
 else {
 
+    InstanceFFI::enabled();
     $ffi = InstanceFFI::scope(); //Linux and other Unix-systems
 
     $inputLen = 16;

@@ -13,8 +13,9 @@ if (!class_exists('FFI') || !extension_loaded('ffi')) {
     exit(0);
 }
 else {
-    
-    $ffi = InstanceFFI::scope(); //Windows
+
+    InstanceFFI::enabled();
+    $ffi = InstanceFFI::scope();
 
     $inputLen = 16;
     $requiredLen = 16;

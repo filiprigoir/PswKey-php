@@ -1,5 +1,7 @@
 <?php declare(strict_types=1);
 
+use PswKey\Core\Component\FFI\InstanceFFI;
+
 /**
  * Test for Linux Preload configuration
  * Use terminal command: php tests/OperatingSystem/Linux.php
@@ -11,7 +13,8 @@ if (!class_exists('FFI') || !extension_loaded('ffi')) {
 }
 else {
 
-    $ffi = FFI::scope('SHUFFLEINDICE'); //Linux with preload
+    InstanceFFI::enabled();
+    $ffi = InstanceFFI::scope();
 
     $inputLen = 16;
     $requiredLen = 16;
