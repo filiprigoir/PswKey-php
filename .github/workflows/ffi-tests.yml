@@ -39,11 +39,11 @@ jobs:
 
       - name: Run Windows test
         if: matrix.os == 'windows-latest'
-        run: php tests/OperatingSystem/Win.php
+        run: php -d ffi.enable=1 tests/OperatingSystem/Win.php       
 
       - name: Run macOS test
         if: matrix.os == 'macos-latest'
-        run: php tests/OperatingSystem/Mac.php
+        run: php -d ffi.enable=1 tests/OperatingSystem/Mac.php
 
       - name: Run Linux preload test
         if: matrix.os == 'ubuntu-latest'
