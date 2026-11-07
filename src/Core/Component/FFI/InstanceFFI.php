@@ -29,7 +29,8 @@ final class InstanceFFI {
 
                     if($exists && $ffi === 'preload') {
                         $allowed = 'FFI & Preload Config';
-                        return FFI::scope('SHUFFLEINDICE');
+                        self::$_shuffleindice = FFI::scope('SHUFFLEINDICE');
+                        return self::$_shuffleindice;
                     }
 
                     if($exists && $ffi === '1') {
